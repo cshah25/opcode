@@ -1,10 +1,14 @@
 package com.example.opcodeapp;
 
+import android.annotation.SuppressLint;
+
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.auth.User;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.type.DateTime;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Event implements Serializable {
@@ -14,10 +18,11 @@ public class Event implements Serializable {
     private String name;
     private String location;
     private String description;
-    private Date startDate;
-    private Date endDate;
-    private DateTime registration_startTime;
-    private DateTime registration_endTime;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private LocalDateTime registration_startTime;
+    private LocalDateTime registration_endTime;
+
     private User organizer;
     private User[] applicants;
     private User[] attendees;
@@ -42,7 +47,7 @@ public class Event implements Serializable {
      * The organizer of the event.
      */
 
-    public Event(String name, String location, String description, Date startDate, DateTime registration_startTime, Date endDate, DateTime registration_endTime, User organizer) {
+    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer) {
         this.name = name;
         this.location = location;
         this.description = description;
@@ -118,7 +123,7 @@ public class Event implements Serializable {
      * @return
      * The start date of the event.
      */
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
@@ -128,7 +133,7 @@ public class Event implements Serializable {
      * @param startDate
      * The start date of the event.
      */
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
@@ -138,7 +143,7 @@ public class Event implements Serializable {
      * @return
      * The end date of the event.
      */
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -148,7 +153,7 @@ public class Event implements Serializable {
      * @param endDate
      * The end date of the event.
      */
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
@@ -158,7 +163,7 @@ public class Event implements Serializable {
      * @return
      * The registration end time of the event.
      */
-    public DateTime getRegistration_endTime() {
+    public LocalDateTime getRegistration_endTime() {
         return registration_endTime;
     }
 
@@ -167,7 +172,7 @@ public class Event implements Serializable {
      * @param registration_endTime
      * The registration end time of the event.
      */
-    public void setRegistration_endTime(DateTime registration_endTime) {
+    public void setRegistration_endTime(LocalDateTime registration_endTime) {
         this.registration_endTime = registration_endTime;
     }
 
@@ -177,7 +182,7 @@ public class Event implements Serializable {
      * @return
      * The registration start time of the event.
      */
-    public DateTime getRegistration_startTime() {
+    public LocalDateTime getRegistration_startTime() {
         return registration_startTime;
     }
 
@@ -187,7 +192,7 @@ public class Event implements Serializable {
      * @param registration_startTime
      * The registration start time of the event.
      */
-    public void setRegistration_startTime(DateTime registration_startTime) {
+    public void setRegistration_startTime(LocalDateTime registration_startTime) {
         this.registration_startTime = registration_startTime;
     }
 

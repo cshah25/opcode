@@ -14,7 +14,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.List;
 
-public class DBmanager {
+public class DBManager {
 
     /**
      * FirebaseFirestore instance.
@@ -37,7 +37,7 @@ public class DBmanager {
      * Constructor for DBmanager.
      * Initializes the FirebaseFirestore instance.
      */
-    public DBmanager() {
+    public DBManager() {
         db = FirebaseFirestore.getInstance();
     };
 
@@ -206,19 +206,4 @@ public class DBmanager {
                 });
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
