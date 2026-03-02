@@ -127,4 +127,26 @@ public class User implements Serializable {
     public void setCreatedEvents(Event[] createdEvents) {
         this.createdEvents = createdEvents;
     }
+
+
+    /**
+     * Getter for the ID of the user. Filled in by Firestore.
+     *
+     * @return
+     * The ID of the user.
+     */
+    public String getId() {
+        return id;
+    }
+
+
+    /**
+     * Setter for the ID of the user. Filled in by Firestore.
+     *
+     * @param id
+     * The ID of the user.
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 }

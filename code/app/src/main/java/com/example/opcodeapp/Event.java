@@ -256,4 +256,25 @@ public class Event implements Serializable {
     public void setAttendees(User[] attendees) {
         this.attendees = attendees;
     }
+
+
+    /**
+     * Getter for the ID of the event. Filled in by Firestore.
+     *
+     * @return
+     * The ID of the event.
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Setter for the ID of the event. Filled in by Firestore.
+     *
+     * @param id
+     * The ID of the event.
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 }

@@ -56,20 +56,26 @@ public class DBManager {
      * The listener to be notified of the success or failure of the operation.
      */
     public void addEvent(Event event, FirestoreCallbackSend listener) {
-        // .add() automatically generates a unique Document ID for you
-        db.collection("Events")
-                .add(event)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        // 1. Create a reference to a new document with a generated ID
+        // calling .document() without arguments creates a unique ID locally
+        DocumentReference newDocRef = db.collection("Events").document();
+
+        // 2. Set the ID inside your event object so it's ready for the Activity
+        String generatedId = newDocRef.getId();
+        event.setId(generatedId);
+
+        // 3. Use .set() to save the object to that specific reference
+        newDocRef.set(event)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        // Tell the activity it worked!
+                    public void onSuccess(Void aVoid) {
+                        // Success! The 'event' object now has the correct ID
                         listener.onSendSuccess();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // Tell the activity what went wrong
                         listener.onSendFailure(e);
                     }
                 });
@@ -80,15 +86,22 @@ public class DBManager {
     /**
      * Updates an event in the "Events" collection in Firestore.
      *
-     * @param docId
-     * The ID of the event to be updated.
      * @param event
      * The updated event.
      * @param listener
      * The listener to be notified of the success or failure of the operation.
      */
-    public void updateEvent(String docId, Event event, FirestoreCallbackSend listener) {
-        // Set with merge: true will update only the fields present in your object
+    public void updateEvent(Event event, FirestoreCallbackSend listener) {
+        // 1. Extract the ID directly from the event object
+        String docId = event.getId();
+
+        // 2. Safety check: Ensure the ID isn't null or empty before trying to update
+        if (docId == null || docId.isEmpty()) {
+            listener.onSendFailure(new Exception("Event ID is missing. Cannot update."));
+            return;
+        }
+
+        // 3. Perform the update using the extracted ID
         db.collection("Events").document(docId)
                 .set(event, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -137,20 +150,25 @@ public class DBManager {
      * The listener to be notified of the success or failure of the operation.
      */
     public void addUser(User user, FirestoreCallbackSend listener) {
-        // .add() automatically generates a unique Document ID for you
-        db.collection("Users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        // 1. Pre-generate the reference to get the ID immediately
+        DocumentReference newDocRef = db.collection("Users").document();
+
+        // 2. Set the ID in your User object
+        String generatedId = newDocRef.getId();
+        user.setId(generatedId);
+
+        // 3. Use .set() to save the user data
+        newDocRef.set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        // Tell the activity it worked!
+                    public void onSuccess(Void aVoid) {
+                        // Success! The 'user' object in your Activity now has its ID
                         listener.onSendSuccess();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // Tell the activity what went wrong
                         listener.onSendFailure(e);
                     }
                 });
@@ -160,15 +178,22 @@ public class DBManager {
     /**
      * Updates a user in the "Users" collection in Firestore.
      *
-     * @param docId
-     * The ID of the user to be updated.
      * @param user
      * The updated user.
      * @param listener
      * The listener to be notified of the success or failure of the operation.
      */
-    public void updateUser(String docId, User user, FirestoreCallbackSend listener) {
-        // Set with merge: true will update only the fields present in your object
+    public void updateUser(User user, FirestoreCallbackSend listener) {
+        // 1. Get the ID from the object itself
+        String docId = user.getId();
+
+        // 2. Safety check: stop if the ID is missing
+        if (docId == null || docId.isEmpty()) {
+            listener.onSendFailure(new Exception("User ID is missing. Update aborted."));
+            return;
+        }
+
+        // 3. Perform the merge update
         db.collection("Users").document(docId)
                 .set(user, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
