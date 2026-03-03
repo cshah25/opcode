@@ -1,0 +1,118 @@
+@startuml
+class com.example.opcodeapp.Event {
+- String id
+- String name
+- String location
+- String description
+- Date startDate
+- Date endDate
+- DateTime registration_startTime
+- DateTime registration_endTime
+- User organizer
+- User[] applicants
+- User[] attendees
++ String getName()
++ void setName(String)
++ String getDescription()
++ void setDescription(String)
++ String getLocation()
++ void setLocation(String)
++ Date getStartDate()
++ void setStartDate(Date)
++ Date getEndDate()
++ void setEndDate(Date)
++ DateTime getRegistration_endTime()
++ void setRegistration_endTime(DateTime)
++ DateTime getRegistration_startTime()
++ void setRegistration_startTime(DateTime)
++ User getOrganizer()
++ void setOrganizer(User)
++ User[] getApplicants()
++ void setApplicants(User[])
++ User[] getAttendees()
++ void setAttendees(User[])
+}
+
+
+class com.example.opcodeapp.MainActivity {
+- AppBarConfiguration appBarConfiguration
+- ActivityMainBinding binding
+# void onCreate(Bundle)
++ boolean onCreateOptionsMenu(Menu)
++ boolean onOptionsItemSelected(MenuItem)
++ boolean onSupportNavigateUp()
+}
+
+
+class com.example.opcodeapp.User {
+- String id
+- String name
+- String email
+- String phoneNum
+- Event[] joinedEvents
+- Event[] createdEvents
++ String getName()
++ void setName(String)
++ String getEmail()
++ void setEmail(String)
++ String getPhoneNum()
++ void setPhoneNum(String)
++ Event[] getJoinedEvents()
++ void setJoinedEvents(Event[])
++ Event[] getCreatedEvents()
++ void setCreatedEvents(Event[])
+}
+
+
+class com.example.opcodeapp.SecondFragment {
+- FragmentSecondBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
+}
+
+
+interface com.example.opcodeapp.FirestoreCallbackUsersReceive {
+~ void onDataReceived(List<User>)
+~ void onError(Exception)
+}
+
+interface com.example.opcodeapp.FirestoreCallbackSend {
+~ void onSendSuccess()
+~ void onSendFailure(Exception)
+}
+
+class com.example.opcodeapp.DBmanager {
+- FirebaseFirestore db
+- CollectionReference usersRef
+- CollectionReference eventsRef
++ void addEvent(Event,FirestoreCallbackSend)
++ void updateEvent(String,Event,FirestoreCallbackSend)
++ void fetchEvents(FirestoreCallbackEventsReceive)
++ void addUser(User,FirestoreCallbackSend)
++ void updateUser(String,User,FirestoreCallbackSend)
++ void fetchUsers(FirestoreCallbackUsersReceive)
+}
+
+
+interface com.example.opcodeapp.FirestoreCallbackEventsReceive {
+~ void onDataReceived(List<Event>)
+~ void onError(Exception)
+}
+
+class com.example.opcodeapp.FirstFragment {
+- FragmentFirstBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
+}
+
+
+
+
+java.io.Serializable <|.. com.example.opcodeapp.Event
+androidx.appcompat.app.AppCompatActivity <|-- com.example.opcodeapp.MainActivity
+java.io.Serializable <|.. com.example.opcodeapp.User
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.SecondFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.FirstFragment
+@enduml
