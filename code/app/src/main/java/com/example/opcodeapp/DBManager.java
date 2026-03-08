@@ -12,6 +12,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DBManager {
@@ -256,5 +258,130 @@ public class DBManager {
                         }
                     }
                 });
+    }
+
+    /**
+     * Deletes a user document from the "Users" collection in Firestore.
+     *
+     * @param user
+     * The user to delete.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteUser(User user, FirestoreCallbackSend listener) {
+        db.collection("Users").document(user.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        listener.onSendSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        listener.onSendFailure(e);
+                    }
+                });
+    }
+
+    /**
+     * Deletes a user's profile if they are not organizing any events.
+     * Also removes the user from applicants and attendees of all events.
+     *
+     * @param user
+     * The user whose profile is to be deleted.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteProfile(User user, FirestoreCallbackSend listener) {
+
+        fetchEvents(new FirestoreCallbackEventsReceive() {
+            @Override
+            public void onDataReceived(List<Event> events) {
+                if (events == null) {
+                    listener.onSendFailure(new Exception("Could not fetch events."));
+                    return;
+                }
+
+                // First check whether the user is organizing any event
+                for (Event event : events) {
+                    if (event == null || event.getOrganizer() == null) {
+                        continue;
+                    }
+
+                    String organizerId = event.getOrganizer().getId();
+                    if (organizerId != null && organizerId.equals(user.getId())) {
+                        listener.onSendFailure(new Exception("Cannot delete profile while organizing an event."));
+                        return;
+                    }
+                }
+
+                // If not organizing, remove the user from applicants and attendees
+                for (Event event : events) {
+                    if (event == null) {
+                        continue;
+                    }
+
+                    boolean changed = false;
+
+                    User[] applicants = event.getApplicants();
+                    if (applicants != null) {
+                        ArrayList<User> updatedApplicants = new ArrayList<>();
+                        for (User applicant : applicants) {
+                            if (applicant == null) {
+                                continue;
+                            }
+
+                            if (applicant.getId() != null && applicant.getId().equals(user.getId())) {
+                                changed = true;
+                            } else {
+                                updatedApplicants.add(applicant);
+                            }
+                        }
+                        event.setApplicants(updatedApplicants.toArray(new User[0]));
+                    }
+
+                    User[] attendees = event.getAttendees();
+                    if (attendees != null) {
+                        ArrayList<User> updatedAttendees = new ArrayList<>();
+                        for (User attendee : attendees) {
+                            if (attendee == null) {
+                                continue;
+                            }
+
+                            if (attendee.getId() != null && attendee.getId().equals(user.getId())) {
+                                changed = true;
+                            } else {
+                                updatedAttendees.add(attendee);
+                            }
+                        }
+                        event.setAttendees(updatedAttendees.toArray(new User[0]));
+                    }
+
+                    if (changed) {
+                        updateEvent(event, new FirestoreCallbackSend() {
+                            @Override
+                            public void onSendSuccess() {
+                                // nothing extra needed here
+                            }
+
+                            @Override
+                            public void onSendFailure(Exception e) {
+                                // optional: could report immediately, but keeping minimal for now
+                            }
+                        });
+                    }
+                }
+
+                // Finally delete the user document
+                deleteUser(user, listener);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                listener.onSendFailure(e);
+            }
+        });
     }
 }
