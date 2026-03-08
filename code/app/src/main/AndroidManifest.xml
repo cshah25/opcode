@@ -12,6 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpcodeApp">
         <activity
+            android:name=".EnrolledUsersFragment"
+            android:exported="true"
+            android:parentActivityName=".FinalOrganizerEventFragment"/>
+        <activity
+            android:name=".FinalOrganizerEventFragment"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.OpcodeApp">
