@@ -14,6 +14,9 @@ import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
 
 public class FinalOrganizerEventFragment extends Fragment {
 
+    /**
+     * The binding for the fragment.
+     */
     private FragmentFinalOrganizerEventBinding binding;
 
 
@@ -26,6 +29,12 @@ public class FinalOrganizerEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.enrolled_users_button).setOnClickListener(new View.OnClickListener() {
+            /**
+             * The click listener for the enrolled users button.
+             *
+             * @param view
+             * The view that was clicked.
+             */
             @Override
             public void onClick(View view) {
                 User[] userList;

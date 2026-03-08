@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.List;
+import java.util.Objects;
 
 public class User implements Parcelable {
 
@@ -194,5 +195,24 @@ public class User implements Parcelable {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        // 1. Reference check: Are they the exact same instance?
+        if (this == o) return true;
+        // 2. Null and Class check: Is the other object null or a different type?
+        if (o == null || getClass() != o.getClass()) return false;
+        // 3. Field comparison: Do the significant fields match?
+        User user = (User) o;
+        return Objects.equals(id, user.getId()) && Objects.equals(email, user.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        // Generate a hash based on the same fields used in equals()
+        return Objects.hash(id, email);
     }
 }
