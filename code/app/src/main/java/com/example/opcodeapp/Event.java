@@ -1,17 +1,20 @@
 package com.example.opcodeapp;
 
 import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.type.DateTime;
 
-import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
-public class Event implements Serializable {
+public class Event implements Parcelable {
 
     @DocumentId
     private String id;
@@ -24,8 +27,9 @@ public class Event implements Serializable {
     private LocalDateTime registration_endTime;
 
     private User organizer;
-    private User[] applicants;
-    private User[] attendees;
+    private List<User> applicants;
+
+    private List<User> attendees;
 
     /**
      * Constructor for the Event class.
@@ -56,6 +60,55 @@ public class Event implements Serializable {
         this.endDate = endDate;
         this.registration_endTime = registration_endTime;
         this.organizer = organizer;
+    }
+
+    protected Event(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        location = in.readString();
+        description = in.readString();
+        startDate = (LocalDate) in.readSerializable();
+        endDate = (LocalDate) in.readSerializable();
+        registration_endTime = (LocalDateTime) in.readSerializable();
+        registration_startTime = (LocalDateTime) in.readSerializable();
+        organizer = in.readParcelable(User.class.getClassLoader());
+        applicants = in.createTypedArrayList(User.CREATOR);
+        attendees = in.createTypedArrayList(User.CREATOR);
+
+
+    }
+
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(location);
+        dest.writeString(description);
+        dest.writeSerializable(startDate);
+        dest.writeSerializable(endDate);
+        dest.writeSerializable(registration_endTime);
+        dest.writeSerializable(registration_startTime);
+        dest.writeParcelable(organizer, flags);
+        dest.writeTypedList(applicants);
+        dest.writeTypedList(attendees);
     }
 
     /**
@@ -223,7 +276,7 @@ public class Event implements Serializable {
      * @return
      * The applicants of the event.
      */
-    public User[] getApplicants() {
+    public List<User> getApplicants() {
         return applicants;
     }
 
@@ -233,7 +286,7 @@ public class Event implements Serializable {
      * @param applicants
      * The applicants of the event.
      */
-    public void setApplicants(User[] applicants) {
+    public void setApplicants(List<User> applicants) {
         this.applicants = applicants;
     }
 
@@ -243,7 +296,7 @@ public class Event implements Serializable {
      * @return
      * The attendees of the event.
      */
-    public User[] getAttendees() {
+    public List<User> getAttendees() {
         return attendees;
     }
 
@@ -253,7 +306,7 @@ public class Event implements Serializable {
      * @param attendees
      * The attendees of the event.
      */
-    public void setAttendees(User[] attendees) {
+    public void setAttendees(List<User> attendees) {
         this.attendees = attendees;
     }
 

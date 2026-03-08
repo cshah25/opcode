@@ -21,24 +21,31 @@ public class DBManager {
      */
     private FirebaseFirestore db;
 
-
     /**
      * CollectionReference for the "Users" collection.
      */
-    private CollectionReference usersRef = db.collection("Users");
-
+    private CollectionReference usersRef;
 
     /**
      * CollectionReference for the "Events" collection.
      */
-    private CollectionReference eventsRef = db.collection("Events");
+    private CollectionReference eventsRef;
+
+
+
 
     /**
      * Constructor for DBmanager.
      * Initializes the FirebaseFirestore instance.
      */
-    public DBManager() {
-        db = FirebaseFirestore.getInstance();
+    public DBManager(FirebaseFirestore DB) {
+        this.db = DB;
+
+        usersRef = db.collection("Users");
+
+
+        eventsRef = db.collection("Events");
+
     };
 
 
