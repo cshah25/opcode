@@ -11,6 +11,7 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String phoneNum;
+    private String deviceId;
     private Event[] joinedEvents;
     private Event[] createdEvents;
 
@@ -28,6 +29,24 @@ public class User implements Serializable {
         this.email = email;
         this.phoneNum = phoneNum;
     };
+    /**
+     * Getter for user's device id.
+     *
+     * @return
+     * User's device id.
+     */
+    public String getDeviceId() {
+        return deviceId;
+    }
+    /**
+     * Setter for user's device id.
+     *
+     * @param deviceId
+     * User's device id.
+     */
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
 
     /**
      * Getter for the name of the user.
