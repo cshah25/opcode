@@ -4,6 +4,14 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.firestore.DocumentId;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 import com.google.firebase.firestore.DocumentId;
@@ -19,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
+@SuppressWarnings("deprecated")
 public class Event implements Parcelable {
 
     @DocumentId

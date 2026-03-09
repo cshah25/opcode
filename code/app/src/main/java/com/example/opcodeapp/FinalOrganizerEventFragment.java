@@ -37,9 +37,12 @@ public class FinalOrganizerEventFragment extends Fragment {
              */
             @Override
             public void onClick(View view) {
+                /*
                 User[] userList;
                 FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(userList);
                 NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+
+                 */
 
             }
 
