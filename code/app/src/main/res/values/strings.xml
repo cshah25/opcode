@@ -48,4 +48,7 @@
     <string name="final_organizer_event_fragment_label">Final Organizer Event Fragment</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
+    <string name="status">Status</string>
+    <string name="enrolled_users">Enrolled Users</string>
+    <string name="invited_users">Invited Users</string>
 </resources>

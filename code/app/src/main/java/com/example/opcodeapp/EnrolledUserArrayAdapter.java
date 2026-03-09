@@ -13,9 +13,9 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class UserArrayAdapter extends ArrayAdapter<User> {
-    public UserArrayAdapter(Context context, ArrayList<User> logs) {
-        super(context, 0, logs);
+public class EnrolledUserArrayAdapter extends ArrayAdapter<User> {
+    public EnrolledUserArrayAdapter(Context context, ArrayList<User> users) {
+        super(context, 0, users);
     }
 
     @NonNull

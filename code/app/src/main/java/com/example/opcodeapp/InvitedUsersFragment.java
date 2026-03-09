@@ -11,11 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
+import com.example.opcodeapp.databinding.FragmentInvitedUsersBinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class EnrolledUsersFragment extends Fragment {
+public class InvitedUsersFragment extends Fragment {
 
     /**
      * The list of users to be displayed.
@@ -36,26 +40,43 @@ public class EnrolledUsersFragment extends Fragment {
     /**
      * The binding for the fragment.
      */
-    private FragmentEnrolledUsersBinding binding;
+    private FragmentInvitedUsersBinding binding;
 
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentUserView = inflater.inflate(R.layout.fragment_enrolled_users, container, false);
+        View fragmentUserView = inflater.inflate(R.layout.fragment_invited_users, container, false);
         return fragmentUserView;
     }
+
+    //may need to test this
+    public List<User> combineLists(Event event) {
+        List<User> allInvitedUsers = new ArrayList<>(event.getInvited());
+        allInvitedUsers.addAll(event.getAttendees());
+        allInvitedUsers.addAll(event.getDeclined());
+
+        return allInvitedUsers;
+
+
+    }
+
 
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        User[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
+        Event event = InvitedUsersFragmentArgs.fromBundle(getArguments()).getEvent();
 
-        dataList = new ArrayList<>(Arrays.asList(receivedArray));
 
-        userList = view.getRootView().findViewById(R.id.enrolled_users_list_view);
 
-        userAdapter = new EnrolledUserArrayAdapter(getContext(), dataList);
+
+
+
+        dataList = new ArrayList<>(combineLists(event));
+
+        userList = view.getRootView().findViewById(R.id.invited_users_list_view);
+
+        userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
 
         userList.setAdapter(userAdapter);
 
@@ -69,8 +90,4 @@ public class EnrolledUsersFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-
-
-
 }

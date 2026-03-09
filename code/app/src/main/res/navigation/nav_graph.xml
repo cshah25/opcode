@@ -40,14 +40,22 @@
     <fragment
         android:id="@+id/EnrolledUsersFragment"
         android:name="com.example.opcodeapp.EnrolledUsersFragment"
-        android:label="@string/enrolled_users_fragment_label"
+        android:label="@string/enrolled_users"
         tools:layout="@layout/fragment_enrolled_users">
 
-        <action
-            android:id="@+id/action_EnrolledUsersFragment_to_FinalOrganizerEventFragment"
-            app:destination="@id/FinalOrganizerEventFragment" />
         <argument
             android:name="userList"
             app:argType="com.example.opcodeapp.User[]" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/InvitedUsersFragment"
+        android:name="com.example.opcodeapp.InvitedUsersFragment"
+        android:label="@string/invited_users"
+        tools:layout="@layout/fragment_invited_users">
+
+        <argument
+            android:name="event"
+            app:argType="com.example.opcodeapp.Event" />
     </fragment>
 </navigation>
