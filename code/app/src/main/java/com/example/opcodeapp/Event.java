@@ -30,6 +30,11 @@ import java.util.Map;
 
 
 @SuppressWarnings("deprecated")
+
+/**
+ * The Event class.
+ * Contains all the information about an event.
+ */
 public class Event implements Parcelable {
 
     @DocumentId

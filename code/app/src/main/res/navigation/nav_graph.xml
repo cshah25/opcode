@@ -49,6 +49,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/ApplicantFragment"
+        android:name="com.example.opcodeapp.ApplicantsFragment"
+        android:label="@string/applicants"
+        tools:layout="@layout/fragment_applicants">
+
+        <argument
+            android:name="userList"
+            app:argType="com.example.opcodeapp.User[]" />
+    </fragment>
+
+    <fragment
         android:id="@+id/InvitedUsersFragment"
         android:name="com.example.opcodeapp.InvitedUsersFragment"
         android:label="@string/invited_users"
