@@ -1,18 +1,22 @@
 package com.example.opcodeapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.firestore.DocumentId;
 
-import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
 
-public class User implements Serializable {
+public class User implements Parcelable {
 
     @DocumentId
     private String id;
     private String name;
     private String email;
     private String phoneNum;
-    private Event[] joinedEvents;
-    private Event[] createdEvents;
+    private List<Event> joinedEvents;
+    private List<Event> createdEvents;
 
     /**
      * Constructor for the User class.
@@ -28,6 +32,49 @@ public class User implements Serializable {
         this.email = email;
         this.phoneNum = phoneNum;
     };
+
+
+    /**
+     * Constructor for the User class (for Parcelable).
+     * @param in
+     * The Parcel to read from.
+     */
+    protected User(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        email = in.readString();
+        phoneNum = in.readString();
+        joinedEvents = in.createTypedArrayList(Event.CREATOR);
+        createdEvents = in.createTypedArrayList(Event.CREATOR);
+
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(email);
+        dest.writeString(phoneNum);
+    }
+
 
     /**
      * Getter for the name of the user.
@@ -93,7 +140,7 @@ public class User implements Serializable {
      * @return
      * The events the user has joined.
      */
-    public Event[] getJoinedEvents() {
+    public List<Event> getJoinedEvents() {
         return joinedEvents;
     }
 
@@ -103,7 +150,7 @@ public class User implements Serializable {
      * @param joinedEvents
      * The events the user has joined.
      */
-    public void setJoinedEvents(Event[] joinedEvents) {
+    public void setJoinedEvents(List<Event> joinedEvents) {
         this.joinedEvents = joinedEvents;
     }
 
@@ -113,7 +160,7 @@ public class User implements Serializable {
      * @return
      * The events the user has created/organized.
      */
-    public Event[] getCreatedEvents() {
+    public List<Event> getCreatedEvents() {
         return createdEvents;
     }
 
@@ -124,7 +171,7 @@ public class User implements Serializable {
      * @param createdEvents
      * The events the user has created/organized.
      */
-    public void setCreatedEvents(Event[] createdEvents) {
+    public void setCreatedEvents(List<Event> createdEvents) {
         this.createdEvents = createdEvents;
     }
 
@@ -148,5 +195,24 @@ public class User implements Serializable {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        // 1. Reference check: Are they the exact same instance?
+        if (this == o) return true;
+        // 2. Null and Class check: Is the other object null or a different type?
+        if (o == null || getClass() != o.getClass()) return false;
+        // 3. Field comparison: Do the significant fields match?
+        User user = (User) o;
+        return Objects.equals(id, user.getId()) && Objects.equals(email, user.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        // Generate a hash based on the same fields used in equals()
+        return Objects.hash(id, email);
     }
 }
