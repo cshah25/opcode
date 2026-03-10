@@ -1,17 +1,37 @@
 package com.example.opcodeapp;
 
 import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+
+import com.google.firebase.firestore.DocumentId;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.type.DateTime;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 
-public class Event implements Serializable {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+
+@SuppressWarnings("deprecated")
+public class Event implements Parcelable {
 
     @DocumentId
     private String id;
@@ -24,8 +44,18 @@ public class Event implements Serializable {
     private LocalDateTime registration_endTime;
 
     private User organizer;
-    private User[] applicants;
-    private User[] attendees;
+
+    /**
+     * A map containing all the applicants (instances of User class) of the event as keys.
+     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined").
+     *
+     */
+    private Map<User, String> applicants = new HashMap<>();
+
+    /**
+     * Needed for toObject from Firebase
+     */
+    public Event() {}
 
     /**
      * Constructor for the Event class.
@@ -56,6 +86,84 @@ public class Event implements Serializable {
         this.endDate = endDate;
         this.registration_endTime = registration_endTime;
         this.organizer = organizer;
+    }
+
+    protected Event(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        location = in.readString();
+        description = in.readString();
+        startDate = (LocalDate) in.readSerializable();
+        endDate = (LocalDate) in.readSerializable();
+        registration_endTime = (LocalDateTime) in.readSerializable();
+        registration_startTime = (LocalDateTime) in.readSerializable();
+        // map everything back from ids
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
+        db.fetchUserByFirebaseId(in.readString(), new FirestoreCallbackUserReceive() {
+            @Override
+            public void onDataReceived(User items) {
+                organizer = items;
+            }
+            @Override
+            public void onError(Exception e) {
+                Log.e("Event", String.format("error loading organizer: %s", e));
+            }
+        });
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            String key = in.readString();
+            String value = in.readString();
+            db.fetchUserByFirebaseId(key, new FirestoreCallbackUserReceive() {
+                @Override
+                public void onDataReceived(User u) {
+                    applicants.put(u, value);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("Event", String.format("error loading applicant: %s", e));
+                }
+            });
+        }
+    }
+
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(location);
+        dest.writeString(description);
+        dest.writeSerializable(startDate);
+        dest.writeSerializable(endDate);
+        dest.writeSerializable(registration_endTime);
+        dest.writeSerializable(registration_startTime);
+        // store as ids when serialized
+        dest.writeString(organizer.getId());
+        dest.writeInt(applicants.size());
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            dest.writeString(entry.getKey().getId()); // Write custom key
+            dest.writeString(entry.getValue());          // Write value
+        }
+
+
     }
 
     /**
@@ -217,45 +325,139 @@ public class Event implements Serializable {
         this.organizer = organizer;
     }
 
+
     /**
-     * Getter for the users in the waiting list of the event.
+     * adds an applicant to the waiting list of the event.
+     *
+     * @param applicant
+     */
+    //Needs to be tested
+    public void addApplicant(User applicant) {
+        applicants.put(applicant, "Not Drawn");
+    }
+
+
+
+    /**
+     * Getter for the users in the waiting list of the event (Not Drawn).
      *
      * @return
      * The applicants of the event.
      */
-    public User[] getApplicants() {
-        return applicants;
+    //Needs to be tested
+    public List<User> getApplicants() {
+
+        List<User> not_drawn_applicants = new ArrayList<>();
+
+
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            if (entry.getValue().equals("Not Drawn")) {
+                not_drawn_applicants.add(entry.getKey());
+            }
+        }
+
+        return not_drawn_applicants;
+
     }
 
     /**
-     * Setter for the users in the waiting list of the event.
+     * Setter for the users in the waiting list of the event who were selected by the lottery system (Invited).
      *
-     * @param applicants
-     * The applicants of the event.
+     * @param winners
+     * The applicants that were selected to be invited to the event.
      */
-    public void setApplicants(User[] applicants) {
-        this.applicants = applicants;
+    //Needs to be tested
+    public void setInvited(List<User> winners) {
+        for (User user : winners) {
+            applicants.replace(user, "Invited");
+        }
+
     }
 
     /**
-     * Getter for the attendees of the event.
+     * Getter for the users in the waiting list of the event who were invited to the event ("Invited"). The users haven't yet accepted or declined the invite.
+     *
+     * @return
+     * The applicants that were invited to the event.
+     */
+    //Needs to be tested
+    public List<User> getInvited() {
+        List<User> invited = new ArrayList<>();
+
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            if (entry.getValue().equals("Invited")) {
+                invited.add(entry.getKey());
+            }
+        }
+        return invited;
+
+    }
+
+
+    /**
+     * Getter for the attendees of the event ("Accepted").
      *
      * @return
      * The attendees of the event.
      */
-    public User[] getAttendees() {
+    //Needs to be tested
+    public List<User> getAttendees() {
+
+        List<User> attendees = new ArrayList<>();
+
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            if (entry.getValue().equals("Accepted")) {
+                attendees.add(entry.getKey());
+            }
+        }
+
         return attendees;
+
     }
 
     /**
-     * Setter for the attendees of the event.
+     * Setter for an attendee of the event (Accepted).
      *
-     * @param attendees
-     * The attendees of the event.
+     * @param attendee
+     * An attendee who accepted the invite.
      */
-    public void setAttendees(User[] attendees) {
-        this.attendees = attendees;
+    //Needs to be tested
+    public void setAttendee(User attendee) {
+        applicants.replace(attendee, "Accepted");
     }
+
+
+    /**
+     * Setter for a declined attendee of the event (Declined).
+     *
+     * @param attendee
+     * An attendee who declined the invite.
+     */
+    //Needs to be tested
+    public void setDeclined(User attendee) {
+        applicants.replace(attendee, "Declined");
+    }
+
+
+    /**
+     * Getter for the users in the waiting list of the event who declined the invite ("Declined").
+     *
+     * @return
+     * The applicants that declined the invite.
+     */
+
+    //Needs to be tested
+    public List<User> getDeclined() {
+        List<User> declined = new ArrayList<>();
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            if (entry.getValue().equals("Declined")) {
+                declined.add(entry.getKey());
+            }
+        }
+        return declined;
+    }
+
+
 
 
     /**

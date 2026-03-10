@@ -43,4 +43,11 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="view_final_list_of_enrolled_users">View Final List of Enrolled Users</string>
+    <string name="enrolled_users_fragment_label">Enrolled Users Fragment</string>
+    <string name="final_organizer_event_fragment_label">Final Organizer Event Fragment</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

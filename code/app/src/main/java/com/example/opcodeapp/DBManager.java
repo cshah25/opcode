@@ -8,12 +8,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DBManager {
@@ -27,20 +27,28 @@ public class DBManager {
     /**
      * CollectionReference for the "Users" collection.
      */
-    private CollectionReference usersRef = db.collection("Users");
-
+    private CollectionReference usersRef;
 
     /**
      * CollectionReference for the "Events" collection.
      */
-    private CollectionReference eventsRef = db.collection("Events");
+    private CollectionReference eventsRef;
+
+
+
 
     /**
      * Constructor for DBmanager.
      * Initializes the FirebaseFirestore instance.
      */
-    public DBManager() {
-        db = FirebaseFirestore.getInstance();
+    public DBManager(FirebaseFirestore DB) {
+        this.db = DB;
+
+        usersRef = db.collection("Users");
+
+
+        eventsRef = db.collection("Events");
+
     };
 
 
@@ -383,5 +391,34 @@ public class DBManager {
                 listener.onSendFailure(e);
             }
         });
+    }
+    public void fetchUserByFirebaseId(String id, FirestoreCallbackUserReceive listener) {
+        usersRef.document(id).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            User u = task.getResult().toObject(User.class);
+                            listener.onDataReceived(u); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void fetchEventByFirebaseId(String id, FirestoreCallbackEventReceive listener) {
+        eventsRef.document(id).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Event e = task.getResult().toObject(Event.class);
+                            listener.onDataReceived(e); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
     }
 }

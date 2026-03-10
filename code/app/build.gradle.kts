@@ -1,9 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs")
 }
 
 android {
+    tasks.withType<Test>{
+        useJUnitPlatform()
+    }
+
     namespace = "com.example.opcodeapp"
     compileSdk {
         version = release(36)
@@ -48,8 +53,18 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("androidx.annotation:annotation:1.6.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
 
     implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
+
+
+    testImplementation("junit:junit:4.13.2")
+
+    testImplementation("org.mockito:mockito-core:5.3.1")
+
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 }
