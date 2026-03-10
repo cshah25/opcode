@@ -81,6 +81,19 @@ public class InvitedUsersFragment extends Fragment {
         userList.setAdapter(userAdapter);
 
 
+        userList.setOnItemClickListener((parent, view1, position, id) -> {
+            User user = userAdapter.getItem(position);
+
+            /*
+            if (event.getDeclined().contains(user)) {
+
+            })
+            */
+;
+
+        }
+
+
 
 
     }
