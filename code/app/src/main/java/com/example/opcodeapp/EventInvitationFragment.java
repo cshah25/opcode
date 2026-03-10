@@ -73,6 +73,7 @@ public class EventInvitationFragment extends Fragment {
         // android studio was complaining about the locale here
         entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", event.getApplicants().size()));
 
+        // TODO: delete buttons if user is not invited!
         Button accept = v.findViewById(R.id.invitation_accept_button);
         accept.setOnClickListener(view -> {
             // TODO
