@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.OptionalDouble;
 
 
 @SuppressWarnings("deprecated")
@@ -42,6 +42,7 @@ public class Event implements Parcelable {
     private LocalDate endDate;
     private LocalDateTime registration_startTime;
     private LocalDateTime registration_endTime;
+    private float price;
 
     private User organizer;
 
@@ -77,7 +78,7 @@ public class Event implements Parcelable {
      * The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer) {
+    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price) {
         this.name = name;
         this.location = location;
         this.description = description;
@@ -86,6 +87,7 @@ public class Event implements Parcelable {
         this.endDate = endDate;
         this.registration_endTime = registration_endTime;
         this.organizer = organizer;
+        this.price = price;
     }
 
     protected Event(Parcel in) {
@@ -97,18 +99,8 @@ public class Event implements Parcelable {
         endDate = (LocalDate) in.readSerializable();
         registration_endTime = (LocalDateTime) in.readSerializable();
         registration_startTime = (LocalDateTime) in.readSerializable();
-        // map everything back from ids
-        DBManager db = new DBManager(FirebaseFirestore.getInstance());
-        db.fetchUserByFirebaseId(in.readString(), new FirestoreCallbackUserReceive() {
-            @Override
-            public void onDataReceived(User items) {
-                organizer = items;
-            }
-            @Override
-            public void onError(Exception e) {
-                Log.e("Event", String.format("error loading organizer: %s", e));
-            }
-        });
+        organizer = in.readParcelable(User.class.getClassLoader());
+        price = in.readFloat();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             String key = in.readString();
@@ -478,5 +470,13 @@ public class Event implements Parcelable {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public String getApplicantStatus(User u) {
+        return applicants.get(u);
     }
 }
