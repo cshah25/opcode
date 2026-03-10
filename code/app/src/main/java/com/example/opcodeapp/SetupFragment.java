@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,8 +62,7 @@ public class SetupFragment extends Fragment {
         phone = view.findViewById(R.id.setup_phone_input);
 
         Button create = view.findViewById(R.id.setup_create_button);
-
-        NavController nav = Navigation.findNavController(view);
+        SetupFragment not_this = this;
 
         create.setOnClickListener(v -> {
             String name_t = name.getText().toString();
@@ -87,6 +87,7 @@ public class SetupFragment extends Fragment {
                                         public void onSendSuccess() {
                                             Log.i("Setup", "account created");
                                             Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
+                                            NavController nav = NavHostFragment.findNavController(not_this);
                                             nav.navigate(R.id.action_setupFragment_to_main_graph);
                                         }
 

@@ -25,6 +25,11 @@ public class User implements Parcelable {
     private List<Event> createdEvents;
 
     /**
+     * Needed for toObject from Firebase
+     */
+    public User() {}
+
+    /**
      * Constructor for the User class.
      * @param name
      * The name of the user.

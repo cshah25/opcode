@@ -52,6 +52,10 @@ public class Event implements Parcelable {
      */
     private Map<User, String> applicants = new HashMap<>();
 
+    /**
+     * Needed for toObject from Firebase
+     */
+    public Event() {}
 
     /**
      * Constructor for the Event class.
