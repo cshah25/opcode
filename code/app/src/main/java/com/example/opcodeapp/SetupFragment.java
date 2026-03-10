@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +65,19 @@ public class SetupFragment extends Fragment {
             } else {
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
                 User user = new User(name_t, email_t, phone_t, getContext());
-                db.addUser(user, new FirestoreCallbackSetup(getContext()));
+                db.addUser(user, new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess() {
+                        Log.i("Setup", "account created");
+                        Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        Log.e("Setup", String.format("error creating account: %s", e));
+                        Toast.makeText(getContext(), String.format("Error: %s", e), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
         return view;
