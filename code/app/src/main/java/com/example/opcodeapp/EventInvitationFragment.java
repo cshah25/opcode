@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -78,13 +79,33 @@ public class EventInvitationFragment extends Fragment {
         accept.setOnClickListener(view -> {
             // TODO
             event.setAttendee();
-            db.updateEvent(event, new FirestoreCallbackInvitationAccept(getContext()));
+            db.updateEvent(event, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess() {
+                    Toast.makeText(getContext(), "Invitation accepted", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Toast.makeText(getContext(), String.format("Error accepting invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
         Button decline = v.findViewById(R.id.invitation_decline_button);
         decline.setOnClickListener(view -> {
             // TODO
             event.setDeclined();
-            db.updateEvent(event, new FirestoreCallbackInvitationDecline(getContext()));
+            db.updateEvent(event, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess() {
+                    Toast.makeText(getContext(), "Invitation declined", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Toast.makeText(getContext(), String.format("Error declining invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         return v;
