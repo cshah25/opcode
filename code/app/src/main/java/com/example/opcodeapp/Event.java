@@ -3,6 +3,7 @@ package com.example.opcodeapp;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.auth.FirebaseUser;
-
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.time.LocalDate;
@@ -92,17 +93,34 @@ public class Event implements Parcelable {
         endDate = (LocalDate) in.readSerializable();
         registration_endTime = (LocalDateTime) in.readSerializable();
         registration_startTime = (LocalDateTime) in.readSerializable();
-        organizer = in.readParcelable(User.class.getClassLoader());
+        // map everything back from ids
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
+        db.fetchUserByFirebaseId(in.readString(), new FirestoreCallbackUserReceive() {
+            @Override
+            public void onDataReceived(User items) {
+                organizer = items;
+            }
+            @Override
+            public void onError(Exception e) {
+                Log.e("Event", String.format("error loading organizer: %s", e));
+            }
+        });
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            User key = in.readParcelable(User.class.getClassLoader());
+            String key = in.readString();
             String value = in.readString();
-            applicants.put(key, value);
+            db.fetchUserByFirebaseId(key, new FirestoreCallbackUserReceive() {
+                @Override
+                public void onDataReceived(User u) {
+                    applicants.put(u, value);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("Event", String.format("error loading applicant: %s", e));
+                }
+            });
         }
-
-
-
-
     }
 
     public static final Creator<Event> CREATOR = new Creator<Event>() {
@@ -133,10 +151,11 @@ public class Event implements Parcelable {
         dest.writeSerializable(endDate);
         dest.writeSerializable(registration_endTime);
         dest.writeSerializable(registration_startTime);
-        dest.writeParcelable(organizer, flags);
+        // store as ids when serialized
+        dest.writeString(organizer.getId());
         dest.writeInt(applicants.size());
         for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            dest.writeParcelable(entry.getKey(), flags); // Write custom key
+            dest.writeString(entry.getKey().getId()); // Write custom key
             dest.writeString(entry.getValue());          // Write value
         }
 
