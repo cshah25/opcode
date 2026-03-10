@@ -4,9 +4,15 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -20,12 +26,16 @@ public class SessionController {
     private static SessionController instance;
     private User current_user;
     private MutableLiveData<LoginState> state = new MutableLiveData<>(LoginState.PENDING);
+    private FirebaseAuth mAuth;
+    private FirebaseUser fire_user;
 
     public SessionController(Context context) {
         String id = Settings.Secure.getString(
                 context.getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
+        mAuth = FirebaseAuth.getInstance();
+        fire_user = mAuth.getCurrentUser();
         DBManager db = new DBManager(FirebaseFirestore.getInstance());
         db.fetchUserByDeviceId(id, new FirestoreCallbackUsersReceive() {
             @Override
@@ -33,6 +43,20 @@ public class SessionController {
                 Log.i("SessionController", "received query result ok");
                 if (!items.isEmpty()) {
                     current_user = items.get(0);
+                    if (fire_user == null || !fire_user.getEmail().equals(current_user.getEmail())) {
+                        mAuth.signInWithEmailAndPassword(current_user.getEmail(), current_user.getDeviceId())
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.i("SessionController", "Logged fire in");
+                                            fire_user = mAuth.getCurrentUser();
+                                        } else {
+                                            Log.e("SessionController", "Couldn't fire base log in");
+                                        }
+                                    }
+                                });
+                    }
                     state.postValue(LoginState.LOGGED_IN);
                 } else {
                     state.postValue(LoginState.LOGGED_OUT);
@@ -45,6 +69,12 @@ public class SessionController {
                 state.postValue(LoginState.LOGGED_OUT);
             }
         });
+
+
+    }
+
+    public void updateFireAuth() {
+        fire_user = mAuth.getCurrentUser();
     }
 
     public static SessionController getInstance(Context context) {
