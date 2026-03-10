@@ -238,4 +238,30 @@ public class DBManager {
                 });
 
     }
+
+    /**
+     * Fetches users with the given device id from the "Users" collection in Firestore
+     * and notifies the listener.
+     *
+     * @param deviceId
+     * The device id to search for.
+     * @param listener
+     * The listener to be notified of the success or failure of the operation.
+     */
+    public void fetchUserByDeviceId(String deviceId, FirestoreCallbackUsersReceive listener) {
+        db.collection("Users")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<User> items = task.getResult().toObjects(User.class);
+                            listener.onDataReceived(items); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
+    }
 }

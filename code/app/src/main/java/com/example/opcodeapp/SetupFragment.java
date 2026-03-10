@@ -63,7 +63,7 @@ public class SetupFragment extends Fragment {
                 Toast.makeText(getContext(), "Please fill in Name and Email", Toast.LENGTH_SHORT).show();
             } else {
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                User user = new User(name_t, email_t, phone_t);
+                User user = new User(name_t, email_t, phone_t, getContext());
                 db.addUser(user, new FirestoreCallbackSetup(getContext()));
             }
         });

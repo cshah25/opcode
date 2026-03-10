@@ -3,51 +3,79 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/launchFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.opcodeapp.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
-
+        android:id="@+id/launchFragment"
+        android:name="com.example.opcodeapp.LaunchFragment"
+        tools:layout="@layout/fragment_launch" >
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.opcodeapp.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
+            android:id="@+id/action_launchFragment_to_main_graph"
+            app:destination="@id/main_graph" />
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_launchFragment_to_setup_graph"
+            app:destination="@id/setup_graph" />
     </fragment>
 
-    <fragment
-        android:id="@+id/FinalOrganizerEventFragment"
-        android:name="com.example.opcodeapp.FinalOrganizerEventFragment"
-        android:label="@string/final_organizer_event_fragment_label"
-        tools:layout="@layout/fragment_final_organizer_event">
+    <navigation
+        android:id="@+id/setup_graph"
+            app:startDestination="@id/setupFragment">
+        <fragment
+            android:id="@+id/setupFragment"
+            android:name="com.example.opcodeapp.SetupFragment"
+            tools:layout="@layout/fragment_setup" >
+            <action
+                android:id="@+id/action_setupFragment_to_main_graph"
+                app:destination="@id/main_graph" />
+        </fragment>
+    </navigation>
+    <navigation
+        android:id="@+id/main_graph"
+        app:startDestination="@id/FirstFragment">
+        <fragment
+            android:id="@+id/FirstFragment"
+            android:name="com.example.opcodeapp.FirstFragment"
+            android:label="@string/first_fragment_label"
+            tools:layout="@layout/fragment_first">
 
-        <action
-            android:id="@+id/action_FinalOrganizerEventFragment_to_EnrolledUsersFragment"
-            app:destination="@id/EnrolledUsersFragment" />
-    </fragment>
+            <action
+                android:id="@+id/action_FirstFragment_to_SecondFragment"
+                app:destination="@id/SecondFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/SecondFragment"
+            android:name="com.example.opcodeapp.SecondFragment"
+            android:label="@string/second_fragment_label"
+            tools:layout="@layout/fragment_second">
 
-    <fragment
-        android:id="@+id/EnrolledUsersFragment"
-        android:name="com.example.opcodeapp.EnrolledUsersFragment"
-        android:label="@string/enrolled_users_fragment_label"
-        tools:layout="@layout/fragment_enrolled_users">
+            <action
+                android:id="@+id/action_SecondFragment_to_FirstFragment"
+                app:destination="@id/FirstFragment" />
+        </fragment>
 
-        <action
-            android:id="@+id/action_EnrolledUsersFragment_to_FinalOrganizerEventFragment"
-            app:destination="@id/FinalOrganizerEventFragment" />
-        <argument
-            android:name="userList"
-            app:argType="com.example.opcodeapp.User[]" />
-    </fragment>
+        <fragment
+            android:id="@+id/FinalOrganizerEventFragment"
+            android:name="com.example.opcodeapp.FinalOrganizerEventFragment"
+            android:label="@string/final_organizer_event_fragment_label"
+            tools:layout="@layout/fragment_final_organizer_event">
+
+            <action
+                android:id="@+id/action_FinalOrganizerEventFragment_to_EnrolledUsersFragment"
+                app:destination="@id/EnrolledUsersFragment" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/EnrolledUsersFragment"
+            android:name="com.example.opcodeapp.EnrolledUsersFragment"
+            android:label="@string/enrolled_users_fragment_label"
+            tools:layout="@layout/fragment_enrolled_users">
+
+            <action
+                android:id="@+id/action_EnrolledUsersFragment_to_FinalOrganizerEventFragment"
+                app:destination="@id/FinalOrganizerEventFragment" />
+            <argument
+                android:name="userList"
+                app:argType="com.example.opcodeapp.User[]" />
+        </fragment>
+    </navigation>
 </navigation>

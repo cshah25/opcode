@@ -1,7 +1,9 @@
 package com.example.opcodeapp;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.Settings;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -15,6 +17,7 @@ public class User implements Parcelable {
     private String name;
     private String email;
     private String phoneNum;
+    private String deviceId;
     private List<Event> joinedEvents;
     private List<Event> createdEvents;
 
@@ -27,10 +30,14 @@ public class User implements Parcelable {
      * @param phoneNum
      * The phone number of the user.
      */
-    public User(String name, String email, String phoneNum) {
+    public User(String name, String email, String phoneNum, Context ctx) {
         this.name = name;
         this.email = email;
         this.phoneNum = phoneNum;
+        this.deviceId = Settings.Secure.getString(
+                ctx.getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
     };
 
 
@@ -214,5 +221,9 @@ public class User implements Parcelable {
     public int hashCode() {
         // Generate a hash based on the same fields used in equals()
         return Objects.hash(id, email);
+    }
+
+    public String getDeviceId() {
+        return deviceId;
     }
 }
