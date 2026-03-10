@@ -4,9 +4,12 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +23,11 @@ public class User implements Parcelable {
     private String deviceId;
     private List<Event> joinedEvents;
     private List<Event> createdEvents;
+
+    /**
+     * Needed for toObject from Firebase
+     */
+    public User() {}
 
     /**
      * Constructor for the User class.
@@ -51,8 +59,42 @@ public class User implements Parcelable {
         name = in.readString();
         email = in.readString();
         phoneNum = in.readString();
-        joinedEvents = in.createTypedArrayList(Event.CREATOR);
-        createdEvents = in.createTypedArrayList(Event.CREATOR);
+        deviceId = in.readString();
+        joinedEvents = new ArrayList<>();
+        createdEvents = new ArrayList<>();
+
+        // decode ids
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
+        int j = in.readInt();
+        for (int i = 0; i < j; i++) {
+            String e_id = in.readString();
+            db.fetchEventByFirebaseId(e_id, new FirestoreCallbackEventReceive() {
+                @Override
+                public void onDataReceived(Event e) {
+                    joinedEvents.add(e);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("User", String.format("error loading joined event: %s", e));
+                }
+            });
+        }
+        j = in.readInt();
+        for (int i = 0; i < j; i++) {
+            String e_id = in.readString();
+            db.fetchEventByFirebaseId(e_id, new FirestoreCallbackEventReceive() {
+                @Override
+                public void onDataReceived(Event e) {
+                    createdEvents.add(e);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("User", String.format("error loading created event: %s", e));
+                }
+            });
+        }
 
     }
 
@@ -80,6 +122,17 @@ public class User implements Parcelable {
         dest.writeString(name);
         dest.writeString(email);
         dest.writeString(phoneNum);
+        dest.writeString(deviceId);
+
+        // turn events into ids for serialization
+        dest.writeInt(joinedEvents.size());
+        for (Event e: joinedEvents) {
+            dest.writeString(e.getId());
+        }
+        dest.writeInt(createdEvents.size());
+        for (Event e: createdEvents) {
+            dest.writeString(e.getId());
+        }
     }
 
 

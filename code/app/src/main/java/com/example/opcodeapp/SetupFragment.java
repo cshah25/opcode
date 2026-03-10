@@ -2,7 +2,11 @@ package com.example.opcodeapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -54,6 +62,7 @@ public class SetupFragment extends Fragment {
         phone = view.findViewById(R.id.setup_phone_input);
 
         Button create = view.findViewById(R.id.setup_create_button);
+        SetupFragment not_this = this;
 
         create.setOnClickListener(v -> {
             String name_t = name.getText().toString();
@@ -65,19 +74,34 @@ public class SetupFragment extends Fragment {
             } else {
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
                 User user = new User(name_t, email_t, phone_t, getContext());
-                db.addUser(user, new FirestoreCallbackSend() {
-                    @Override
-                    public void onSendSuccess() {
-                        Log.i("Setup", "account created");
-                        Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
-                    }
 
-                    @Override
-                    public void onSendFailure(Exception e) {
-                        Log.e("Setup", String.format("error creating account: %s", e));
-                        Toast.makeText(getContext(), String.format("Error: %s", e), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                auth.createUserWithEmailAndPassword(user.getEmail(), user.getDeviceId())
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    SessionController.getInstance(getContext()).updateFireAuth();
+                                    db.addUser(user, new FirestoreCallbackSend() {
+                                        @Override
+                                        public void onSendSuccess() {
+                                            Log.i("Setup", "account created");
+                                            Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
+                                            NavController nav = NavHostFragment.findNavController(not_this);
+                                            nav.navigate(R.id.action_setupFragment_to_main_graph);
+                                        }
+
+                                        @Override
+                                        public void onSendFailure(Exception e) {
+                                            Log.e("Setup", String.format("error creating account: %s", e));
+                                            Toast.makeText(getContext(), String.format("Error: %s", e), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    Log.e("Setup", "Couldn't login with fire");
+                                }
+                            }
+                        });
             }
         });
         return view;
