@@ -48,4 +48,6 @@
     <string name="final_organizer_event_fragment_label">Final Organizer Event Fragment</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
