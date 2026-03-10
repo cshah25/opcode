@@ -1,5 +1,7 @@
 package com.example.opcodeapp;
 
+import static android.view.View.GONE;
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -74,11 +76,10 @@ public class EventInvitationFragment extends Fragment {
         // android studio was complaining about the locale here
         entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", event.getApplicants().size()));
 
-        // TODO: delete buttons if user is not invited!
+        User cur = SessionController.getInstance(getContext()).getCurrentUser();
         Button accept = v.findViewById(R.id.invitation_accept_button);
         accept.setOnClickListener(view -> {
-            // TODO
-            event.setAttendee();
+            event.setAttendee(cur);
             db.updateEvent(event, new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess() {
@@ -93,8 +94,7 @@ public class EventInvitationFragment extends Fragment {
         });
         Button decline = v.findViewById(R.id.invitation_decline_button);
         decline.setOnClickListener(view -> {
-            // TODO
-            event.setDeclined();
+            event.setDeclined(cur);
             db.updateEvent(event, new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess() {
@@ -107,6 +107,12 @@ public class EventInvitationFragment extends Fragment {
                 }
             });
         });
+
+        String status = event.getApplicantStatus(SessionController.getInstance(getContext()).getCurrentUser());
+        if (status == null || !status.equals("Not Drawn")) {
+            accept.setVisibility(GONE);
+            decline.setVisibility(GONE);
+        }
 
         return v;
     }

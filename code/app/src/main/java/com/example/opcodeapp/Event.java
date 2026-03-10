@@ -463,4 +463,8 @@ public class Event implements Parcelable {
     public float getPrice() {
         return price;
     }
+
+    public String getApplicantStatus(User u) {
+        return applicants.get(u);
+    }
 }
