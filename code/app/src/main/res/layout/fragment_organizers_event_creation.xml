@@ -18,7 +18,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:hint="Enter event name" />
 
         <TableRow
             android:layout_width="match_parent"
@@ -29,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Date & Time" />
+            android:text="Date and Time" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -58,7 +59,8 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Enter location" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TableRow
@@ -78,7 +80,8 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Enter price" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TableRow
@@ -98,7 +101,8 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Enter wait list limit" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TableRow
