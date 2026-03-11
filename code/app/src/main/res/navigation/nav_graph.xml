@@ -47,37 +47,42 @@
             android:name="com.example.opcodeapp.SecondFragment"
             android:label="@string/second_fragment_label"
             tools:layout="@layout/fragment_second">
+            <action
+                android:id="@+id/action_SecondFragment_to_FirstFragment"
+                app:destination="@id/FirstFragment" />
+        </fragment>
 
-    <fragment
-        android:id="@+id/EnrolledUsersFragment"
-        android:name="com.example.opcodeapp.EnrolledUsersFragment"
-        android:label="@string/enrolled_users"
-        tools:layout="@layout/fragment_enrolled_users">
+        <fragment
+            android:id="@+id/EnrolledUsersFragment"
+            android:name="com.example.opcodeapp.EnrolledUsersFragment"
+            android:label="@string/enrolled_users"
+            tools:layout="@layout/fragment_enrolled_users">
 
-        <argument
-            android:name="userList"
-            app:argType="com.example.opcodeapp.User[]" />
-    </fragment>
+            <argument
+                android:name="userList"
+                app:argType="com.example.opcodeapp.User[]" />
+        </fragment>
 
-    <fragment
-        android:id="@+id/ApplicantFragment"
-        android:name="com.example.opcodeapp.ApplicantsFragment"
-        android:label="@string/applicants"
-        tools:layout="@layout/fragment_applicants">
+        <fragment
+            android:id="@+id/ApplicantFragment"
+            android:name="com.example.opcodeapp.ApplicantsFragment"
+            android:label="@string/applicants"
+            tools:layout="@layout/fragment_applicants">
 
-        <argument
-            android:name="userList"
-            app:argType="com.example.opcodeapp.User[]" />
-    </fragment>
+            <argument
+                android:name="userList"
+                app:argType="com.example.opcodeapp.User[]" />
+        </fragment>
 
-    <fragment
-        android:id="@+id/InvitedUsersFragment"
-        android:name="com.example.opcodeapp.InvitedUsersFragment"
-        android:label="@string/invited_users"
-        tools:layout="@layout/fragment_invited_users">
+        <fragment
+            android:id="@+id/InvitedUsersFragment"
+            android:name="com.example.opcodeapp.InvitedUsersFragment"
+            android:label="@string/invited_users"
+            tools:layout="@layout/fragment_invited_users">
 
-        <argument
-            android:name="event"
-            app:argType="com.example.opcodeapp.Event" />
-    </fragment>
+            <argument
+                android:name="event"
+                app:argType="com.example.opcodeapp.Event" />
+        </fragment>
+    </navigation>
 </navigation>
