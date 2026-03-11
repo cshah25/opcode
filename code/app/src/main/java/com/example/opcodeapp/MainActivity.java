@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.main_graph, R.id.setup_graph, R.id.launchFragment).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {

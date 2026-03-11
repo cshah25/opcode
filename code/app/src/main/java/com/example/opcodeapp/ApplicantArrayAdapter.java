@@ -10,12 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-
 import java.util.ArrayList;
 
-public class UserArrayAdapter extends ArrayAdapter<User> {
-    public UserArrayAdapter(Context context, ArrayList<User> logs) {
-        super(context, 0, logs);
+
+/**
+ * The ArrayAdapter for the list of users who applied to an event.
+ */
+public class ApplicantArrayAdapter extends ArrayAdapter<User> {
+
+    public ApplicantArrayAdapter(Context context, ArrayList<User> users) {
+        super(context, 0, users);
     }
 
     @NonNull
@@ -24,7 +28,7 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
             parent) {
         View view;
         if (convertView == null) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.enrolled_user_content,
+            view = LayoutInflater.from(getContext()).inflate(R.layout.applicant_content,
                     parent, false);
         } else {
             view = convertView;
@@ -37,5 +41,4 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
 
         return view;
     }
-
 }

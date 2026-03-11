@@ -18,12 +18,12 @@ public class LotterySystem {
      * @return List of Users selected to receive an invitation.
      */
     public List<User> drawEntrants(Event event, int numberOfInvites) {
-        User[] applicants = event.getApplicants();
-        if (applicants == null || applicants.length == 0) {
+        List<User> applicants = event.getApplicants(); //change made here since getApplicants returns a list (not an array)
+        if (applicants == null || applicants.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<User> waitlist = new ArrayList<>(Arrays.asList(applicants));
+        List<User> waitlist = new ArrayList<>(applicants); //change made here
 
         // Responsibility: don't exceed capacity or available applicants
         int drawSize = Math.min(numberOfInvites, waitlist.size());

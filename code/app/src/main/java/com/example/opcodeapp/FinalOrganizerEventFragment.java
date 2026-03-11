@@ -12,7 +12,11 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
 
-public class FinalOrganizerEventFragment extends Fragment {
+
+/**
+ * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
+ */
+ public class FinalOrganizerEventFragment extends Fragment {
 
     /**
      * The binding for the fragment.
