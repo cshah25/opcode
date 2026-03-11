@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.example.opcodeapp.DBManager;
 import com.example.opcodeapp.FirestoreCallbackSend;
 import com.example.opcodeapp.LotterySystem;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +53,7 @@ public class WaitListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize Managers and Data
-        dbManager = new DBManager();
+        dbManager = new DBManager(FirebaseFirestore.getInstance());
         lotterySystem = new LotterySystem();
 
         if (getArguments() != null) {
@@ -70,11 +71,11 @@ public class WaitListFragment extends Fragment {
         header.setText(currentEvent.getName() + " Waitlist");
 
         // Initialize List and Adapter
-        User[] applicants = currentEvent.getApplicants();
+        List<User> applicants = currentEvent.getApplicants();
         if (applicants == null)
             applicantDataList = new ArrayList<>();
         else
-            applicantDataList = new ArrayList<>(Arrays.asList(applicants));
+            applicantDataList = new ArrayList<>(applicants);
 
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, applicantDataList);
         waitlistListView.setAdapter(adapter);
@@ -109,7 +110,7 @@ public class WaitListFragment extends Fragment {
         }
 
         // Responsibility: notify entrants
-        processWinners(winners);
+        processWinner(winners);
 
         Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();    }
 
