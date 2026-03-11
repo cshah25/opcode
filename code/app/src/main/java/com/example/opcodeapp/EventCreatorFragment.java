@@ -26,8 +26,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+/**
+ * A simple fragment that handles the input validation including dates with date pickers,
+ * strings and numbers for creating {@link Event}. Successful event creation also saves
+ * it to the Firestore database using {@link DBManager}
+ */
 public class EventCreatorFragment extends Fragment {
     private EventCreatorFragment instance;
+
     private TextInputLayout nameLayout;
     private TextInputLayout locationLayout;
     private TextInputLayout descriptionLayout;
@@ -82,6 +88,11 @@ public class EventCreatorFragment extends Fragment {
         createButton.setOnClickListener(v -> submitForm());
     }
 
+    /**
+     * Binds all components  to the view
+     *
+     * @param view instance of the view
+     */
     private void bindViews(@NonNull View view) {
         nameLayout = view.findViewById(R.id.event_creator_name_layout);
         locationLayout = view.findViewById(R.id.event_creator_location_layout);
@@ -104,6 +115,9 @@ public class EventCreatorFragment extends Fragment {
         eventEndInput = view.findViewById(R.id.event_creator_end_input);
     }
 
+    /**
+     * Attaches watchers to all fields to clear errors when updated
+     */
     private void addErrorClearingWatchers() {
         addErrorClearingWatcher(nameInput, nameLayout);
         addErrorClearingWatcher(locationInput, locationLayout);
@@ -116,6 +130,12 @@ public class EventCreatorFragment extends Fragment {
         addErrorClearingWatcher(eventEndInput, eventEndLayout);
     }
 
+    /**
+     * Clears the error hint messages when the text is being updated
+     *
+     * @param layout The text input layout
+     * @param input  The text input text field
+     */
     private void addErrorClearingWatcher(TextInputEditText input, TextInputLayout layout) {
         input.addTextChangedListener(new TextWatcher() {
             @Override
@@ -133,12 +153,25 @@ public class EventCreatorFragment extends Fragment {
         });
     }
 
+    /**
+     * Configures date inputs to open the date picker when selected and disables manual input
+     *
+     * @param layout The text input layout
+     * @param input  The text input text field
+     * @param title  Title of the date picker
+     */
     private void configureDateField(TextInputLayout layout, TextInputEditText input, String title) {
         layout.setEndIconOnClickListener(v -> openDatePicker(input, title));
         input.setOnClickListener(v -> openDatePicker(input, title));
         input.setKeyListener(null);
     }
 
+    /**
+     * Initializes the date picker to attach to date field listeners
+     *
+     * @param targetInput The text input of the date field
+     * @param title       The title of the date picker
+     */
     private void openDatePicker(TextInputEditText targetInput, String title) {
         MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker()
                 .setTitleText(title);
@@ -155,6 +188,11 @@ public class EventCreatorFragment extends Fragment {
         picker.show(getParentFragmentManager(), title);
     }
 
+    /**
+     * Handles validation of input parameters before creating new Event. It returns errors in the ui
+     * for any failing validation tests. It then saves to the Firestore database and navigates
+     * forward to the event details screen.
+     */
     private void submitForm() {
         clearAllErrors();
         createButton.setEnabled(false);
@@ -255,7 +293,7 @@ public class EventCreatorFragment extends Fragment {
             @Override
             public void onSendSuccess() {
                 createButton.setEnabled(true);
-                
+
                 Bundle args = new Bundle();
                 args.putParcelable("event", event);
                 NavHostFragment.findNavController(instance).navigate(R.id.eventDetailsFragment, args);
@@ -270,6 +308,9 @@ public class EventCreatorFragment extends Fragment {
         });
     }
 
+    /**
+     * Clears all error hints from the text input layouts
+     */
     private void clearAllErrors() {
         nameLayout.setError(null);
         locationLayout.setError(null);
@@ -282,6 +323,9 @@ public class EventCreatorFragment extends Fragment {
         eventEndLayout.setError(null);
     }
 
+    /**
+     * @return the text contained in the text input fields
+     */
     private String getText(TextInputEditText input) {
         Editable editable = input.getText();
         return editable == null ? "" : editable.toString().trim();
