@@ -14,11 +14,7 @@ public class EventTest {
 
     private Event mockEvent() {
         User organizer = new User("mock_organizer", "mock_organizer@ualberta.ca", "676767676");
-<<<<<<< HEAD
-        return new Event("Oscars", "California", "Film festival and presentation of awards", LocalDate.of(2026, 3, 15), LocalDateTime.now(), LocalDate.of(2026, 3, 15), LocalDateTime.of(2026, 3, 14, 16, 0), organizer);
-=======
         return new Event("Oscars", "California", "Film festival and presentation of awards", LocalDate.of(2026, 3, 15), LocalDateTime.now(), LocalDate.of(2026, 3, 15), LocalDateTime.of(2026, 3, 14, 16, 0), organizer, 0);
->>>>>>> main
 
     }
 

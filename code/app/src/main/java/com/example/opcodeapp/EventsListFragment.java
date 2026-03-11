@@ -45,6 +45,7 @@ public class EventsListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ImageButton createButton = view.findViewById(R.id.events_create_button);
         if (getArguments() != null) {
             currentUser = (User) getArguments().getParcelable("user");
         }
@@ -56,6 +57,10 @@ public class EventsListFragment extends Fragment {
 
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
         eventListView.setAdapter(adapter);
+
+        createButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.organizersEventCreation));
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
