@@ -43,10 +43,10 @@ public class Event implements Parcelable {
     private String name;
     private String location;
     private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDateTime registration_startTime;
-    private LocalDateTime registration_endTime;
+    private String startDate;
+    private String endDate;
+    private String registration_startTime;
+    private String registration_endTime;
     private float price;
 
     private User organizer;
@@ -87,10 +87,10 @@ public class Event implements Parcelable {
         this.name = name;
         this.location = location;
         this.description = description;
-        this.startDate = startDate;
-        this.registration_startTime = registration_startTime;
-        this.endDate = endDate;
-        this.registration_endTime = registration_endTime;
+        this.startDate = startDate.toString();
+        this.registration_startTime = registration_startTime.toString();
+        this.endDate = endDate.toString();
+        this.registration_endTime = registration_endTime.toString();
         this.organizer = organizer;
         this.price = price;
     }
@@ -100,10 +100,10 @@ public class Event implements Parcelable {
         name = in.readString();
         location = in.readString();
         description = in.readString();
-        startDate = (LocalDate) in.readSerializable();
-        endDate = (LocalDate) in.readSerializable();
-        registration_endTime = (LocalDateTime) in.readSerializable();
-        registration_startTime = (LocalDateTime) in.readSerializable();
+        startDate = in.readString();
+        endDate = in.readString();
+        registration_endTime = in.readString();
+        registration_startTime = in.readString();
         organizer = in.readParcelable(User.class.getClassLoader());
         price = in.readFloat();
         DBManager db = new DBManager(FirebaseFirestore.getInstance());
@@ -149,10 +149,10 @@ public class Event implements Parcelable {
         dest.writeString(name);
         dest.writeString(location);
         dest.writeString(description);
-        dest.writeSerializable(startDate);
-        dest.writeSerializable(endDate);
-        dest.writeSerializable(registration_endTime);
-        dest.writeSerializable(registration_startTime);
+        dest.writeString(startDate);
+        dest.writeString(endDate);
+        dest.writeString(registration_endTime);
+        dest.writeString(registration_startTime);
         // store as ids when serialized
         dest.writeString(organizer.getId());
         dest.writeInt(applicants.size());
@@ -230,7 +230,7 @@ public class Event implements Parcelable {
      * The start date of the event.
      */
     public LocalDate getStartDate() {
-        return startDate;
+        return LocalDate.parse(startDate);
     }
 
     /**
@@ -240,7 +240,7 @@ public class Event implements Parcelable {
      * The start date of the event.
      */
     public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+        this.startDate = startDate.toString();
     }
 
     /**
@@ -250,7 +250,7 @@ public class Event implements Parcelable {
      * The end date of the event.
      */
     public LocalDate getEndDate() {
-        return endDate;
+        return LocalDate.parse(endDate);
     }
 
     /**
@@ -260,7 +260,7 @@ public class Event implements Parcelable {
      * The end date of the event.
      */
     public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+        this.endDate = endDate.toString();
     }
 
     /**
@@ -270,7 +270,7 @@ public class Event implements Parcelable {
      * The registration end time of the event.
      */
     public LocalDateTime getRegistration_endTime() {
-        return registration_endTime;
+        return LocalDateTime.parse(registration_endTime);
     }
 
     /**
@@ -279,7 +279,7 @@ public class Event implements Parcelable {
      * The registration end time of the event.
      */
     public void setRegistration_endTime(LocalDateTime registration_endTime) {
-        this.registration_endTime = registration_endTime;
+        this.registration_endTime = registration_endTime.toString();
     }
 
     /**
@@ -289,7 +289,7 @@ public class Event implements Parcelable {
      * The registration start time of the event.
      */
     public LocalDateTime getRegistration_startTime() {
-        return registration_startTime;
+        return LocalDateTime.parse(registration_startTime);
     }
 
     /**
@@ -299,7 +299,7 @@ public class Event implements Parcelable {
      * The registration start time of the event.
      */
     public void setRegistration_startTime(LocalDateTime registration_startTime) {
-        this.registration_startTime = registration_startTime;
+        this.registration_startTime = registration_startTime.toString();
     }
 
 
