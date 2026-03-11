@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -95,6 +96,11 @@ public class EventInvitationFragment extends Fragment {
         Button decline = v.findViewById(R.id.invitation_decline_button);
         decline.setOnClickListener(view -> {
             event.setDeclined(cur);
+            LotterySystem l = new LotterySystem();
+            User n = l.drawReplacement(event);
+            ArrayList<User> list = new ArrayList<>();
+            list.add(n);
+            event.setInvited(list);
             db.updateEvent(event, new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess() {
