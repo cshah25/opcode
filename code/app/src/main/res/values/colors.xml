@@ -2,6 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey_black">#242424</color>
+    <color name="light_purple">#8494C1</color>
+
     <color name="profile_bg">#F8F7F9</color>
     <color name="profile_topbar">#EEEAF2</color>
     <color name="profile_button">#2F2F31</color>
