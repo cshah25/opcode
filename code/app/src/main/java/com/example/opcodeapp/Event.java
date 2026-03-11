@@ -95,6 +95,8 @@ public class Event implements Parcelable {
         this.price = price;
     }
 
+
+
     protected Event(Parcel in) {
         id = in.readString();
         name = in.readString();
@@ -232,6 +234,8 @@ public class Event implements Parcelable {
     public LocalDate getStartDate() {
         return LocalDate.parse(startDate);
     }
+
+
 
     /**
      * Setter for the start date of the event.
