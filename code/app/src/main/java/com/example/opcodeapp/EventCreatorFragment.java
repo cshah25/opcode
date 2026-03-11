@@ -248,7 +248,8 @@ public class EventCreatorFragment extends Fragment {
                 LocalDate.parse(eventEnd),
                 LocalDateTime.parse(registrationEnd),
                 organizer,
-                price.floatValue()
+                price.floatValue(),
+                waitlistLimit.intValue()
         );
         manager.addEvent(event, new FirestoreCallbackSend() {
             @Override
