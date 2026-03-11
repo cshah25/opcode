@@ -51,8 +51,8 @@ public class EntrantEventDetailsFragment extends Fragment {
 
         // 1. Extract the Event and User passed from the previous screen
         if (getArguments() != null) {
-            currentEvent = (Event) getArguments().getSerializable("EVENT");
-            currentUser = (User) getArguments().getSerializable("CURRENT_USER");
+            currentEvent = (Event) getArguments().getParcelable("event");
+            currentUser = (User) getArguments().getSerializable("user");
         }
 
         // Safety check to prevent crashes

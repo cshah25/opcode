@@ -87,8 +87,12 @@ public class SetupFragment extends Fragment {
                                         public void onSendSuccess() {
                                             Log.i("Setup", "account created");
                                             Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
+
+                                            Bundle bundle = new Bundle();
+                                            bundle.putParcelable("user", user);
+
                                             NavController nav = NavHostFragment.findNavController(not_this);
-                                            nav.navigate(R.id.action_setupFragment_to_main_graph);
+                                            nav.navigate(R.id.action_setupFragment_to_main_graph, bundle);
                                         }
 
                                         @Override

@@ -28,6 +28,8 @@ public class EventsListFragment extends Fragment {
     private ArrayList<Event> shownEvents = new ArrayList<>();
     private ArrayList<String> shownNames = new ArrayList<>();
 
+    private User currentUser;
+
     private ArrayAdapter<String> adapter;
 
     public EventsListFragment() {
@@ -44,6 +46,10 @@ public class EventsListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageButton createButton = view.findViewById(R.id.events_create_button);
+        if (getArguments() != null) {
+            currentUser = (User) getArguments().getParcelable("user");
+        }
+
         ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);
@@ -72,6 +78,8 @@ public class EventsListFragment extends Fragment {
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", shownEvents.get(position));
+            bundle.putParcelable("user", currentUser);
+
             NavHostFragment.findNavController(EventsListFragment.this)
                     .navigate(R.id.eventDetailsFragment, bundle);
         });
