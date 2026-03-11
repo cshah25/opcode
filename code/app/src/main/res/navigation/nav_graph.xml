@@ -30,7 +30,6 @@
                 app:destination="@id/main_graph" />
         </fragment>
     </navigation>
-
     <navigation
         android:id="@+id/main_graph"
         app:startDestination="@id/eventsFragment">
@@ -73,11 +72,31 @@
             <action
                 android:id="@+id/action_EnrolledUsersFragment_to_FinalOrganizerEventFragment"
                 app:destination="@id/FinalOrganizerEventFragment" />
+            <argument
+                android:name="userList"
+                app:argType="com.example.opcodeapp.User[]" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/ApplicantFragment"
+            android:name="com.example.opcodeapp.ApplicantsFragment"
+            android:label="@string/applicants"
+            tools:layout="@layout/fragment_applicants">
 
             <argument
                 android:name="userList"
                 app:argType="com.example.opcodeapp.User[]" />
         </fragment>
 
+        <fragment
+            android:id="@+id/InvitedUsersFragment"
+            android:name="com.example.opcodeapp.InvitedUsersFragment"
+            android:label="@string/invited_users"
+            tools:layout="@layout/fragment_invited_users">
+
+            <argument
+                android:name="event"
+                app:argType="com.example.opcodeapp.Event" />
+        </fragment>
     </navigation>
 </navigation>

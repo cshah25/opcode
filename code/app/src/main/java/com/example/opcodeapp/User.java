@@ -279,7 +279,6 @@ public class User implements Parcelable {
     }
 
 
-
     @Override
     public boolean equals(Object o) {
         // 1. Reference check: Are they the exact same instance?
@@ -296,5 +295,4 @@ public class User implements Parcelable {
         // Generate a hash based on the same fields used in equals()
         return Objects.hash(id, email);
     }
-
 }

@@ -6,10 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
@@ -19,9 +17,10 @@ import java.util.Arrays;
 
 
 /**
- * The fragment for the list of users who are enrolled in the event ("Accepted").
+ * The fragment for the list of users who applied for the event.
  */
-public class EnrolledUsersFragment extends Fragment {
+public class ApplicantsFragment extends Fragment {
+
 
     /**
      * The list of users to be displayed.
@@ -48,26 +47,26 @@ public class EnrolledUsersFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentUserView = inflater.inflate(R.layout.fragment_enrolled_users, container, false);
+        View fragmentUserView = inflater.inflate(R.layout.fragment_applicants, container, false);
         return fragmentUserView;
     }
 
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        User[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
+        User[] receivedArray = ApplicantsFragmentArgs.fromBundle(getArguments()).getUserList();
 
         dataList = new ArrayList<>(Arrays.asList(receivedArray));
 
-        userList = view.getRootView().findViewById(R.id.enrolled_users_list_view);
-        
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
+        userList = view.getRootView().findViewById(R.id.applicant_users_list_view);
+
+        userAdapter = new EnrolledUserArrayAdapter(getContext(), dataList);
 
         userList.setAdapter(userAdapter);
 
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
 
-        userList.setAdapter(userAdapter);
+
+
     }
 
     @Override

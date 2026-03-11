@@ -27,10 +27,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.OptionalDouble;
 
 
 @SuppressWarnings("deprecated")
+
+/**
+ * The Event class.
+ * Contains all the information about an event.
+ */
 public class Event implements Parcelable {
 
     @DocumentId
@@ -42,12 +47,13 @@ public class Event implements Parcelable {
     private LocalDate endDate;
     private LocalDateTime registration_startTime;
     private LocalDateTime registration_endTime;
+    private float price;
 
     private User organizer;
 
     /**
      * A map containing all the applicants (instances of User class) of the event as keys.
-     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined").
+     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined", "Declined-Removed").
      *
      */
     private Map<User, String> applicants = new HashMap<>();
@@ -77,7 +83,7 @@ public class Event implements Parcelable {
      * The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer) {
+    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price) {
         this.name = name;
         this.location = location;
         this.description = description;
@@ -86,6 +92,7 @@ public class Event implements Parcelable {
         this.endDate = endDate;
         this.registration_endTime = registration_endTime;
         this.organizer = organizer;
+        this.price = price;
     }
 
     protected Event(Parcel in) {
@@ -97,18 +104,9 @@ public class Event implements Parcelable {
         endDate = (LocalDate) in.readSerializable();
         registration_endTime = (LocalDateTime) in.readSerializable();
         registration_startTime = (LocalDateTime) in.readSerializable();
-        // map everything back from ids
+        organizer = in.readParcelable(User.class.getClassLoader());
+        price = in.readFloat();
         DBManager db = new DBManager(FirebaseFirestore.getInstance());
-        db.fetchUserByFirebaseId(in.readString(), new FirestoreCallbackUserReceive() {
-            @Override
-            public void onDataReceived(User items) {
-                organizer = items;
-            }
-            @Override
-            public void onError(Exception e) {
-                Log.e("Event", String.format("error loading organizer: %s", e));
-            }
-        });
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             String key = in.readString();
@@ -457,8 +455,14 @@ public class Event implements Parcelable {
         return declined;
     }
 
-
-
+    /**
+     * If the user declined the invite, this method lets the organizer remove the user from the screen.
+     *
+     * @param user
+     */
+    public void setDeclinedRemoved(User user) {
+        applicants.replace(user, "Declined-Removed");
+    }
 
     /**
      * Getter for the ID of the event. Filled in by Firestore.
@@ -493,5 +497,13 @@ public class Event implements Parcelable {
             return false;
         }
         return applicants.remove(user) != null;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public String getApplicantStatus(User u) {
+        return applicants.get(u);
     }
 }

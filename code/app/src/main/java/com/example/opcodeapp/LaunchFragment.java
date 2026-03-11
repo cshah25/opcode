@@ -2,7 +2,6 @@ package com.example.opcodeapp;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -35,6 +34,11 @@ public class LaunchFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -53,5 +57,6 @@ public class LaunchFragment extends Fragment {
                         nav.navigate(R.id.setup_graph, null, options);
                     }
                 });
-
+        return v;
+    }
 }

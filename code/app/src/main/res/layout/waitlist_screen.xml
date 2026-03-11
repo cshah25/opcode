@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/event_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Waitlist"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/waitlist_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp" />
+
+    <LinearLayout
+        android:id="@+id/lottery_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#EEEEEE">
+
+        <EditText
+            android:id="@+id/num_to_draw_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Number of winners to draw"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/btn_draw_lottery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Run Lottery"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</LinearLayout>
