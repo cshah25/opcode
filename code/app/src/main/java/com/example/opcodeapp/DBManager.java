@@ -15,6 +15,10 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.List;
 
+
+/**
+ * The Firestore database manager. manages all the queries needed for the app to run.
+ */
 public class DBManager {
 
     /**

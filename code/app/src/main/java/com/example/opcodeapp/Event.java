@@ -31,6 +31,11 @@ import java.util.OptionalDouble;
 
 
 @SuppressWarnings("deprecated")
+
+/**
+ * The Event class.
+ * Contains all the information about an event.
+ */
 public class Event implements Parcelable {
 
     @DocumentId
@@ -48,7 +53,7 @@ public class Event implements Parcelable {
 
     /**
      * A map containing all the applicants (instances of User class) of the event as keys.
-     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined").
+     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined", "Declined-Removed").
      *
      */
     private Map<User, String> applicants = new HashMap<>();
@@ -449,6 +454,18 @@ public class Event implements Parcelable {
         }
         return declined;
     }
+
+    /**
+     * If the user declined the invite, this method lets the organizer remove the user from the screen.
+     *
+     * @param user
+     */
+    public void setDeclinedRemoved(User user) {
+        applicants.replace(user, "Declined-Removed");
+    }
+
+
+
 
 
 
