@@ -54,4 +54,5 @@
     <string name="enrolled_users">Enrolled Users</string>
     <string name="invited_users">Invited Users</string>
     <string name="applicants">Applicants</string>
+    <string name="would_you_like_to_remove_the_applicant">Would you like to remove the applicant?</string>
 </resources>

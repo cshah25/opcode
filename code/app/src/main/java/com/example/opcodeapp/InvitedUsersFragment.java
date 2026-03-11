@@ -6,12 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
 import com.example.opcodeapp.databinding.FragmentInvitedUsersBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +22,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InvitedUsersFragment extends Fragment {
+
+/**
+ * The fragment for the list of users who applied for the event and were invited.
+ */
+public class InvitedUsersFragment extends Fragment implements DeclinedUserDialogFragment.DeclinedUserDialogListener {
 
     /**
      * The list of users to be displayed.
@@ -81,17 +88,23 @@ public class InvitedUsersFragment extends Fragment {
         userList.setAdapter(userAdapter);
 
 
+        /**
+         * Click Listener for each of the users in the listview. If the user has declined the invitation, they can be removed from the list.
+         */
         userList.setOnItemClickListener((parent, view1, position, id) -> {
             User user = userAdapter.getItem(position);
 
-            /*
-            if (event.getDeclined().contains(user)) {
 
-            })
-            */
+            if (event.getDeclined().contains(user)) {
+                DeclinedUserDialogFragment declinedUserDialogFragment = DeclinedUserDialogFragment.newInstance(user, event);
+                declinedUserDialogFragment.show(getParentFragmentManager(), "Remove");
+
+
+            }
+
 ;
 
-        }
+        });
 
 
 
@@ -102,5 +115,41 @@ public class InvitedUsersFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+
+    /**
+     * Removes a user from the list of invited users.
+     *
+     * @param user
+     * The user that has declined the invitation.
+     * @param event
+     * The event.
+     */
+    @Override
+    public void removeUser(User user, Event event) {
+
+        FirebaseFirestore DB = FirebaseFirestore.getInstance();
+        DBManager dbmanager = new DBManager(DB);
+        event.setDeclinedRemoved(user);
+        dbmanager.updateEvent(event, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess() {
+                userAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Toast toast = Toast.makeText(requireContext(), "Update failed: " + e.getMessage(), Toast.LENGTH_LONG);
+
+                toast.show();
+            }
+        });
+
+
+
+
+
     }
 }
