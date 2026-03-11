@@ -8,12 +8,20 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+
+/**
+ * The Firestore database manager. manages all the queries needed for the app to run.
+ */
 public class DBManager {
 
     /**
@@ -237,5 +245,165 @@ public class DBManager {
                     }
                 });
 
+    }
+
+    /**
+     * Fetches users with the given device id from the "Users" collection in Firestore
+     * and notifies the listener.
+     *
+     * @param deviceId
+     * The device id to search for.
+     * @param listener
+     * The listener to be notified of the success or failure of the operation.
+     */
+    public void fetchUserByDeviceId(String deviceId, FirestoreCallbackUsersReceive listener) {
+        usersRef
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<User> items = task.getResult().toObjects(User.class);
+                            listener.onDataReceived(items); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Deletes a user document from the "Users" collection in Firestore.
+     *
+     * @param user
+     * The user to delete.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteUser(User user, FirestoreCallbackSend listener) {
+        db.collection("Users").document(user.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        listener.onSendSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        listener.onSendFailure(e);
+                    }
+                });
+    }
+
+    /**
+     * Deletes a user's profile if they are not organizing any events.
+     *
+     * @param user
+     * The user whose profile is to be deleted.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteProfile(User user, FirestoreCallbackSend listener) {
+        fetchEvents(new FirestoreCallbackEventsReceive() {
+            @Override
+            public void onDataReceived(List<Event> events) {
+                if (events == null) {
+                    listener.onSendFailure(new Exception("Could not fetch events."));
+                    return;
+                }
+
+                for (Event event : events) {
+                    if (event == null || event.getOrganizer() == null) {
+                        continue;
+                    }
+
+                    String organizerId = event.getOrganizer().getId();
+                    if (organizerId != null && organizerId.equals(user.getId())) {
+                        listener.onSendFailure(new Exception("Cannot delete profile while organizing an event."));
+                        return;
+                    }
+                }
+
+                ArrayList<Event> updatedEvents = new ArrayList<>();
+
+                for (Event event : events) {
+                    if (event == null) {
+                        continue;
+                    }
+
+                    if (event.removeUser(user)) {
+                        updatedEvents.add(event);
+                    }
+                }
+
+                if (updatedEvents.isEmpty()) {
+                    deleteUser(user, listener);
+                    return;
+                }
+
+                AtomicInteger remaining = new AtomicInteger(updatedEvents.size());
+                AtomicBoolean failed = new AtomicBoolean(false);
+
+                for (Event event : updatedEvents) {
+                    updateEvent(event, new FirestoreCallbackSend() {
+                        @Override
+                        public void onSendSuccess() {
+                            if (failed.get()) {
+                                return;
+                            }
+
+                            if (remaining.decrementAndGet() == 0) {
+                                deleteUser(user, listener);
+                            }
+                        }
+
+                        @Override
+                        public void onSendFailure(Exception e) {
+                            if (failed.compareAndSet(false, true)) {
+                                listener.onSendFailure(e);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                listener.onSendFailure(e);
+            }
+        });
+    }
+
+    public void fetchUserByFirebaseId(String id, FirestoreCallbackUserReceive listener) {
+        usersRef.document(id).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            User u = task.getResult().toObject(User.class);
+                            listener.onDataReceived(u); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void fetchEventByFirebaseId(String id, FirestoreCallbackEventReceive listener) {
+        eventsRef.document(id).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Event e = task.getResult().toObject(Event.class);
+                            listener.onDataReceived(e); // Send data back to Activity
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
     }
 }

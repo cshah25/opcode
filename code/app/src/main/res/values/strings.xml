@@ -6,6 +6,8 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="event_waiting_list">Event Waiting List</string>
+    <string name="lottery_selection_guidelines">Lottery Selection Guidelines</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -48,6 +50,28 @@
     <string name="final_organizer_event_fragment_label">Final Organizer Event Fragment</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="back">Back</string>
+    <string name="event">Event</string>
+    <string name="profile">Profile</string>
+    <string name="event_name">Event Name</string>
+    <string name="your_status_waitlisted">Your Status: waitlisted</string>
+    <string name="date_amp_time"><![CDATA[Date & Time]]></string>
+    <string name="location">Location</string>
+    <string name="price_if_exists">Price (if exists)</string>
+    <string name="registration_closes_soon">Registration closes soon</string>
+    <string name="open_closed">OPEN/CLOSED</string>
+    <string name="total_entrants_on_the_waiting_list">Total entrants on the waiting list</string>
+    <string name="description">Description</string>
+    <string name="leave_the_draw">Leave the draw</string>
+    <string name="block_notifications">Block notifications</string>
+    <string name="search">Search</string>
+    <string name="search_events">Search events</string>
+    <string name="search_events_list">Search</string>
+    <string name="qr_code">QR code</string>
+    <string name="status">Status</string>
+    <string name="enrolled_users">Enrolled Users</string>
+    <string name="invited_users">Invited Users</string>
+    <string name="applicants">Applicants</string>
+    <string name="would_you_like_to_remove_the_applicant">Would you like to remove the applicant?</string>
 </resources>

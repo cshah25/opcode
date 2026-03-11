@@ -3,6 +3,7 @@ package com.example.opcodeapp;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.firebase.firestore.DocumentId;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.auth.FirebaseUser;
-
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.time.LocalDate;
@@ -26,10 +27,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.OptionalDouble;
 
 
 @SuppressWarnings("deprecated")
+
+/**
+ * The Event class.
+ * Contains all the information about an event.
+ */
 public class Event implements Parcelable {
 
     @DocumentId
@@ -37,20 +43,25 @@ public class Event implements Parcelable {
     private String name;
     private String location;
     private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDateTime registration_startTime;
-    private LocalDateTime registration_endTime;
+    private String startDate;
+    private String endDate;
+    private String registration_startTime;
+    private String registration_endTime;
+    private float price;
 
     private User organizer;
 
     /**
      * A map containing all the applicants (instances of User class) of the event as keys.
-     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined").
+     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined", "Declined-Removed").
      *
      */
     private Map<User, String> applicants = new HashMap<>();
 
+    /**
+     * Needed for toObject from Firebase
+     */
+    public Event() {}
 
     /**
      * Constructor for the Event class.
@@ -72,15 +83,16 @@ public class Event implements Parcelable {
      * The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer) {
+    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price) {
         this.name = name;
         this.location = location;
         this.description = description;
-        this.startDate = startDate;
-        this.registration_startTime = registration_startTime;
-        this.endDate = endDate;
-        this.registration_endTime = registration_endTime;
+        this.startDate = startDate.toString();
+        this.registration_startTime = registration_startTime.toString();
+        this.endDate = endDate.toString();
+        this.registration_endTime = registration_endTime.toString();
         this.organizer = organizer;
+        this.price = price;
     }
 
     protected Event(Parcel in) {
@@ -88,21 +100,29 @@ public class Event implements Parcelable {
         name = in.readString();
         location = in.readString();
         description = in.readString();
-        startDate = (LocalDate) in.readSerializable();
-        endDate = (LocalDate) in.readSerializable();
-        registration_endTime = (LocalDateTime) in.readSerializable();
-        registration_startTime = (LocalDateTime) in.readSerializable();
+        startDate = in.readString();
+        endDate = in.readString();
+        registration_endTime = in.readString();
+        registration_startTime = in.readString();
         organizer = in.readParcelable(User.class.getClassLoader());
+        price = in.readFloat();
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            User key = in.readParcelable(User.class.getClassLoader());
+            String key = in.readString();
             String value = in.readString();
-            applicants.put(key, value);
+            db.fetchUserByFirebaseId(key, new FirestoreCallbackUserReceive() {
+                @Override
+                public void onDataReceived(User u) {
+                    applicants.put(u, value);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("Event", String.format("error loading applicant: %s", e));
+                }
+            });
         }
-
-
-
-
     }
 
     public static final Creator<Event> CREATOR = new Creator<Event>() {
@@ -129,14 +149,15 @@ public class Event implements Parcelable {
         dest.writeString(name);
         dest.writeString(location);
         dest.writeString(description);
-        dest.writeSerializable(startDate);
-        dest.writeSerializable(endDate);
-        dest.writeSerializable(registration_endTime);
-        dest.writeSerializable(registration_startTime);
-        dest.writeParcelable(organizer, flags);
+        dest.writeString(startDate);
+        dest.writeString(endDate);
+        dest.writeString(registration_endTime);
+        dest.writeString(registration_startTime);
+        // store as ids when serialized
+        dest.writeString(organizer.getId());
         dest.writeInt(applicants.size());
         for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            dest.writeParcelable(entry.getKey(), flags); // Write custom key
+            dest.writeString(entry.getKey().getId()); // Write custom key
             dest.writeString(entry.getValue());          // Write value
         }
 
@@ -209,7 +230,7 @@ public class Event implements Parcelable {
      * The start date of the event.
      */
     public LocalDate getStartDate() {
-        return startDate;
+        return LocalDate.parse(startDate);
     }
 
     /**
@@ -219,7 +240,7 @@ public class Event implements Parcelable {
      * The start date of the event.
      */
     public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+        this.startDate = startDate.toString();
     }
 
     /**
@@ -229,7 +250,7 @@ public class Event implements Parcelable {
      * The end date of the event.
      */
     public LocalDate getEndDate() {
-        return endDate;
+        return LocalDate.parse(endDate);
     }
 
     /**
@@ -239,7 +260,7 @@ public class Event implements Parcelable {
      * The end date of the event.
      */
     public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+        this.endDate = endDate.toString();
     }
 
     /**
@@ -249,7 +270,7 @@ public class Event implements Parcelable {
      * The registration end time of the event.
      */
     public LocalDateTime getRegistration_endTime() {
-        return registration_endTime;
+        return LocalDateTime.parse(registration_endTime);
     }
 
     /**
@@ -258,7 +279,7 @@ public class Event implements Parcelable {
      * The registration end time of the event.
      */
     public void setRegistration_endTime(LocalDateTime registration_endTime) {
-        this.registration_endTime = registration_endTime;
+        this.registration_endTime = registration_endTime.toString();
     }
 
     /**
@@ -268,7 +289,7 @@ public class Event implements Parcelable {
      * The registration start time of the event.
      */
     public LocalDateTime getRegistration_startTime() {
-        return registration_startTime;
+        return LocalDateTime.parse(registration_startTime);
     }
 
     /**
@@ -278,7 +299,7 @@ public class Event implements Parcelable {
      * The registration start time of the event.
      */
     public void setRegistration_startTime(LocalDateTime registration_startTime) {
-        this.registration_startTime = registration_startTime;
+        this.registration_startTime = registration_startTime.toString();
     }
 
 
@@ -434,8 +455,14 @@ public class Event implements Parcelable {
         return declined;
     }
 
-
-
+    /**
+     * If the user declined the invite, this method lets the organizer remove the user from the screen.
+     *
+     * @param user
+     */
+    public void setDeclinedRemoved(User user) {
+        applicants.replace(user, "Declined-Removed");
+    }
 
     /**
      * Getter for the ID of the event. Filled in by Firestore.
@@ -455,5 +482,28 @@ public class Event implements Parcelable {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * Removes a user from the event.
+     *
+     * @param user
+     * The user to remove.
+     * @return
+     * True if the user was removed, false otherwise.
+     */
+    public boolean removeUser(User user) {
+        if (user == null) {
+            return false;
+        }
+        return applicants.remove(user) != null;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public String getApplicantStatus(User u) {
+        return applicants.get(u);
     }
 }
