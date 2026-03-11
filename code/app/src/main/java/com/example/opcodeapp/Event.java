@@ -479,4 +479,19 @@ public class Event implements Parcelable {
     public void setId(String id) {
         this.id = id;
     }
+
+    /**
+     * Removes a user from the event.
+     *
+     * @param user
+     * The user to remove.
+     * @return
+     * True if the user was removed, false otherwise.
+     */
+    public boolean removeUser(User user) {
+        if (user == null) {
+            return false;
+        }
+        return applicants.remove(user) != null;
+    }
 }

@@ -1,0 +1,121 @@
+package com.example.opcodeapp;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class EventsListFragment extends Fragment {
+
+    private EditText searchInput;
+    private ListView eventListView;
+
+    private ArrayList<Event> allEvents = new ArrayList<>();
+    private ArrayList<Event> shownEvents = new ArrayList<>();
+    private ArrayList<String> shownNames = new ArrayList<>();
+
+    private ArrayAdapter<String> adapter;
+
+    public EventsListFragment() {
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_eventslist, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ImageButton menuButton = view.findViewById(R.id.events_menu_button);
+        Button searchButton = view.findViewById(R.id.search_button);
+        searchInput = view.findViewById(R.id.search_input);
+        eventListView = view.findViewById(R.id.event_list_view);
+
+        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
+        eventListView.setAdapter(adapter);
+
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filterEvents();
+            }
+        });
+
+        eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", shownEvents.get(position));
+            NavHostFragment.findNavController(EventsListFragment.this)
+                    .navigate(R.id.eventDetailsFragment, bundle);
+        });
+
+        loadEvents();
+    }
+
+    private void loadEvents() {
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
+        db.fetchEvents(new FirestoreCallbackEventsReceive() {
+            @Override
+            public void onDataReceived(List<Event> events) {
+                allEvents.clear();
+                shownEvents.clear();
+                shownNames.clear();
+
+                if (events != null) {
+                    allEvents.addAll(events);
+                    shownEvents.addAll(events);
+
+                    for (Event event : events) {
+                        shownNames.add(event.getName());
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+    }
+
+    private void filterEvents() {
+        String text = searchInput.getText().toString().trim().toLowerCase();
+
+        shownEvents.clear();
+        shownNames.clear();
+
+        for (Event event : allEvents) {
+            String name = event.getName();
+
+            if (name != null && name.toLowerCase().contains(text)) {
+                shownEvents.add(event);
+                shownNames.add(name);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+}

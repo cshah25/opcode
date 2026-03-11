@@ -2,6 +2,7 @@ package com.example.opcodeapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -34,33 +35,23 @@ public class LaunchFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_launch, container, false);
 
         NavController nav = NavHostFragment.findNavController(this);
-
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(R.id.launchFragment, true)
                 .build();
 
         SessionController.getInstance(getContext()).getLoginState()
                 .observe(getViewLifecycleOwner(), state -> {
-                    // basically loop and wait until we know if we're logged in or not
-                    Log.i("launcher-fra", String.format("here: %s", state));
                     if (state == LoginState.LOGGED_IN) {
                         nav.navigate(R.id.main_graph, null, options);
-                    } else if (state == LoginState.LOGGED_OUT){
+                    } else if (state == LoginState.LOGGED_OUT) {
                         nav.navigate(R.id.setup_graph, null, options);
                     }
                 });
 
-        return v;
-    }
 }

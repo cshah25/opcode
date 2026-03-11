@@ -15,6 +15,8 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DBManager {
 
@@ -295,7 +297,6 @@ public class DBManager {
 
     /**
      * Deletes a user's profile if they are not organizing any events.
-     * Also removes the user from applicants and attendees of all events.
      *
      * @param user
      * The user whose profile is to be deleted.
@@ -312,7 +313,6 @@ public class DBManager {
                     return;
                 }
 
-                // First check whether the user is organizing any event
                 for (Event event : events) {
                     if (event == null || event.getOrganizer() == null) {
                         continue;
@@ -325,65 +325,47 @@ public class DBManager {
                     }
                 }
 
-                // If not organizing, remove the user from applicants and attendees
+                ArrayList<Event> updatedEvents = new ArrayList<>();
+
                 for (Event event : events) {
                     if (event == null) {
                         continue;
                     }
 
-                    boolean changed = false;
-
-                    User[] applicants = event.getApplicants();
-                    if (applicants != null) {
-                        ArrayList<User> updatedApplicants = new ArrayList<>();
-                        for (User applicant : applicants) {
-                            if (applicant == null) {
-                                continue;
-                            }
-
-                            if (applicant.getId() != null && applicant.getId().equals(user.getId())) {
-                                changed = true;
-                            } else {
-                                updatedApplicants.add(applicant);
-                            }
-                        }
-                        event.setApplicants(updatedApplicants.toArray(new User[0]));
-                    }
-
-                    User[] attendees = event.getAttendees();
-                    if (attendees != null) {
-                        ArrayList<User> updatedAttendees = new ArrayList<>();
-                        for (User attendee : attendees) {
-                            if (attendee == null) {
-                                continue;
-                            }
-
-                            if (attendee.getId() != null && attendee.getId().equals(user.getId())) {
-                                changed = true;
-                            } else {
-                                updatedAttendees.add(attendee);
-                            }
-                        }
-                        event.setAttendees(updatedAttendees.toArray(new User[0]));
-                    }
-
-                    if (changed) {
-                        updateEvent(event, new FirestoreCallbackSend() {
-                            @Override
-                            public void onSendSuccess() {
-                                // nothing extra needed here
-                            }
-
-                            @Override
-                            public void onSendFailure(Exception e) {
-                                // optional: could report immediately, but keeping minimal for now
-                            }
-                        });
+                    if (event.removeUser(user)) {
+                        updatedEvents.add(event);
                     }
                 }
 
-                // Finally delete the user document
-                deleteUser(user, listener);
+                if (updatedEvents.isEmpty()) {
+                    deleteUser(user, listener);
+                    return;
+                }
+
+                AtomicInteger remaining = new AtomicInteger(updatedEvents.size());
+                AtomicBoolean failed = new AtomicBoolean(false);
+
+                for (Event event : updatedEvents) {
+                    updateEvent(event, new FirestoreCallbackSend() {
+                        @Override
+                        public void onSendSuccess() {
+                            if (failed.get()) {
+                                return;
+                            }
+
+                            if (remaining.decrementAndGet() == 0) {
+                                deleteUser(user, listener);
+                            }
+                        }
+
+                        @Override
+                        public void onSendFailure(Exception e) {
+                            if (failed.compareAndSet(false, true)) {
+                                listener.onSendFailure(e);
+                            }
+                        }
+                    });
+                }
             }
 
             @Override

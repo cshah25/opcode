@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/launchFragment"
         android:name="com.example.opcodeapp.LaunchFragment"
-        tools:layout="@layout/fragment_launch" >
+        tools:layout="@layout/fragment_launch">
         <action
             android:id="@+id/action_launchFragment_to_main_graph"
             app:destination="@id/main_graph" />
@@ -19,39 +19,39 @@
 
     <navigation
         android:id="@+id/setup_graph"
-            app:startDestination="@id/setupFragment">
+        app:startDestination="@id/setupFragment">
+
         <fragment
             android:id="@+id/setupFragment"
             android:name="com.example.opcodeapp.SetupFragment"
-            tools:layout="@layout/fragment_setup" >
+            tools:layout="@layout/fragment_setup">
             <action
                 android:id="@+id/action_setupFragment_to_main_graph"
                 app:destination="@id/main_graph" />
         </fragment>
     </navigation>
+
     <navigation
         android:id="@+id/main_graph"
-        app:startDestination="@id/FirstFragment">
-        <fragment
-            android:id="@+id/FirstFragment"
-            android:name="com.example.opcodeapp.FirstFragment"
-            android:label="@string/first_fragment_label"
-            tools:layout="@layout/fragment_first">
+        app:startDestination="@id/eventsFragment">
 
-            <action
-                android:id="@+id/action_FirstFragment_to_SecondFragment"
-                app:destination="@id/SecondFragment" />
-        </fragment>
         <fragment
-            android:id="@+id/SecondFragment"
-            android:name="com.example.opcodeapp.SecondFragment"
-            android:label="@string/second_fragment_label"
-            tools:layout="@layout/fragment_second">
+            android:id="@+id/eventsFragment"
+            android:name="com.example.opcodeapp.EventsListFragment"
+            android:label="EventsFragment"
+            tools:layout="@layout/fragment_eventslist" />
 
-            <action
-                android:id="@+id/action_SecondFragment_to_FirstFragment"
-                app:destination="@id/FirstFragment" />
-        </fragment>
+        <fragment
+            android:id="@+id/eventDetailsFragment"
+            android:name="com.example.opcodeapp.EventDetailsFragment"
+            android:label="EventDetailsFragment"
+            tools:layout="@layout/fragment_event_details" />
+
+        <fragment
+            android:id="@+id/profileFragment"
+            android:name="com.example.opcodeapp.ProfileFragment"
+            android:label="ProfileFragment"
+            tools:layout="@layout/fragment_profile" />
 
         <fragment
             android:id="@+id/FinalOrganizerEventFragment"
@@ -73,9 +73,11 @@
             <action
                 android:id="@+id/action_EnrolledUsersFragment_to_FinalOrganizerEventFragment"
                 app:destination="@id/FinalOrganizerEventFragment" />
+
             <argument
                 android:name="userList"
                 app:argType="com.example.opcodeapp.User[]" />
         </fragment>
+
     </navigation>
 </navigation>
