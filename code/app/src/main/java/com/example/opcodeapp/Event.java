@@ -101,6 +101,7 @@ public class Event implements Parcelable {
         registration_startTime = (LocalDateTime) in.readSerializable();
         organizer = in.readParcelable(User.class.getClassLoader());
         price = in.readFloat();
+        DBManager db = new DBManager(FirebaseFirestore.getInstance());
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             String key = in.readString();
