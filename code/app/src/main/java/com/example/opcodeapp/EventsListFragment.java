@@ -46,13 +46,20 @@ public class EventsListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        ImageButton createButton = view.findViewById(R.id.events_create_button);
+>>>>>>> 12eee2804d037aae09711f19ba9873eb5511a871
         if (getArguments() != null) {
             currentUser = (User) getArguments().getParcelable("user");
         }
 
+<<<<<<< HEAD
 =======
         ImageButton createButton = view.findViewById(R.id.events_create_button);
 >>>>>>> main
+=======
+>>>>>>> 12eee2804d037aae09711f19ba9873eb5511a871
         ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);
