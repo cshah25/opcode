@@ -4,146 +4,113 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".OrganizersEventCreation">
+    tools:context=".OrganizersEventCreation" >
 
-    <TextView
-        android:id="@+id/textView6"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Event Name" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter event name" />
+            android:layout_height="90dp"
+            android:background="@color/light_purple"
+            android:orientation="vertical">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="18dp" />
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date and Time" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <TextView
+                android:id="@+id/create_event_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Create Event"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name" />
+
+            <EditText
+                android:id="@+id/event_creation_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/light_grey"
+                android:hint="Enter name" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date and time" />
+
+            <EditText
+                android:id="@+id/event_creation_date_time_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/light_grey"
                 android:hint="dd/mm/yyyy" />
-        </com.google.android.material.textfield.TextInputLayout>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="17dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location" />
 
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Location" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
+                android:id="@+id/event_creation_location_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/light_grey"
                 android:hint="Enter location" />
-        </com.google.android.material.textfield.TextInputLayout>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="19dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wait List Limit" />
 
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Price (optional)" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
+                android:id="@+id/event_creation_wait_list_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter price" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="15dp" />
-
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Waiting List Limit (optional)" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/light_grey"
                 android:hint="Enter wait list limit" />
-        </com.google.android.material.textfield.TextInputLayout>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="17dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registration Close Date" />
 
-        <TextView
-            android:id="@+id/textView13"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Registration Close Date" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
+                android:id="@+id/event_creation_close_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="dd/mm/yyyy" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="60dp"
+                android:backgroundTint="@color/light_grey"
+                android:hint="Enter close date" />
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="39dp" />
+            <Button
+                android:id="@+id/event_creation_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/light_purple"
+                android:text="Create Event"
+                android:onClick="create_event"
+                android:textColor="@android:color/white" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Update Poster" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Create" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
+    </LinearLayout>
 </RelativeLayout>
