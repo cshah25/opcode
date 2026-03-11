@@ -33,12 +33,12 @@
             android:textStyle="bold" />
 
         <ImageButton
-            android:id="@+id/events_qr_button"
+            android:id="@+id/events_create_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@android:color/transparent"
-            android:contentDescription="QR code"
-            android:src="@android:color/transparent" />
+            android:contentDescription="Create Event"
+            android:src="@android:drawable/ic_input_add" />
     </LinearLayout>
 
     <LinearLayout

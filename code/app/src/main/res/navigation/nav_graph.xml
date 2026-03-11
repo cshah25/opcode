@@ -145,5 +145,11 @@
                 android:name="CURRENT_USER"
                 app:argType="com.example.opcodeapp.User" />
         </fragment>
+
+        <fragment
+            android:id="@+id/organizersEventCreation"
+            android:name="com.example.opcodeapp.OrganizersEventCreation"
+            android:label="Create Event"
+            tools:layout="@layout/fragment_organizers_event_creation" />
     </navigation>
 </navigation>
