@@ -257,6 +257,26 @@ public class User implements Parcelable {
         this.id = id;
     }
 
+    /**
+     * Sets the device identifier for this user.
+     * This value is used to associate the user account with a specific device.
+     *
+     * @param deviceId the Android device identifier to store for this user
+     */
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+
+    /**
+     * Returns the device identifier associated with this user.
+     * This value is used to look up the user account by device.
+     *
+     * @return the stored Android device identifier, or null if not set
+     */
+    public String getDeviceId() {
+        return deviceId;
+    }
 
 
     @Override
@@ -274,9 +294,5 @@ public class User implements Parcelable {
     public int hashCode() {
         // Generate a hash based on the same fields used in equals()
         return Objects.hash(id, email);
-    }
-
-    public String getDeviceId() {
-        return deviceId;
     }
 }

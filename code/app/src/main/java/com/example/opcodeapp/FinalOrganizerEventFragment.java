@@ -17,7 +17,6 @@ import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
  * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
  */
  public class FinalOrganizerEventFragment extends Fragment {
-
     /**
      * The binding for the fragment.
      */

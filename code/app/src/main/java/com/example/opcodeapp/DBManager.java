@@ -13,7 +13,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -268,6 +271,110 @@ public class DBManager {
                         }
                     }
                 });
+    }
+
+    /**
+     * Deletes a user document from the "Users" collection in Firestore.
+     *
+     * @param user
+     * The user to delete.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteUser(User user, FirestoreCallbackSend listener) {
+        db.collection("Users").document(user.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        listener.onSendSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        listener.onSendFailure(e);
+                    }
+                });
+    }
+
+    /**
+     * Deletes a user's profile if they are not organizing any events.
+     *
+     * @param user
+     * The user whose profile is to be deleted.
+     * @param listener
+     * The listener to be notified of success or failure.
+     */
+    public void deleteProfile(User user, FirestoreCallbackSend listener) {
+        fetchEvents(new FirestoreCallbackEventsReceive() {
+            @Override
+            public void onDataReceived(List<Event> events) {
+                if (events == null) {
+                    listener.onSendFailure(new Exception("Could not fetch events."));
+                    return;
+                }
+
+                for (Event event : events) {
+                    if (event == null || event.getOrganizer() == null) {
+                        continue;
+                    }
+
+                    String organizerId = event.getOrganizer().getId();
+                    if (organizerId != null && organizerId.equals(user.getId())) {
+                        listener.onSendFailure(new Exception("Cannot delete profile while organizing an event."));
+                        return;
+                    }
+                }
+
+                ArrayList<Event> updatedEvents = new ArrayList<>();
+
+                for (Event event : events) {
+                    if (event == null) {
+                        continue;
+                    }
+
+                    if (event.removeUser(user)) {
+                        updatedEvents.add(event);
+                    }
+                }
+
+                if (updatedEvents.isEmpty()) {
+                    deleteUser(user, listener);
+                    return;
+                }
+
+                AtomicInteger remaining = new AtomicInteger(updatedEvents.size());
+                AtomicBoolean failed = new AtomicBoolean(false);
+
+                for (Event event : updatedEvents) {
+                    updateEvent(event, new FirestoreCallbackSend() {
+                        @Override
+                        public void onSendSuccess() {
+                            if (failed.get()) {
+                                return;
+                            }
+
+                            if (remaining.decrementAndGet() == 0) {
+                                deleteUser(user, listener);
+                            }
+                        }
+
+                        @Override
+                        public void onSendFailure(Exception e) {
+                            if (failed.compareAndSet(false, true)) {
+                                listener.onSendFailure(e);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                listener.onSendFailure(e);
+            }
+        });
     }
 
     public void fetchUserByFirebaseId(String id, FirestoreCallbackUserReceive listener) {

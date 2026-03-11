@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
@@ -58,14 +60,14 @@ public class EnrolledUsersFragment extends Fragment {
         dataList = new ArrayList<>(Arrays.asList(receivedArray));
 
         userList = view.getRootView().findViewById(R.id.enrolled_users_list_view);
-
-        userAdapter = new EnrolledUserArrayAdapter(getContext(), dataList);
+        
+        userAdapter = new UserArrayAdapter(getContext(), dataList);
 
         userList.setAdapter(userAdapter);
 
+        userAdapter = new UserArrayAdapter(getContext(), dataList);
 
-
-
+        userList.setAdapter(userAdapter);
     }
 
     @Override
@@ -73,8 +75,4 @@ public class EnrolledUsersFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-
-
-
 }

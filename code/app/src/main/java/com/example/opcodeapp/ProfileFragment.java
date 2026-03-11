@@ -6,72 +6,100 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
-/**
- * Fulfills US 01.02.02: Entrant can update name, email, and contact info.
- */
 public class ProfileFragment extends Fragment {
 
-    private User currentUser;
-    private DBManager dbManager;
-    private EditText editName, editEmail, editPhone;
+    private EditText nameInput;
+    private EditText emailInput;
+    private EditText phoneInput;
 
-    public ProfileFragment() {}
+    public ProfileFragment() {
+    }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        dbManager = new DBManager(FirebaseFirestore.getInstance());
+        nameInput = view.findViewById(R.id.profile_name_input);
+        emailInput = view.findViewById(R.id.profile_email_input);
+        phoneInput = view.findViewById(R.id.profile_phone_input);
 
-        if (getArguments() != null) {
-            currentUser = (User) getArguments().getSerializable("CURRENT_USER");
-        }
+        ImageButton backButton = view.findViewById(R.id.profile_back_button);
+        Button updateButton = view.findViewById(R.id.profile_update_button);
+        Button deleteButton = view.findViewById(R.id.profile_delete_button);
 
-        editName = view.findViewById(R.id.edit_profile_name);
-        editEmail = view.findViewById(R.id.edit_profile_email);
-        editPhone = view.findViewById(R.id.edit_profile_phone);
-        Button btnSave = view.findViewById(R.id.btn_save_profile);
+        User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
 
-        // Pre-fill the fields with current data
         if (currentUser != null) {
-            editName.setText(currentUser.getName());
-            editEmail.setText(currentUser.getEmail());
+            nameInput.setText(currentUser.getName());
+            emailInput.setText(currentUser.getEmail());
+            phoneInput.setText(currentUser.getPhoneNum());
         }
 
-        btnSave.setOnClickListener(v -> saveProfileData());
-    }
-
-    private void saveProfileData() {
-        if (currentUser == null) return;
-
-        // Update the local object
-        currentUser.setName(editName.getText().toString());
-        currentUser.setEmail(editEmail.getText().toString());
-        currentUser.setPhoneNum(editPhone.getText().toString());
-
-        // Push to Firestore
-        dbManager.updateUser(currentUser, new FirestoreCallbackSend() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSendSuccess() {
-                Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                NavHostFragment.findNavController(ProfileFragment.this).navigateUp();
             }
+        });
 
+        updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSendFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                User user = SessionController.getInstance(requireContext()).getCurrentUser();
+                if (user == null) {
+                    return;
+                }
+
+                user.setName(nameInput.getText().toString().trim());
+                user.setEmail(emailInput.getText().toString().trim());
+                user.setPhoneNum(phoneInput.getText().toString().trim());
+
+                DBManager db = new DBManager(FirebaseFirestore.getInstance());
+                db.updateUser(user, new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess() {
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                    }
+                });
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = SessionController.getInstance(requireContext()).getCurrentUser();
+                if (user == null) {
+                    return;
+                }
+
+                DBManager db = new DBManager(FirebaseFirestore.getInstance());
+                db.deleteProfile(user, new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess() {
+                        NavHostFragment.findNavController(ProfileFragment.this).navigateUp();
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                    }
+                });
             }
         });
     }
