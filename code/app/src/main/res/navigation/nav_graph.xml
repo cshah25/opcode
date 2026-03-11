@@ -38,13 +38,21 @@
             android:id="@+id/eventsFragment"
             android:name="com.example.opcodeapp.EventsListFragment"
             android:label="EventsFragment"
-            tools:layout="@layout/fragment_eventslist" />
+            tools:layout="@layout/fragment_eventslist" >
+            <action
+                android:id="@+id/action_eventsFragment_to_EntrantEventDetailsFragment"
+                app:destination="@id/EntrantEventDetailsFragment" />
+        </fragment>
 
         <fragment
             android:id="@+id/eventDetailsFragment"
             android:name="com.example.opcodeapp.EventDetailsFragment"
             android:label="EventDetailsFragment"
             tools:layout="@layout/fragment_event_details" />
+            <argument
+                android:name="event"
+                app:argType="com.example.opcodeapp.Event" />
+
 
         <fragment
             android:id="@+id/profileFragment"
@@ -137,5 +145,11 @@
                 android:name="CURRENT_USER"
                 app:argType="com.example.opcodeapp.User" />
         </fragment>
+
+        <fragment
+            android:id="@+id/organizersEventCreation"
+            android:name="com.example.opcodeapp.OrganizersEventCreation"
+            android:label="Create Event"
+            tools:layout="@layout/fragment_organizers_event_creation" />
     </navigation>
 </navigation>
