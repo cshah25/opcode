@@ -2,10 +2,8 @@ package com.example.opcodeapp;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -15,25 +13,24 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
 
-import java.util.List;
-
 
 /**
- * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
+ * The fragment for showing the Event information (Organizer Perspective) after creation is complete.
+ * @see EventCreatorFragment
  */
- public class FinalOrganizerEventFragment extends Fragment {
+public class FinalOrganizerEventFragment extends Fragment {
     /**
      * The binding for the fragment.
      */
     private FragmentFinalOrganizerEventBinding binding;
 
+    /**
+     * Default constructor
+     */
     public FinalOrganizerEventFragment() {
-        // Required empty public constructor
     }
 
     private Event event;
-
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,8 +50,6 @@ import java.util.List;
             NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigateUp();
             return;
         }
-
-        User currentUser = getArguments().getParcelable("user");
 
         ImageButton backButton = view.findViewById(R.id.event_back_button);
 
@@ -77,8 +72,6 @@ import java.util.List;
         });
 
 
-
-
         view.findViewById(R.id.enrolled_users_button).setOnClickListener(new View.OnClickListener() {
             /**
              * The click listener for the enrolled users button.
@@ -91,8 +84,6 @@ import java.util.List;
                 User[] enrolledUsers = event.getAttendees().toArray(new User[0]);
                 FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
                 NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
-
-
             }
 
         });
@@ -141,9 +132,6 @@ import java.util.List;
             }
 
         });
-
-
-
 
 
     }
