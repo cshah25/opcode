@@ -160,6 +160,15 @@
                 android:text="@string/view_all_the_invited_users"
                 android:textColor="@android:color/white" />
 
+            <Button
+                android:id="@+id/all_applicants_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:backgroundTint="@color/profile_button"
+                android:text="@string/view_all_applicants"
+                android:textColor="@android:color/white" />
+
 
         </LinearLayout>
     </LinearLayout>

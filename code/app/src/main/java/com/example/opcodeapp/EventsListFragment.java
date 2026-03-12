@@ -60,9 +60,11 @@ public class EventsListFragment extends Fragment {
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
         eventListView.setAdapter(adapter);
 
+
+
         createButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.organizersEventCreation));
+                        .navigate(R.id.EventCreatorFragment));
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,26 +80,26 @@ public class EventsListFragment extends Fragment {
         });
 
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
-            Bundle bundle = new Bundle();
+            Bundle bundle2 = new Bundle();
 
             Event selected_event = shownEvents.get(position);
 
-            bundle.putParcelable("event", shownEvents.get(position));
-            bundle.putParcelable("user", currentUser);
+            bundle2.putParcelable("event", shownEvents.get(position));
+            bundle2.putParcelable("user", currentUser);
 
             if (selected_event.getApplicants().contains(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.eventDetailsFragment, bundle);
+                        .navigate(R.id.eventDetailsFragment, bundle2);
 
             } else if (selected_event.getInvited().contains(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventInvitationFragment, bundle);
+                        .navigate(R.id.EventInvitationFragment, bundle2);
             } else if (selected_event.getOrganizer() == currentUser) {
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.FinalOrganizerEventFragment, bundle);
+                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
             }  else {
                     NavHostFragment.findNavController(EventsListFragment.this)
-                            .navigate(R.id.EntrantEventDetailsFragment, bundle);
+                            .navigate(R.id.EntrantEventDetailsFragment, bundle2);
 
             }
 

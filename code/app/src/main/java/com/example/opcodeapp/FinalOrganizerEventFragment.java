@@ -54,7 +54,7 @@ import java.util.List;
             return;
         }
 
-        User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
+        User currentUser = getArguments().getParcelable("user");
 
         ImageButton backButton = view.findViewById(R.id.event_back_button);
 
@@ -77,6 +77,8 @@ import java.util.List;
         });
 
 
+
+
         view.findViewById(R.id.enrolled_users_button).setOnClickListener(new View.OnClickListener() {
             /**
              * The click listener for the enrolled users button.
@@ -95,6 +97,17 @@ import java.util.List;
 
         });
 
+        view.findViewById(R.id.event_profile_button).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.ProfileFragment);
+            }
+
+        });
+
         view.findViewById(R.id.invited_users_button).setOnClickListener(new View.OnClickListener() {
             /**
              * The click listener for the invited users button.
@@ -104,15 +117,34 @@ import java.util.List;
             @Override
             public void onClick(View view) {
 
-
-                FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToInvitedUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToInvitedUsersFragment(event);
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("event", event);
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.InvitedUsersFragment, bundle);
 
 
             }
 
 
         });
+
+        view.findViewById(R.id.all_applicants_button).setOnClickListener(new View.OnClickListener() {
+            /**
+             * The click listener for the all applicants button.
+             *
+             * @param view The view that was clicked.
+             */
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("event", event);
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.ApplicantFragment, bundle);
+            }
+
+        });
+
+
+
+
 
     }
 

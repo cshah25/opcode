@@ -72,7 +72,8 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Event event = InvitedUsersFragmentArgs.fromBundle(getArguments()).getEvent();
+        Event event = getArguments().getParcelable("event");
+
 
 
 
