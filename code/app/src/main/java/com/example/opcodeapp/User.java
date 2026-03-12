@@ -42,10 +42,7 @@ public class User implements Parcelable {
         this.name = name;
         this.email = email;
         this.phoneNum = phoneNum;
-        this.deviceId = Settings.Secure.getString(
-                ctx.getContentResolver(),
-                Settings.Secure.ANDROID_ID
-        );
+        this.deviceId = DeviceIdUtil.getDeviceId(ctx);
     };
 
 

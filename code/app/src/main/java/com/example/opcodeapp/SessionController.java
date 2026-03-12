@@ -30,10 +30,7 @@ public class SessionController {
     private FirebaseUser fire_user;
 
     public SessionController(Context context) {
-        String id = Settings.Secure.getString(
-                context.getContentResolver(),
-                Settings.Secure.ANDROID_ID
-        );
+        String id = DeviceIdUtil.getDeviceId(context);
         mAuth = FirebaseAuth.getInstance();
         fire_user = mAuth.getCurrentUser();
         DBManager db = new DBManager(FirebaseFirestore.getInstance());
@@ -98,6 +95,8 @@ public class SessionController {
 
     public void logout() {
         current_user = null;
+        mAuth.signOut();
+        state.postValue(LoginState.LOGGED_OUT);
     }
 
     public LiveData<LoginState> getLoginState() {
