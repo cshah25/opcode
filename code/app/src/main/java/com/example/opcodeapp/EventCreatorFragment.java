@@ -300,7 +300,8 @@ public class EventCreatorFragment extends Fragment {
 
                 Bundle args = new Bundle();
                 args.putParcelable("event", event);
-                NavHostFragment.findNavController(instance).navigate(R.id.eventDetailsFragment, args);
+                NavHostFragment.findNavController(instance)
+                        .navigate(R.id.action_EventCreatorFragment_to_FinalOrganizerEventFragment, args);
                 Toast.makeText(getContext(), "Created event successfully", Toast.LENGTH_SHORT).show();
             }
 

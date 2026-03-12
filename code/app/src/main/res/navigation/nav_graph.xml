@@ -38,7 +38,7 @@
             android:id="@+id/eventsFragment"
             android:name="com.example.opcodeapp.EventsListFragment"
             android:label="EventsFragment"
-            tools:layout="@layout/fragment_eventslist" >
+            tools:layout="@layout/fragment_eventslist">
             <action
                 android:id="@+id/action_eventsFragment_to_EntrantEventDetailsFragment"
                 app:destination="@id/EntrantEventDetailsFragment" />
@@ -60,16 +60,14 @@
             android:id="@+id/eventDetailsFragment"
             android:name="com.example.opcodeapp.EventDetailsFragment"
             android:label="EventDetailsFragment"
-            tools:layout="@layout/fragment_event_details" >
+            tools:layout="@layout/fragment_event_details">
             <action
                 android:id="@+id/action_eventDetailsFragment_to_ProfileFragment"
                 app:destination="@id/ProfileFragment" />
         </fragment>
-            <argument
-                android:name="event"
-                app:argType="com.example.opcodeapp.Event" />
-
-
+        <argument
+            android:name="event"
+            app:argType="com.example.opcodeapp.Event" />
         <fragment
             android:id="@+id/FinalOrganizerEventFragment"
             android:name="com.example.opcodeapp.FinalOrganizerEventFragment"
@@ -95,8 +93,6 @@
             android:name="com.example.opcodeapp.EnrolledUsersFragment"
             android:label="@string/enrolled_users_fragment_label"
             tools:layout="@layout/fragment_enrolled_users">
-
-
             <argument
                 android:name="userList"
                 app:argType="com.example.opcodeapp.User[]" />
@@ -164,12 +160,16 @@
             android:id="@+id/EventCreatorFragment"
             android:name="com.example.opcodeapp.EventCreatorFragment"
             android:label="Create Event"
-            tools:layout="@layout/fragment_event_creator"/>
+            tools:layout="@layout/fragment_event_creator" >
+            <action
+                android:id="@+id/action_EventCreatorFragment_to_FinalOrganizerEventFragment"
+                app:destination="@id/FinalOrganizerEventFragment" />
+        </fragment>
         <fragment
             android:id="@+id/EventInvitationFragment"
             android:name="com.example.opcodeapp.EventInvitationFragment"
             android:label="Event Invitation"
-            tools:layout="@layout/fragment_event_invitation"/>
+            tools:layout="@layout/fragment_event_invitation" />
 
     </navigation>
 </navigation>
