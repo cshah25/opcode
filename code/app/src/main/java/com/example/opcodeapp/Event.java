@@ -48,6 +48,7 @@ public class Event implements Parcelable {
     private String registration_startTime;
     private String registration_endTime;
     private float price;
+    private int waitlistLimit;
 
     private User organizer;
 
@@ -83,7 +84,7 @@ public class Event implements Parcelable {
      * The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price) {
+    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price, int  waitlistLimit) {
         this.name = name;
         this.location = location;
         this.description = description;
@@ -93,6 +94,7 @@ public class Event implements Parcelable {
         this.registration_endTime = registration_endTime.toString();
         this.organizer = organizer;
         this.price = price;
+        this.waitlistLimit = waitlistLimit;
     }
 
 
