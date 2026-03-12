@@ -89,9 +89,15 @@ public class EventsListFragment extends Fragment {
                 NavHostFragment.findNavController(EventsListFragment.this)
                         .navigate(R.id.eventDetailsFragment, bundle);
 
-            } else {
+            } else if (selected_event.getInvited().contains(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EntrantEventDetailsFragment, bundle);
+                        .navigate(R.id.EventInvitationFragment, bundle);
+            } else if (selected_event.getOrganizer() == currentUser) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.FinalOrganizerEventFragment, bundle);
+            }  else {
+                    NavHostFragment.findNavController(EventsListFragment.this)
+                            .navigate(R.id.EntrantEventDetailsFragment, bundle);
 
             }
 

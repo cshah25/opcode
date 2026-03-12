@@ -145,6 +145,13 @@
                 android:name="CURRENT_USER"
                 app:argType="com.example.opcodeapp.User" />
         </fragment>
+        <fragment
+            android:id="@+id/EventInvitationFragment"
+            android:name="com.example.opcodeapp.EventInvitationFragment"
+            android:label="Event Invitation"
+            tools:layout="@layout/fragment_event_invitation"/>
+
+
 
         <fragment
             android:id="@+id/organizersEventCreation"
