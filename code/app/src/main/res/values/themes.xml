@@ -6,4 +6,8 @@
     </style>
 
     <style name="Theme.OpcodeApp" parent="Base.Theme.OpcodeApp" />
+
+    <style name="ThemeOverlay.App.BottomSheetDialog"
+        parent="ThemeOverlay.Material3.BottomSheetDialog">
+    </style>
 </resources>

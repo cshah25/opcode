@@ -18,13 +18,16 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+/**
+ * The Firestore database manager. manages all the queries needed for the app to run.
+ */
 public class DBManager {
 
     /**
      * FirebaseFirestore instance.
      */
     private FirebaseFirestore db;
-
 
     /**
      * CollectionReference for the "Users" collection.
@@ -254,7 +257,7 @@ public class DBManager {
      * The listener to be notified of the success or failure of the operation.
      */
     public void fetchUserByDeviceId(String deviceId, FirestoreCallbackUsersReceive listener) {
-        db.collection("Users")
+        usersRef
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -304,7 +307,6 @@ public class DBManager {
      * The listener to be notified of success or failure.
      */
     public void deleteProfile(User user, FirestoreCallbackSend listener) {
-
         fetchEvents(new FirestoreCallbackEventsReceive() {
             @Override
             public void onDataReceived(List<Event> events) {
@@ -374,6 +376,7 @@ public class DBManager {
             }
         });
     }
+
     public void fetchUserByFirebaseId(String id, FirestoreCallbackUserReceive listener) {
         usersRef.document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

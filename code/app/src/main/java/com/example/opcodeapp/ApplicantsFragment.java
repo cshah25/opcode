@@ -6,22 +6,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
- * The fragment for the list of users who are enrolled in the event ("Accepted").
+ * The fragment for the list of users who applied for the event.
  */
-public class EnrolledUsersFragment extends Fragment {
+public class ApplicantsFragment extends Fragment {
+
 
     /**
      * The list of users to be displayed.
@@ -48,26 +48,51 @@ public class EnrolledUsersFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentUserView = inflater.inflate(R.layout.fragment_enrolled_users, container, false);
+        View fragmentUserView = inflater.inflate(R.layout.fragment_applicants, container, false);
         return fragmentUserView;
     }
 
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        User[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
+        Event event = getArguments().getParcelable("event");
+
+        List<User> Attendees = event.getAttendees();
+
+        List<User> applicants = event.getApplicants();
+
+        List<User> invited = event.getInvited();
+
+        List<User> declined = event.getDeclined();
+
+        List<User> declined_removed = event.getDeclinedRemoved();
+
+        List<User> all_applicants = new ArrayList<>();
+        all_applicants.addAll(Attendees);
+        all_applicants.addAll(applicants);
+        all_applicants.addAll(invited);
+        all_applicants.addAll(declined);
+        all_applicants.addAll(declined_removed);
+
+
+        User[] receivedArray = all_applicants.toArray(new User[0]);
+
+
+
+
+
 
         dataList = new ArrayList<>(Arrays.asList(receivedArray));
 
-        userList = view.getRootView().findViewById(R.id.enrolled_users_list_view);
-        
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
+        userList = view.getRootView().findViewById(R.id.applicant_users_list_view);
+
+        userAdapter = new EnrolledUserArrayAdapter(getContext(), dataList);
 
         userList.setAdapter(userAdapter);
 
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
 
-        userList.setAdapter(userAdapter);
+
+
     }
 
     @Override

@@ -41,7 +41,6 @@ public class EventDetailsFragment extends Fragment {
         }
 
         User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
-
         ImageButton backButton = view.findViewById(R.id.event_back_button);
 
         TextView nameText = view.findViewById(R.id.event_name_text);
@@ -50,11 +49,24 @@ public class EventDetailsFragment extends Fragment {
         TextView descriptionText = view.findViewById(R.id.event_description_text);
 
         Button leaveDrawButton = view.findViewById(R.id.leave_draw_button);
+        Button qrCodeButton = view.findViewById(R.id.qr_code_button);
 
         nameText.setText(event.getName());
         dateText.setText(event.getStartDate() + " to " + event.getEndDate());
         locationText.setText(event.getLocation());
         descriptionText.setText(event.getDescription());
+
+
+        view.findViewById(R.id.event_profile_button).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+                NavHostFragment.findNavController(EventDetailsFragment.this).navigate(R.id.ProfileFragment);
+            }
+
+        });
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +95,11 @@ public class EventDetailsFragment extends Fragment {
                     }
                 });
             }
+        });
+
+        qrCodeButton.setOnClickListener(v  -> {
+            QrCodeViewerFragment.newInstance(event.getId())
+                    .show(getParentFragmentManager(), "qr_code_view");
         });
     }
 }

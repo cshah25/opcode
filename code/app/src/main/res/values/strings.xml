@@ -50,10 +50,6 @@
     <string name="final_organizer_event_fragment_label">Final Organizer Event Fragment</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
-    <string name="status">Status</string>
-    <string name="enrolled_users">Enrolled Users</string>
-    <string name="invited_users">Invited Users</string>
-    <string name="applicants">Applicants</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="back">Back</string>
     <string name="event">Event</string>
@@ -72,5 +68,12 @@
     <string name="search">Search</string>
     <string name="search_events">Search events</string>
     <string name="search_events_list">Search</string>
-    <string name="qr_code">QR code</string>
+    <string name="qr_code">QR Code</string>
+    <string name="status">Status</string>
+    <string name="enrolled_users">Enrolled Users</string>
+    <string name="invited_users">Invited Users</string>
+    <string name="applicants">Applicants</string>
+    <string name="would_you_like_to_remove_the_applicant">Would you like to remove the applicant?</string>
+    <string name="view_all_the_invited_users">View all the invited users</string>
+    <string name="view_all_applicants">View all applicants</string>
 </resources>
