@@ -56,6 +56,18 @@ public class EventDetailsFragment extends Fragment {
         locationText.setText(event.getLocation());
         descriptionText.setText(event.getDescription());
 
+
+        view.findViewById(R.id.event_profile_button).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+                NavHostFragment.findNavController(EventDetailsFragment.this).navigate(R.id.ProfileFragment);
+            }
+
+        });
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -256,6 +256,8 @@ public class EventCreatorFragment extends Fragment {
                 priceLayout.setError("Enter a valid price");
                 valid = false;
             }
+        } else {
+            price = 0.0f;
         }
 
         Integer waitlistLimit = null;
@@ -270,6 +272,8 @@ public class EventCreatorFragment extends Fragment {
                 waitlistLayout.setError("Enter a valid whole number");
                 valid = false;
             }
+        } else {
+            waitlistLimit = -1;
         }
 
         if (!valid)
@@ -282,12 +286,12 @@ public class EventCreatorFragment extends Fragment {
         User organizer = controller.getCurrentUser();
         Event event = new Event(name, location, description,
                 LocalDate.parse(eventStart, dateFormat),
-                LocalDateTime.parse(registrationStart),
-                LocalDate.parse(eventEnd),
-                LocalDateTime.parse(registrationEnd),
+                LocalDate.parse(registrationStart, dateFormat).atStartOfDay(),
+                LocalDate.parse(eventEnd, dateFormat),
+                LocalDate.parse(registrationEnd, dateFormat).atStartOfDay(),
                 organizer,
-                price.floatValue(),
-                waitlistLimit.intValue()
+                price,
+                waitlistLimit
         );
         manager.addEvent(event, new FirestoreCallbackSend() {
             @Override

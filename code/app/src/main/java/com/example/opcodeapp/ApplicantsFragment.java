@@ -14,6 +14,7 @@ import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -54,7 +55,32 @@ public class ApplicantsFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        User[] receivedArray = ApplicantsFragmentArgs.fromBundle(getArguments()).getUserList();
+        Event event = getArguments().getParcelable("event");
+
+        List<User> Attendees = event.getAttendees();
+
+        List<User> applicants = event.getApplicants();
+
+        List<User> invited = event.getInvited();
+
+        List<User> declined = event.getDeclined();
+
+        List<User> declined_removed = event.getDeclinedRemoved();
+
+        List<User> all_applicants = new ArrayList<>();
+        all_applicants.addAll(Attendees);
+        all_applicants.addAll(applicants);
+        all_applicants.addAll(invited);
+        all_applicants.addAll(declined);
+        all_applicants.addAll(declined_removed);
+
+
+        User[] receivedArray = all_applicants.toArray(new User[0]);
+
+
+
+
+
 
         dataList = new ArrayList<>(Arrays.asList(receivedArray));
 

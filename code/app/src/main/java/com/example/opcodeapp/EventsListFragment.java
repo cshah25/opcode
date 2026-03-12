@@ -45,7 +45,9 @@ public class EventsListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
         ImageButton createButton = view.findViewById(R.id.events_create_button);
+
         if (getArguments() != null) {
             currentUser = (User) getArguments().getParcelable("user");
         }
@@ -58,9 +60,11 @@ public class EventsListFragment extends Fragment {
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
         eventListView.setAdapter(adapter);
 
+
+
         createButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.organizersEventCreation));
+                        .navigate(R.id.EventCreatorFragment));
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,12 +80,29 @@ public class EventsListFragment extends Fragment {
         });
 
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("event", shownEvents.get(position));
-            bundle.putParcelable("user", currentUser);
+            Bundle bundle2 = new Bundle();
 
-            NavHostFragment.findNavController(EventsListFragment.this)
-                    .navigate(R.id.eventDetailsFragment, bundle);
+            Event selected_event = shownEvents.get(position);
+
+            bundle2.putParcelable("event", shownEvents.get(position));
+            bundle2.putParcelable("user", currentUser);
+
+            if (selected_event.getApplicants().contains(currentUser)) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.eventDetailsFragment, bundle2);
+
+            } else if (selected_event.getInvited().contains(currentUser)) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.EventInvitationFragment, bundle2);
+            } else if (selected_event.getOrganizer() == currentUser) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
+            }  else {
+                    NavHostFragment.findNavController(EventsListFragment.this)
+                            .navigate(R.id.EntrantEventDetailsFragment, bundle2);
+
+            }
+
         });
 
         loadEvents();
