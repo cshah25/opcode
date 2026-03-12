@@ -62,7 +62,7 @@
                     android:id="@+id/event_name_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:text="@string/event_name"
                     android:textColor="@color/profile_text"
                     android:textSize="22sp"
@@ -70,8 +70,9 @@
 
                 <TextView
                     android:id="@+id/event_status_text"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:text="@string/your_status_waitlisted"
                     android:textColor="#7A7A7A"
                     android:textSize="14sp" />
@@ -79,7 +80,7 @@
 
             <TextView
                 android:id="@+id/event_date_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/date_amp_time"
@@ -88,7 +89,7 @@
 
             <TextView
                 android:id="@+id/event_location_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/location"
@@ -97,7 +98,7 @@
 
             <TextView
                 android:id="@+id/event_price_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/price_if_exists"
@@ -106,7 +107,7 @@
 
             <TextView
                 android:id="@+id/event_reg_close_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:text="@string/registration_closes_soon"
@@ -115,7 +116,7 @@
 
             <TextView
                 android:id="@+id/event_open_closed_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/open_closed"
@@ -124,7 +125,7 @@
 
             <TextView
                 android:id="@+id/event_waitlist_count_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/total_entrants_on_the_waiting_list"
@@ -156,6 +157,15 @@
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/profile_button"
                 android:text="@string/block_notifications"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/qr_code_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/profile_button"
+                android:text="@string/qr_code"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
