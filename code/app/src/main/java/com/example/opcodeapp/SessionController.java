@@ -98,6 +98,8 @@ public class SessionController {
 
     public void logout() {
         current_user = null;
+        mAuth.signOut();
+        state.postValue(LoginState.LOGGED_OUT);
     }
 
     public LiveData<LoginState> getLoginState() {
