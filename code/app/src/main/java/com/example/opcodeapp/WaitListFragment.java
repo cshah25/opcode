@@ -102,6 +102,7 @@ public class WaitListFragment extends Fragment {
         int numToDraw = Integer.parseInt(input);
 
         // Responsibility: randomly select entrants
+
         List<User> winners = lotterySystem.drawEntrants(currentEvent, numToDraw);
 
         if (winners==null || winners.isEmpty()) {

@@ -470,6 +470,23 @@ public class Event implements Parcelable {
         applicants.replace(user, "Declined-Removed");
     }
 
+
+    /**
+     * Getter for the users in the waiting list of the event who declined the invite and were removed from the screen ("Declined-Removed").
+     *
+     * @return
+     * The applicants that declined the invite and were removed from the screen.
+     */
+    public List<User> getDeclinedRemoved() {
+        List<User> declinedRemoved = new ArrayList<>();
+        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+            if (entry.getValue().equals("Declined-Removed")) {
+                declinedRemoved.add(entry.getKey());
+            }
+        }
+        return declinedRemoved;
+    }
+
     /**
      * Getter for the ID of the event. Filled in by Firestore.
      *
@@ -507,6 +524,10 @@ public class Event implements Parcelable {
 
     public float getPrice() {
         return price;
+    }
+
+    public int getWaitlistLimit() {
+        return waitlistLimit;
     }
 
     public String getApplicantStatus(User u) {
