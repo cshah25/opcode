@@ -93,9 +93,14 @@ public class EventsListFragment extends Fragment {
             bundle2.putParcelable("event", shownEvents.get(position));
             bundle2.putParcelable("user", currentUser);
 
-            if (selected_event.getInitialApplicants().contains(currentUser)) {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.eventDetailsFragment, bundle2);
+            List<User> initial_applicants = selected_event.getInitialApplicants();
+
+
+            if (initial_applicants.contains(currentUser)) {
+                NavHostFragment.findNavController(EventsListFragment.this).navigate(R.id.eventDetailsFragment, bundle2);
+
+
+
 
             } else if (selected_event.getInvited().contains(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
