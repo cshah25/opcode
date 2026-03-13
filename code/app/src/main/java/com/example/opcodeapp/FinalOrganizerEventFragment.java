@@ -11,26 +11,27 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
+import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.util.Locale;
 
 
 /**
- * The fragment for showing the Event information (Organizer Perspective) after creation is complete.
- * @see EventCreatorFragment
+ * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
  */
 public class FinalOrganizerEventFragment extends Fragment {
-    /**
-     * The binding for the fragment.
-     */
-    private FragmentFinalOrganizerEventBinding binding;
+    private Event event;
+    private TextView nameText;
+    private TextView dateText;
+    private TextView locationText;
+    private TextView descriptionText;
+    private TextView priceText;
+    private TextView waitListText;
+    private TextView registrationText;
+    private TextView eventRegistrationText;
 
-    /**
-     * Default constructor
-     */
     public FinalOrganizerEventFragment() {
     }
-
-    private Event event;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,16 +54,48 @@ public class FinalOrganizerEventFragment extends Fragment {
 
         ImageButton backButton = view.findViewById(R.id.event_back_button);
 
-        TextView nameText = view.findViewById(R.id.event_name_text);
-        TextView dateText = view.findViewById(R.id.event_date_text);
-        TextView locationText = view.findViewById(R.id.event_location_text);
-        TextView descriptionText = view.findViewById(R.id.event_description_text);
-
+        nameText = view.findViewById(R.id.event_name_text);
+        dateText = view.findViewById(R.id.event_date_text);
+        locationText = view.findViewById(R.id.event_location_text);
+        descriptionText = view.findViewById(R.id.event_description_text);
+        priceText = view.findViewById(R.id.event_price_text);
+        waitListText = view.findViewById(R.id.event_waitlist_count_text);
+        registrationText = view.findViewById(R.id.event_reg_close_text);
+        eventRegistrationText = view.findViewById(R.id.event_open_closed_text);
 
         nameText.setText(event.getName());
-        dateText.setText(event.getStartDate() + " to " + event.getEndDate());
-        locationText.setText(event.getLocation());
-        descriptionText.setText(event.getDescription());
+        dateText.setText("Date: " + event.getStart() + " to " + event.getEnd());
+        locationText.setText("Location: " + event.getLocation());
+        descriptionText.setText("Description: \n" + event.getDescription());
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime registrationStart = event.getRegistrationStart();
+        LocalDateTime registrationEnd = event.getRegistrationEnd();
+
+        registrationText.setText("Registration Period: " + DateUtil.toString(registrationStart) + "to " + DateUtil.toString(registrationEnd));
+
+        if (registrationStart.isAfter(now) || registrationEnd.isBefore(now)) {
+            eventRegistrationText.setText("CLOSED");
+        } else {
+            eventRegistrationText.setText("OPENED");
+        }
+
+        float price = event.getPrice();
+        if (price > 0) {
+            priceText.setText("Price: Free");
+        } else {
+            NumberFormat format = NumberFormat.getCurrencyInstance(Locale.CANADA);
+            priceText.setText("Price: " + format.format(price));
+        }
+
+        int total = event.getWaitlistLimit();
+        if (total == -1) {
+            waitListText.setText("Waitlist Limit: None");
+        } else {
+            int currentWaitlist = event.getInitialApplicants().size();
+            waitListText.setText("Waitlist Limit: " + currentWaitlist + "/" + total);
+        }
+
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +117,8 @@ public class FinalOrganizerEventFragment extends Fragment {
                 User[] enrolledUsers = event.getAttendees().toArray(new User[0]);
                 FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
                 NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+
+
             }
 
         });
@@ -139,7 +174,6 @@ public class FinalOrganizerEventFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
     }
 
 

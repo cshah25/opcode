@@ -65,17 +65,17 @@ public class EventInvitationFragment extends Fragment {
         TextView title = v.findViewById(R.id.invitation_event_name);
         title.setText(event.getName());
         TextView date = v.findViewById(R.id.invitation_date_time);
-        date.setText(String.format("Starts: %s", event.getStartDate().toString()));
+        date.setText(String.format("Starts: %s", event.getStart().toString()));
         TextView location = v.findViewById(R.id.invitation_location);
         location.setText(String.format("Location: %s", event.getLocation()));
         TextView registration_close = v.findViewById(R.id.invitation_registration_closes);
-        registration_close.setText(String.format("Registration closes on %s", event.getRegistration_endTime().toString()));
+        registration_close.setText(String.format("Registration closes on %s", event.getRegistrationEnd().toString()));
         TextView price = v.findViewById(R.id.invitation_price);
         price.setText(String.valueOf(event.getPrice()));
 
         TextView entrants = v.findViewById(R.id.invitation_waiting_list_size);
         // android studio was complaining about the locale here
-        entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", event.getApplicants().size()));
+        entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", event.getInitialApplicants().size()));
 
         User cur = SessionController.getInstance(getContext()).getCurrentUser();
         Button accept = v.findViewById(R.id.invitation_accept_button);
@@ -114,8 +114,8 @@ public class EventInvitationFragment extends Fragment {
             });
         });
 
-        String status = event.getApplicantStatus(SessionController.getInstance(getContext()).getCurrentUser());
-        if (status == null || !status.equals("Not Drawn")) {
+        ApplicantStatus status = event.getApplicantStatus(SessionController.getInstance(getContext()).getCurrentUser());
+        if (status != ApplicantStatus.NOT_DRAWN) {
             accept.setVisibility(GONE);
             decline.setVisibility(GONE);
         }

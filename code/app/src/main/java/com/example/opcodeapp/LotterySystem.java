@@ -1,7 +1,6 @@
 package com.example.opcodeapp;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class LotterySystem {
      * @return List of Users selected to receive an invitation.
      */
     public List<User> drawEntrants(Event event, int numberOfInvites) {
-        List<User> applicants = event.getApplicants(); //change made here since getApplicants returns a list (not an array)
+        List<User> applicants = event.getInitialApplicants(); //change made here since getApplicants returns a list (not an array)
         if (applicants == null || applicants.isEmpty()) {
             return new ArrayList<>();
         }

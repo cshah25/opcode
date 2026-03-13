@@ -1,33 +1,17 @@
 package com.example.opcodeapp;
 
-import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentId;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 
 @SuppressWarnings("deprecated")
@@ -43,10 +27,10 @@ public class Event implements Parcelable {
     private String name;
     private String location;
     private String description;
-    private String startDate;
-    private String endDate;
-    private String registration_startTime;
-    private String registration_endTime;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private LocalDateTime registrationStart;
+    private LocalDateTime registrationEnd;
     private float price;
     private int waitlistLimit;
 
@@ -57,46 +41,39 @@ public class Event implements Parcelable {
      * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined", "Declined-Removed").
      *
      */
-    private Map<User, String> applicants = new HashMap<>();
+    private Map<User, ApplicantStatus> applicants = new HashMap<>();
 
     /**
      * Needed for toObject from Firebase
      */
-    public Event() {}
+    public Event() {
+    }
 
     /**
      * Constructor for the Event class.
-     * @param name
-     * The name of the event.
-     * @param location
-     * The location of the event.
-     * @param description
-     * The description of the event.
-     * @param startDate
-     * The start date of the event.
-     * @param registration_startTime
-     * The registration start time of the event.
-     * @param endDate
-     * The end date of the event.
-     * @param registration_endTime
-     * The registration end time of the event.
-     * @param organizer
-     * The organizer of the event.
+     *
+     * @param name              The name of the event.
+     * @param location          The location of the event.
+     * @param description       The description of the event.
+     * @param start             The start date of the event.
+     * @param registrationStart The registration start time of the event.
+     * @param end               The end date of the event.
+     * @param registrationEnd   The registration end time of the event.
+     * @param organizer         The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDate startDate, LocalDateTime registration_startTime, LocalDate endDate, LocalDateTime registration_endTime, User organizer, float price, int  waitlistLimit) {
+    public Event(String name, String location, String description, LocalDateTime start, LocalDateTime registrationStart, LocalDateTime end, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit) {
         this.name = name;
         this.location = location;
         this.description = description;
-        this.startDate = startDate.toString();
-        this.registration_startTime = registration_startTime.toString();
-        this.endDate = endDate.toString();
-        this.registration_endTime = registration_endTime.toString();
+        this.start = start;
+        this.registrationStart = registrationStart;
+        this.end = end;
+        this.registrationEnd = registrationEnd;
         this.organizer = organizer;
         this.price = price;
         this.waitlistLimit = waitlistLimit;
     }
-
 
 
     protected Event(Parcel in) {
@@ -104,10 +81,10 @@ public class Event implements Parcelable {
         name = in.readString();
         location = in.readString();
         description = in.readString();
-        startDate = in.readString();
-        endDate = in.readString();
-        registration_endTime = in.readString();
-        registration_startTime = in.readString();
+        start = (LocalDateTime) in.readSerializable();
+        end = (LocalDateTime) in.readSerializable();
+        registrationEnd = (LocalDateTime) in.readSerializable();
+        registrationStart = (LocalDateTime) in.readSerializable();
         organizer = in.readParcelable(User.class.getClassLoader());
         price = in.readFloat();
         DBManager db = new DBManager(FirebaseFirestore.getInstance());
@@ -118,7 +95,7 @@ public class Event implements Parcelable {
             db.fetchUserByFirebaseId(key, new FirestoreCallbackUserReceive() {
                 @Override
                 public void onDataReceived(User u) {
-                    applicants.put(u, value);
+                    applicants.put(u, ApplicantStatus.valueOf(value));
                 }
 
                 @Override
@@ -153,16 +130,16 @@ public class Event implements Parcelable {
         dest.writeString(name);
         dest.writeString(location);
         dest.writeString(description);
-        dest.writeString(startDate);
-        dest.writeString(endDate);
-        dest.writeString(registration_endTime);
-        dest.writeString(registration_startTime);
+        dest.writeSerializable(start);
+        dest.writeSerializable(end);
+        dest.writeSerializable(registrationEnd);
+        dest.writeSerializable(registrationStart);
         // store as ids when serialized
         dest.writeString(organizer.getId());
         dest.writeInt(applicants.size());
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
+        for (Map.Entry<User, ApplicantStatus> entry : applicants.entrySet()) {
             dest.writeString(entry.getKey().getId()); // Write custom key
-            dest.writeString(entry.getValue());          // Write value
+            dest.writeString(entry.getValue().name());          // Write value
         }
 
 
@@ -171,8 +148,7 @@ public class Event implements Parcelable {
     /**
      * Getter for the name of the event.
      *
-     * @return
-     * The name of the event.
+     * @return The name of the event.
      */
     public String getName() {
         return name;
@@ -181,8 +157,7 @@ public class Event implements Parcelable {
     /**
      * Setter for the name of the event.
      *
-     * @param name
-     * The name of the event.
+     * @param name The name of the event.
      */
     public void setName(String name) {
         this.name = name;
@@ -191,8 +166,7 @@ public class Event implements Parcelable {
     /**
      * Getter for the description of the event.
      *
-     * @return
-     * The description of the event.
+     * @return The description of the event.
      */
     public String getDescription() {
         return description;
@@ -201,8 +175,7 @@ public class Event implements Parcelable {
     /**
      * Setter for the description of the event.
      *
-     * @param description
-     * The description of the event.
+     * @param description The description of the event.
      */
     public void setDescription(String description) {
         this.description = description;
@@ -210,8 +183,8 @@ public class Event implements Parcelable {
 
     /**
      * Getter for the location of the event.
-     * @return
-     * The location of the event.
+     *
+     * @return The location of the event.
      */
     public String getLocation() {
         return location;
@@ -220,8 +193,7 @@ public class Event implements Parcelable {
     /**
      * Setter for the location of the event.
      *
-     * @param location
-     * The location of the event.
+     * @param location The location of the event.
      */
     public void setLocation(String location) {
         this.location = location;
@@ -230,90 +202,80 @@ public class Event implements Parcelable {
     /**
      * Getter for the start date of the event.
      *
-     * @return
-     * The start date of the event.
+     * @return The start date of the event.
      */
-    public LocalDate getStartDate() {
-        return LocalDate.parse(startDate);
+    public LocalDateTime getStart() {
+        return start;
     }
-
 
 
     /**
      * Setter for the start date of the event.
      *
-     * @param startDate
-     * The start date of the event.
+     * @param start The start date of the event.
      */
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate.toString();
+    public void setStart(LocalDateTime start) {
+        this.start = start;
     }
 
     /**
      * Getter for the end date of the event.
      *
-     * @return
-     * The end date of the event.
+     * @return The end date of the event.
      */
-    public LocalDate getEndDate() {
-        return LocalDate.parse(endDate);
+    public LocalDateTime getEnd() {
+        return end;
     }
 
     /**
      * Setter for the end date of the event.
      *
-     * @param endDate
-     * The end date of the event.
+     * @param end The end date of the event.
      */
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate.toString();
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
     }
 
     /**
      * Getter for the registration end time of the event.
      *
-     * @return
-     * The registration end time of the event.
+     * @return The registration end time of the event.
      */
-    public LocalDateTime getRegistration_endTime() {
-        return LocalDateTime.parse(registration_endTime);
+    public LocalDateTime getRegistrationEnd() {
+        return registrationEnd;
     }
 
     /**
      * Setter for the registration end time of the event.
-     * @param registration_endTime
-     * The registration end time of the event.
+     *
+     * @param registrationEnd The registration end time of the event.
      */
-    public void setRegistration_endTime(LocalDateTime registration_endTime) {
-        this.registration_endTime = registration_endTime.toString();
+    public void setRegistrationEnd(LocalDateTime registrationEnd) {
+        this.registrationEnd = registrationEnd;
     }
 
     /**
      * Getter for the registration start time of the event.
      *
-     * @return
-     * The registration start time of the event.
+     * @return The registration start time of the event.
      */
-    public LocalDateTime getRegistration_startTime() {
-        return LocalDateTime.parse(registration_startTime);
+    public LocalDateTime getRegistrationStart() {
+        return registrationStart;
     }
 
     /**
      * Setter for the registration start time of the event.
      *
-     * @param registration_startTime
-     * The registration start time of the event.
+     * @param registrationStart The registration start time of the event.
      */
-    public void setRegistration_startTime(LocalDateTime registration_startTime) {
-        this.registration_startTime = registration_startTime.toString();
+    public void setRegistrationStart(LocalDateTime registrationStart) {
+        this.registrationStart = registrationStart;
     }
-
 
     /**
      * Getter for the organizer of the event.
      *
-     * @return
-     * The organizer of the event.
+     * @return The organizer of the event.
      */
     public User getOrganizer() {
         return organizer;
@@ -322,8 +284,7 @@ public class Event implements Parcelable {
     /**
      * Setter for the organizer of the event.
      *
-     * @param organizer
-     * The organizer of the event.
+     * @param organizer The organizer of the event.
      */
     public void setOrganizer(User organizer) {
         this.organizer = organizer;
@@ -331,134 +292,112 @@ public class Event implements Parcelable {
 
 
     /**
-     * adds an applicant to the waiting list of the event.
+     * Adds an applicant to the event.
+     *
+     * @param applicant the user joining the event
+     * @param status    the status the user has with relation to the event
+     */
+    public void addApplicant(User applicant, ApplicantStatus status) {
+        applicants.put(applicant, status);
+    }
+
+    /**
+     * Adds an applicant to the waiting list of the event.
      *
      * @param applicant
      */
     //Needs to be tested
     public void addApplicant(User applicant) {
-        applicants.put(applicant, "Not Drawn");
+        addApplicant(applicant, ApplicantStatus.NOT_DRAWN);
     }
 
+    /**
+     * Getter for users involved with this event
+     *
+     * @param filter The status of the applicant to filter by
+     * @return a list of users with a matching status
+     */
+    public List<User> getApplicants(ApplicantStatus filter) {
+        return applicants.entrySet()
+                .stream()
+                .filter(e -> e.getValue() == filter)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
 
 
     /**
      * Getter for the users in the waiting list of the event (Not Drawn).
      *
-     * @return
-     * The applicants of the event.
+     * @return The applicants of the event.
      */
     //Needs to be tested
-    public List<User> getApplicants() {
-
-        List<User> not_drawn_applicants = new ArrayList<>();
-
-
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            if (entry.getValue().equals("Not Drawn")) {
-                not_drawn_applicants.add(entry.getKey());
-            }
-        }
-
-        return not_drawn_applicants;
-
+    public List<User> getInitialApplicants() {
+        return getApplicants(ApplicantStatus.NOT_DRAWN);
     }
 
     /**
      * Setter for the users in the waiting list of the event who were selected by the lottery system (Invited).
      *
-     * @param winners
-     * The applicants that were selected to be invited to the event.
+     * @param winners The applicants that were selected to be invited to the event.
      */
     //Needs to be tested
     public void setInvited(List<User> winners) {
-        for (User user : winners) {
-            applicants.replace(user, "Invited");
-        }
-
+        winners.forEach(u -> applicants.replace(u, ApplicantStatus.INVITED));
     }
 
     /**
      * Getter for the users in the waiting list of the event who were invited to the event ("Invited"). The users haven't yet accepted or declined the invite.
      *
-     * @return
-     * The applicants that were invited to the event.
+     * @return The applicants that were invited to the event.
      */
     //Needs to be tested
     public List<User> getInvited() {
-        List<User> invited = new ArrayList<>();
-
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            if (entry.getValue().equals("Invited")) {
-                invited.add(entry.getKey());
-            }
-        }
-        return invited;
-
+        return getApplicants(ApplicantStatus.INVITED);
     }
 
 
     /**
      * Getter for the attendees of the event ("Accepted").
      *
-     * @return
-     * The attendees of the event.
+     * @return The attendees of the event.
      */
     //Needs to be tested
     public List<User> getAttendees() {
-
-        List<User> attendees = new ArrayList<>();
-
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            if (entry.getValue().equals("Accepted")) {
-                attendees.add(entry.getKey());
-            }
-        }
-
-        return attendees;
-
+        return getApplicants(ApplicantStatus.ACCEPTED);
     }
 
     /**
      * Setter for an attendee of the event (Accepted).
      *
-     * @param attendee
-     * An attendee who accepted the invite.
+     * @param attendee An attendee who accepted the invite.
      */
     //Needs to be tested
     public void setAttendee(User attendee) {
-        applicants.replace(attendee, "Accepted");
+        applicants.replace(attendee, ApplicantStatus.ACCEPTED);
     }
 
 
     /**
      * Setter for a declined attendee of the event (Declined).
      *
-     * @param attendee
-     * An attendee who declined the invite.
+     * @param attendee An attendee who declined the invite.
      */
     //Needs to be tested
     public void setDeclined(User attendee) {
-        applicants.replace(attendee, "Declined");
+        applicants.replace(attendee, ApplicantStatus.DECLINED);
     }
 
 
     /**
      * Getter for the users in the waiting list of the event who declined the invite ("Declined").
      *
-     * @return
-     * The applicants that declined the invite.
+     * @return The applicants that declined the invite.
      */
 
     //Needs to be tested
     public List<User> getDeclined() {
-        List<User> declined = new ArrayList<>();
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            if (entry.getValue().equals("Declined")) {
-                declined.add(entry.getKey());
-            }
-        }
-        return declined;
+        return getApplicants(ApplicantStatus.DECLINED);
     }
 
     /**
@@ -467,31 +406,23 @@ public class Event implements Parcelable {
      * @param user
      */
     public void setDeclinedRemoved(User user) {
-        applicants.replace(user, "Declined-Removed");
+        applicants.replace(user, ApplicantStatus.DECLINED_REMOVED);
     }
 
 
     /**
      * Getter for the users in the waiting list of the event who declined the invite and were removed from the screen ("Declined-Removed").
      *
-     * @return
-     * The applicants that declined the invite and were removed from the screen.
+     * @return The applicants that declined the invite and were removed from the screen.
      */
     public List<User> getDeclinedRemoved() {
-        List<User> declinedRemoved = new ArrayList<>();
-        for (Map.Entry<User, String> entry : applicants.entrySet()) {
-            if (entry.getValue().equals("Declined-Removed")) {
-                declinedRemoved.add(entry.getKey());
-            }
-        }
-        return declinedRemoved;
+        return getApplicants(ApplicantStatus.DECLINED_REMOVED);
     }
 
     /**
      * Getter for the ID of the event. Filled in by Firestore.
      *
-     * @return
-     * The ID of the event.
+     * @return The ID of the event.
      */
     public String getId() {
         return id;
@@ -500,8 +431,7 @@ public class Event implements Parcelable {
     /**
      * Setter for the ID of the event. Filled in by Firestore.
      *
-     * @param id
-     * The ID of the event.
+     * @param id The ID of the event.
      */
     public void setId(String id) {
         this.id = id;
@@ -510,10 +440,8 @@ public class Event implements Parcelable {
     /**
      * Removes a user from the event.
      *
-     * @param user
-     * The user to remove.
-     * @return
-     * True if the user was removed, false otherwise.
+     * @param user The user to remove.
+     * @return True if the user was removed, false otherwise.
      */
     public boolean removeUser(User user) {
         if (user == null) {
@@ -530,7 +458,82 @@ public class Event implements Parcelable {
         return waitlistLimit;
     }
 
-    public String getApplicantStatus(User u) {
+    public ApplicantStatus getApplicantStatus(User u) {
         return applicants.get(u);
+    }
+
+    /**
+     *
+     * @return a mapping of the fields in this object. Used for Firestore saving
+     */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("location", location);
+        map.put("description", description);
+        map.put("start", DateUtil.toLong(start));
+        map.put("end", DateUtil.toLong(end));
+        map.put("registrationStart", DateUtil.toLong(registrationStart));
+        map.put("registrationEnd", DateUtil.toLong(registrationEnd));
+        map.put("price", price);
+        map.put("waitlistLimit", waitlistLimit);
+        map.put("organizer_id", organizer.getId());
+
+        Map<String, String> applicantsMap = new HashMap<>();
+        applicants.forEach((user, s) -> map.put(user.getDeviceId(), s.name()));
+        map.put("applicants", applicantsMap);
+        return map;
+    }
+
+    /**
+     * Static function to instantiate event from a map. Used for Firebase retrieval
+     *
+     * @param map
+     * @return
+     */
+    public static Event fromMap(String id, Map<String, Object> map) {
+        DBManager manager = new DBManager(FirebaseFirestore.getInstance());
+        String name = (String) map.get("name");
+        String location = (String) map.get("location");
+        String description = (String) map.get("description");
+        LocalDateTime start = DateUtil.fromLong(Long.valueOf(map.get("start").toString()));
+        LocalDateTime end = DateUtil.fromLong(Long.valueOf(map.get("end").toString()));
+        LocalDateTime registrationStart = DateUtil.fromLong(Long.valueOf(map.get("registrationStart").toString()));
+        LocalDateTime registrationEnd = DateUtil.fromLong(Long.valueOf(map.get("registrationEnd").toString()));
+        float price = Float.valueOf(map.get("price").toString());
+        int waitlistLimit = Integer.valueOf(map.get("waitlistLimit").toString());
+        String organizer_id = (String) map.get("organizer_id");
+
+        Event event = new Event(name, location, description, start, registrationStart, end, registrationEnd, null, price, waitlistLimit);
+        event.setId(id);
+        manager.fetchUserByFirebaseId(organizer_id, new FirestoreCallbackUserReceive() {
+            @Override
+            public void onDataReceived(User u) {
+                event.setOrganizer(u);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("FirestoreLoadEvent", "Error when loading organizer of event");
+            }
+        });
+
+        Map<String, String> applicantsMap = (Map<String, String>) map.get("applicants");
+        applicantsMap.forEach((userId, statusName) -> {
+            ApplicantStatus status = ApplicantStatus.valueOf(statusName);
+            manager.fetchUserByFirebaseId(userId, new FirestoreCallbackUserReceive() {
+                @Override
+                public void onDataReceived(User u) {
+                    event.addApplicant(u, status);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("FirestoreLoadEvent", "Error when loading user with id: " + userId);
+                }
+            });
+        });
+
+        return event;
     }
 }

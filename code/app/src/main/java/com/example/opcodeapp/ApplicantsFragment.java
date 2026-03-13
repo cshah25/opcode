@@ -59,7 +59,7 @@ public class ApplicantsFragment extends Fragment {
 
         List<User> Attendees = event.getAttendees();
 
-        List<User> applicants = event.getApplicants();
+        List<User> applicants = event.getInitialApplicants();
 
         List<User> invited = event.getInvited();
 

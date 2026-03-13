@@ -20,8 +20,6 @@ import androidx.navigation.Navigation;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -76,8 +74,8 @@ public class EntrantEventDetailsFragment extends Fragment {
 
         // US 01.05.04: Show Waitlist Count
         int count = 0;
-        if (currentEvent.getApplicants() != null) {
-            count = currentEvent.getApplicants().size();
+        if (currentEvent.getInitialApplicants() != null) {
+            count = currentEvent.getInitialApplicants().size();
         }
         tvWaitlistCount.setText(count + " people on waitlist");
 
@@ -103,7 +101,7 @@ public class EntrantEventDetailsFragment extends Fragment {
     }
     private void joinEventWaitlist(View view) {
         // Add user to local event object
-        List<User> currentApplicants = currentEvent.getApplicants();
+        List<User> currentApplicants = currentEvent.getInitialApplicants();
         if (currentApplicants != null) {
             for (User u : currentApplicants) {
                 if (u.getId().equals(currentUser.getId())) {
@@ -115,7 +113,7 @@ public class EntrantEventDetailsFragment extends Fragment {
 
 
             //new code added by Vedant to check if a waitlist is full.
-            int total_applicants = currentEvent.getApplicants().size() + currentEvent.getAttendees().size() + currentEvent.getInvited().size() + currentEvent.getDeclined().size() + currentEvent.getDeclinedRemoved().size();
+            int total_applicants = currentEvent.getInitialApplicants().size() + currentEvent.getAttendees().size() + currentEvent.getInvited().size() + currentEvent.getDeclined().size() + currentEvent.getDeclinedRemoved().size();
 
             if ( total_applicants >= currentEvent.getWaitlistLimit()) {
                 Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
