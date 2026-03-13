@@ -100,7 +100,7 @@ public class FinalOrganizerEventFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigateUp();
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.eventsFragment);
             }
         });
 

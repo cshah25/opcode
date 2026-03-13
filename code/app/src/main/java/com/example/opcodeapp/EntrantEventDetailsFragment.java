@@ -115,7 +115,7 @@ public class EntrantEventDetailsFragment extends Fragment {
             //new code added by Vedant to check if a waitlist is full.
             int total_applicants = currentEvent.getInitialApplicants().size() + currentEvent.getAttendees().size() + currentEvent.getInvited().size() + currentEvent.getDeclined().size() + currentEvent.getDeclinedRemoved().size();
 
-            if ( total_applicants >= currentEvent.getWaitlistLimit()) {
+            if ( currentEvent.getWaitlistLimit() != -1 && total_applicants >= currentEvent.getWaitlistLimit()) {
                 Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -140,9 +140,7 @@ public class EntrantEventDetailsFragment extends Fragment {
     }
 
     private void navigateNext(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("EVENT", (Serializable) currentEvent);
-        bundle.putSerializable("CURRENT_USER", (Serializable) currentUser);
-        Navigation.findNavController(view).navigate(R.id.action_EntrantEventDetails_to_WaitList, bundle);
+
+        Navigation.findNavController(view).navigate(R.id.eventsFragment);
     }
 }

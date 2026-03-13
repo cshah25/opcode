@@ -480,7 +480,11 @@ public class Event implements Parcelable {
         map.put("organizer_id", organizer.getId());
 
         Map<String, String> applicantsMap = new HashMap<>();
-        applicants.forEach((user, s) -> map.put(user.getDeviceId(), s.name()));
+        applicants.forEach((user, s) -> {
+            if (user != null) {
+                applicantsMap.put(user.getDeviceId(), s.name());
+            }
+        }); //was map.put(user.getId(), s.name()); before
         map.put("applicants", applicantsMap);
         return map;
     }

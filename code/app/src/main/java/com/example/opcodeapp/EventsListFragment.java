@@ -48,9 +48,9 @@ public class EventsListFragment extends Fragment {
 
         ImageButton createButton = view.findViewById(R.id.events_create_button);
 
-        if (getArguments() != null) {
-            currentUser = (User) getArguments().getParcelable("user");
-        }
+
+        currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
+
 
         ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
@@ -94,7 +94,7 @@ public class EventsListFragment extends Fragment {
             } else if (selected_event.getInvited().contains(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
                         .navigate(R.id.EventInvitationFragment, bundle2);
-            } else if (selected_event.getOrganizer() == currentUser) {
+            } else if (selected_event.getOrganizer().equals(currentUser)) {
                 NavHostFragment.findNavController(EventsListFragment.this)
                         .navigate(R.id.FinalOrganizerEventFragment, bundle2);
             }  else {
