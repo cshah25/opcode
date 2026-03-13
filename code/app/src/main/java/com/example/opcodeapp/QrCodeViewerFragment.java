@@ -68,9 +68,11 @@ public class QrCodeViewerFragment extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ImageView qrImage = view.findViewById(R.id.qr_image);
-        Bitmap bitmap = generateQrBitmap("event:" + encodedData, qrImage.getWidth());
-        if (bitmap != null)
-            qrImage.setImageBitmap(bitmap);
+        qrImage.post(() -> {
+            Bitmap bitmap = generateQrBitmap("event:" + encodedData, qrImage.getWidth());
+            if (bitmap != null)
+                qrImage.setImageBitmap(bitmap);
+        });
     }
 
     /**
@@ -81,7 +83,7 @@ public class QrCodeViewerFragment extends BottomSheetDialogFragment {
      * @return QR code bitmap
      */
     private Bitmap generateQrBitmap(String data, int size) {
-        Preconditions.checkArgument(size > 0, "Invalid size for QR Code");
+        Preconditions.checkArgument(size > 0, "Invalid size for QR Code (size: " + size + ")");
         Bitmap map = null;
         try {
             BarcodeEncoder encoder = new BarcodeEncoder();
