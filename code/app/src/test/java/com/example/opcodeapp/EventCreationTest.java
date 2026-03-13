@@ -1,5 +1,6 @@
 package com.example.opcodeapp;
 
+import static androidx.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -37,7 +38,7 @@ public class EventCreationTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        organizer = new User("Jane Organizer", "jane@ualberta.ca", "7801234567");
+        organizer = new User("Jane Organizer", "jane@ualberta.ca", "7801234567", getContext());
         organizer.setId("organizer_id_001");
 
         event = new Event(
@@ -70,7 +71,7 @@ public class EventCreationTest {
 
     @Test
     public void testConstructor_storesStartDate() {
-        assertEquals(LocalDate.of(2026, 12, 25), event.getStartDate());
+        assertEquals(LocalDate.of(2026, 12, 25), event.getStart());
     }
 
     @Test

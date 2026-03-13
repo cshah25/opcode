@@ -62,6 +62,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
 
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1") // For intent verification // For FragmentScenario
+    debugImplementation("androidx.fragment:fragment-testing:1.6.2")
+
+
 
     testImplementation("junit:junit:4.13.2")
 

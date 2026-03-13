@@ -1,0 +1,427 @@
+@startuml
+class com.example.opcodeapp.EventDetailsFragment {
+- Event event
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+
+class com.example.opcodeapp.EventsListFragment {
+- EditText searchInput
+- ListView eventListView
+- ArrayList<Event> allEvents
+- ArrayList<Event> shownEvents
+- ArrayList<String> shownNames
+- User currentUser
+- ArrayAdapter<String> adapter
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadEvents()
+- void filterEvents()
+}
+
+
+interface com.example.opcodeapp.FirestoreCallbackEventReceive {
+~ void onDataReceived(Event)
+~ void onError(Exception)
+}
+
+class com.example.opcodeapp.SetupFragment {
+- EditText name
+- EditText email
+- EditText phone
++ {static} SetupFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.opcodeapp.InvitedUserArrayAdapter {
+- Event event
++ View getView(int,View,ViewGroup)
+}
+
+
+class com.example.opcodeapp.QrCodeViewerFragment {
+- {static} String encodedData
++ {static} QrCodeViewerFragment newInstance(String)
++ Dialog onCreateDialog(Bundle)
++ int getTheme()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onStart()
++ void onViewCreated(View,Bundle)
+- Bitmap generateQrBitmap(String,int)
+}
+
+
+class com.example.opcodeapp.ProfileFragment {
+- EditText nameInput
+- EditText emailInput
+- EditText phoneInput
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+
+class com.example.opcodeapp.User {
+- String id
+- String name
+- String email
+- String phoneNum
+- String deviceId
+- List<Event> joinedEvents
+- List<Event> createdEvents
++ {static} Creator<User> CREATOR
++ int describeContents()
++ void writeToParcel(Parcel,int)
++ String getName()
++ void setName(String)
++ String getEmail()
++ void setEmail(String)
++ String getPhoneNum()
++ void setPhoneNum(String)
++ List<Event> getJoinedEvents()
++ void setJoinedEvents(List<Event>)
++ List<Event> getCreatedEvents()
++ void setCreatedEvents(List<Event>)
++ String getId()
++ void setId(String)
++ void setDeviceId(String)
++ String getDeviceId()
++ boolean equals(Object)
++ int hashCode()
+}
+
+
+class com.example.opcodeapp.LotterySystem {
++ List<User> drawEntrants(Event,int)
++ User drawReplacement(Event)
+}
+
+interface com.example.opcodeapp.FirestoreCallbackSend {
+~ void onSendSuccess()
+~ void onSendFailure(Exception)
+}
+
+class com.example.opcodeapp.WaitListFragment {
+- Event currentEvent
+- User currentUser
+- DBManager dbManager
+- LotterySystem lotterySystem
+- ListView waitlistListView
+- ArrayAdapter<User> adapter
+- ArrayList<User> applicantDataList
+- EditText numToDrawInput
+- View lotteryControls
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void runLotteryDraw()
+- void processWinner(List<User>)
+}
+
+
+class com.example.opcodeapp.DeclinedUserDialogFragment {
+- DeclinedUserDialogListener listener
++ {static} DeclinedUserDialogFragment newInstance(User,Event)
++ void onAttach(Context)
++ Dialog onCreateDialog(Bundle)
+}
+
+
+interface com.example.opcodeapp.DeclinedUserDialogFragment$DeclinedUserDialogListener {
+~ void removeUser(User,Event)
+}
+
+class com.example.opcodeapp.UserArrayAdapter {
++ View getView(int,View,ViewGroup)
+}
+
+class com.example.opcodeapp.EnrolledUsersFragment {
+- ArrayList<User> dataList
+- ListView userList
+- ArrayAdapter<User> userAdapter
+- FragmentEnrolledUsersBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
+}
+
+
+class com.example.opcodeapp.SessionController {
+- {static} SessionController instance
+- User current_user
+- MutableLiveData<LoginState> state
+- FirebaseAuth mAuth
+- FirebaseUser fire_user
++ void updateFireAuth()
++ {static} SessionController getInstance(Context)
++ User getCurrentUser()
++ void setCurrentUser(User)
++ boolean isLoggedIn()
++ void logout()
++ LiveData<LoginState> getLoginState()
+}
+
+
+class com.example.opcodeapp.ApplicantArrayAdapter {
++ View getView(int,View,ViewGroup)
+}
+
+class com.example.opcodeapp.EnrolledUserArrayAdapter {
++ View getView(int,View,ViewGroup)
+}
+
+enum com.example.opcodeapp.LoginState {
++  PENDING
++  LOGGED_IN
++  LOGGED_OUT
+}
+
+class com.example.opcodeapp.MainActivity {
+- AppBarConfiguration appBarConfiguration
+- ActivityMainBinding binding
+# void onCreate(Bundle)
++ boolean onCreateOptionsMenu(Menu)
++ boolean onOptionsItemSelected(MenuItem)
++ boolean onSupportNavigateUp()
+}
+
+
+interface com.example.opcodeapp.FirestoreCallbackUserReceive {
+~ void onDataReceived(User)
+~ void onError(Exception)
+}
+
+class com.example.opcodeapp.ApplicantsFragment {
+- ArrayList<User> dataList
+- ListView userList
+- ArrayAdapter<User> userAdapter
+- FragmentEnrolledUsersBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
+}
+
+
+class com.example.opcodeapp.DBManager {
+- FirebaseFirestore db
+- CollectionReference usersRef
+- CollectionReference eventsRef
++ void addEvent(Event,FirestoreCallbackSend)
++ void updateEvent(Event,FirestoreCallbackSend)
++ void fetchEvents(FirestoreCallbackEventsReceive)
++ void addUser(User,FirestoreCallbackSend)
++ void updateUser(User,FirestoreCallbackSend)
++ void fetchUsers(FirestoreCallbackUsersReceive)
++ void fetchUserByDeviceId(String,FirestoreCallbackUsersReceive)
++ void deleteUser(User,FirestoreCallbackSend)
++ void deleteProfile(User,FirestoreCallbackSend)
++ void fetchUserByFirebaseId(String,FirestoreCallbackUserReceive)
++ void fetchEventByFirebaseId(String,FirestoreCallbackEventReceive)
+}
+
+
+class com.example.opcodeapp.InvitedUsersFragment {
+- ArrayList<User> dataList
+- ListView userList
+- ArrayAdapter<User> userAdapter
+- FragmentInvitedUsersBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ List<User> combineLists(Event)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
++ void removeUser(User,Event)
+}
+
+
+class com.example.opcodeapp.EventCreatorFragment {
+- EventCreatorFragment instance
+- TextInputLayout nameLayout
+- TextInputLayout locationLayout
+- TextInputLayout descriptionLayout
+- TextInputLayout registrationStartLayout
+- TextInputLayout registrationEndLayout
+- TextInputLayout priceLayout
+- TextInputLayout waitlistLayout
+- TextInputLayout eventStartLayout
+- TextInputLayout eventEndLayout
+- TextInputEditText nameInput
+- TextInputEditText locationInput
+- TextInputEditText descriptionInput
+- TextInputEditText registrationStartInput
+- TextInputEditText registrationEndInput
+- TextInputEditText priceInput
+- TextInputEditText waitlistInput
+- TextInputEditText eventStartInput
+- TextInputEditText eventEndInput
+- MaterialButton createButton
+- MaterialButton uploadButton
+- DateTimeFormatter dateFormat
+- ActivityResultLauncher<String> posterPickerLauncher
++ void onViewCreated(View,Bundle)
+- void bindViews(View)
+- void addErrorClearingWatchers()
+- void addErrorClearingWatcher(TextInputEditText,TextInputLayout)
+- void configureDateField(TextInputLayout,TextInputEditText,String)
+- void openDatePicker(TextInputEditText,String)
+- void submitForm()
+- void clearAllErrors()
+- String getText(TextInputEditText)
+}
+
+
+class com.example.opcodeapp.EntrantEventDetailsFragment {
+- DBManager dbManager
+- Event currentEvent
+- User currentUser
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showLotteryCriteriaDialog()
+- void joinEventWaitlist(View)
+- void navigateNext(View)
+}
+
+
+class com.example.opcodeapp.EventInvitationFragment {
+- Event event
+- DBManager db
++ {static} EventInvitationFragment newInstance(Event)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.opcodeapp.LaunchFragment {
++ {static} LaunchFragment newInstance()
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+interface com.example.opcodeapp.FirestoreCallbackUsersReceive {
+~ void onDataReceived(List<User>)
+~ void onError(Exception)
+}
+
+class com.example.opcodeapp.DeviceIdUtil {
++ {static} String getDeviceId(Context)
+}
+
+enum com.example.opcodeapp.ApplicantStatus {
++  NOT_DRAWN
++  INVITED
++  ACCEPTED
++  DECLINED
++  DECLINED_REMOVED
+}
+
+class com.example.opcodeapp.Event {
+- String id
+- String name
+- String location
+- String description
+- LocalDateTime start
+- LocalDateTime end
+- LocalDateTime registrationStart
+- LocalDateTime registrationEnd
+- float price
+- int waitlistLimit
+- User organizer
+- Map<User,ApplicantStatus> applicants
++ {static} Creator<Event> CREATOR
++ int describeContents()
++ void writeToParcel(Parcel,int)
++ String getName()
++ void setName(String)
++ String getDescription()
++ void setDescription(String)
++ String getLocation()
++ void setLocation(String)
++ LocalDateTime getStart()
++ void setStart(LocalDateTime)
++ LocalDateTime getEnd()
++ void setEnd(LocalDateTime)
++ LocalDateTime getRegistrationEnd()
++ void setRegistrationEnd(LocalDateTime)
++ LocalDateTime getRegistrationStart()
++ void setRegistrationStart(LocalDateTime)
++ User getOrganizer()
++ void setOrganizer(User)
++ void addApplicant(User,ApplicantStatus)
++ void addApplicant(User)
++ List<User> getApplicants(ApplicantStatus)
++ List<User> getInitialApplicants()
++ void setInvited(List<User>)
++ List<User> getInvited()
++ List<User> getAttendees()
++ void setAttendee(User)
++ void setDeclined(User)
++ List<User> getDeclined()
++ void setDeclinedRemoved(User)
++ List<User> getDeclinedRemoved()
++ String getId()
++ void setId(String)
++ boolean removeUser(User)
++ float getPrice()
++ int getWaitlistLimit()
++ ApplicantStatus getApplicantStatus(User)
++ Map<String,Object> toMap()
++ {static} Event fromMap(String,Map<String,Object>)
+}
+
+
+class com.example.opcodeapp.DateUtil {
+- {static} DateTimeFormatter formatter
++ {static} long toLong(LocalDateTime)
++ {static} LocalDateTime fromLong(long)
++ {static} String toString(LocalDateTime)
+}
+
+
+interface com.example.opcodeapp.FirestoreCallbackEventsReceive {
+~ void onDataReceived(List<Event>)
+~ void onError(Exception)
+}
+
+class com.example.opcodeapp.FinalOrganizerEventFragment {
+- Event event
+- TextView nameText
+- TextView dateText
+- TextView locationText
+- TextView descriptionText
+- TextView priceText
+- TextView waitListText
+- TextView registrationText
+- TextView eventRegistrationText
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onDestroyView()
+}
+
+
+
+
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EventDetailsFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EventsListFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.SetupFragment
+android.widget.ArrayAdapter <|-- com.example.opcodeapp.InvitedUserArrayAdapter
+com.google.android.material.bottomsheet.BottomSheetDialogFragment <|-- com.example.opcodeapp.QrCodeViewerFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.ProfileFragment
+android.os.Parcelable <|.. com.example.opcodeapp.User
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.WaitListFragment
+androidx.fragment.app.DialogFragment <|-- com.example.opcodeapp.DeclinedUserDialogFragment
+com.example.opcodeapp.DeclinedUserDialogFragment +.. com.example.opcodeapp.DeclinedUserDialogFragment$DeclinedUserDialogListener
+android.widget.ArrayAdapter <|-- com.example.opcodeapp.UserArrayAdapter
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EnrolledUsersFragment
+android.widget.ArrayAdapter <|-- com.example.opcodeapp.ApplicantArrayAdapter
+android.widget.ArrayAdapter <|-- com.example.opcodeapp.EnrolledUserArrayAdapter
+androidx.appcompat.app.AppCompatActivity <|-- com.example.opcodeapp.MainActivity
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.ApplicantsFragment
+com.example.opcodeapp.DeclinedUserDialogListener <|.. com.example.opcodeapp.InvitedUsersFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.InvitedUsersFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EventCreatorFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EntrantEventDetailsFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.EventInvitationFragment
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.LaunchFragment
+android.os.Parcelable <|.. com.example.opcodeapp.Event
+androidx.fragment.app.Fragment <|-- com.example.opcodeapp.FinalOrganizerEventFragment
+@enduml
