@@ -11,26 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.databinding.FragmentFinalOrganizerEventBinding;
-
 
 /**
- * The fragment for showing the Event information (Organizer Perspective) after creation is complete.
- * @see EventCreatorFragment
+ * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
  */
-public class FinalOrganizerEventFragment extends Fragment {
-    /**
-     * The binding for the fragment.
-     */
-    private FragmentFinalOrganizerEventBinding binding;
+ public class FinalOrganizerEventFragment extends Fragment {
+    private Event event;
 
-    /**
-     * Default constructor
-     */
     public FinalOrganizerEventFragment() {
     }
-
-    private Event event;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,6 +40,8 @@ public class FinalOrganizerEventFragment extends Fragment {
             return;
         }
 
+        User currentUser = getArguments().getParcelable("user");
+
         ImageButton backButton = view.findViewById(R.id.event_back_button);
 
         TextView nameText = view.findViewById(R.id.event_name_text);
@@ -60,7 +51,7 @@ public class FinalOrganizerEventFragment extends Fragment {
 
 
         nameText.setText(event.getName());
-        dateText.setText(event.getStartDate() + " to " + event.getEndDate());
+        dateText.setText(event.getStart() + " to " + event.getEnd());
         locationText.setText(event.getLocation());
         descriptionText.setText(event.getDescription());
 
@@ -70,6 +61,8 @@ public class FinalOrganizerEventFragment extends Fragment {
                 NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigateUp();
             }
         });
+
+
 
 
         view.findViewById(R.id.enrolled_users_button).setOnClickListener(new View.OnClickListener() {
@@ -84,6 +77,8 @@ public class FinalOrganizerEventFragment extends Fragment {
                 User[] enrolledUsers = event.getAttendees().toArray(new User[0]);
                 FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
                 NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+
+
             }
 
         });
@@ -134,12 +129,14 @@ public class FinalOrganizerEventFragment extends Fragment {
         });
 
 
+
+
+
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
     }
 
 

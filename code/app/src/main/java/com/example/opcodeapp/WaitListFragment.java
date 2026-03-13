@@ -13,17 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.opcodeapp.DBManager;
-import com.example.opcodeapp.FirestoreCallbackSend;
-import com.example.opcodeapp.LotterySystem;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -71,7 +65,7 @@ public class WaitListFragment extends Fragment {
         header.setText(currentEvent.getName() + " Waitlist");
 
         // Initialize List and Adapter
-        List<User> applicants = currentEvent.getApplicants();
+        List<User> applicants = currentEvent.getInitialApplicants();
         if (applicants == null)
             applicantDataList = new ArrayList<>();
         else

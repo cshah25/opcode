@@ -10,11 +10,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -80,7 +83,7 @@ public class DBManager {
         event.setId(generatedId);
 
         // 3. Use .set() to save the object to that specific reference
-        newDocRef.set(event)
+        newDocRef.set(event.toMap())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -118,7 +121,7 @@ public class DBManager {
 
         // 3. Perform the update using the extracted ID
         db.collection("Events").document(docId)
-                .set(event, SetOptions.merge())
+                .set(event.toMap(), SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -145,7 +148,13 @@ public class DBManager {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            List<Event> items = task.getResult().toObjects(Event.class);
+                            List<Event> items = new ArrayList<>();
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> data = document.getData();
+                                Event event = Event.fromMap(document.getId(), data);
+                                items.add(event);
+                            }
                             listener.onDataReceived(items); // Send data back to Activity
                         } else {
                             listener.onError(task.getException());
@@ -379,15 +388,12 @@ public class DBManager {
 
     public void fetchUserByFirebaseId(String id, FirestoreCallbackUserReceive listener) {
         usersRef.document(id).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            User u = task.getResult().toObject(User.class);
-                            listener.onDataReceived(u); // Send data back to Activity
-                        } else {
-                            listener.onError(task.getException());
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        User u = task.getResult().toObject(User.class);
+                        listener.onDataReceived(u); // Send data back to Activity
+                    } else {
+                        listener.onError(task.getException());
                     }
                 });
     }

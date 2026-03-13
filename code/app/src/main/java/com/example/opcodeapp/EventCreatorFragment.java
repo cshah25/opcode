@@ -285,9 +285,9 @@ public class EventCreatorFragment extends Fragment {
         SessionController controller = SessionController.getInstance(getContext());
         User organizer = controller.getCurrentUser();
         Event event = new Event(name, location, description,
-                LocalDate.parse(eventStart, dateFormat),
+                LocalDate.parse(eventStart, dateFormat).atStartOfDay(),
                 LocalDate.parse(registrationStart, dateFormat).atStartOfDay(),
-                LocalDate.parse(eventEnd, dateFormat),
+                LocalDate.parse(eventEnd, dateFormat).atStartOfDay(),
                 LocalDate.parse(registrationEnd, dateFormat).atStartOfDay(),
                 organizer,
                 price,

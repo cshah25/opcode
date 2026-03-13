@@ -52,7 +52,7 @@ public class EventDetailsFragment extends Fragment {
         Button qrCodeButton = view.findViewById(R.id.qr_code_button);
 
         nameText.setText(event.getName());
-        dateText.setText(event.getStartDate() + " to " + event.getEndDate());
+        dateText.setText(event.getStart() + " to " + event.getEnd());
         locationText.setText(event.getLocation());
         descriptionText.setText(event.getDescription());
 
