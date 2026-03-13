@@ -12,6 +12,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.time.LocalDateTime;
+
+
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -79,6 +83,10 @@ public class WaitListFragment extends Fragment {
 
         // Responsibility:  only Organizers can see lottery controls
         if (!currentUser.getId().equals(currentEvent.getOrganizer().getId())) {
+            lotteryControls.setVisibility(View.GONE);
+        }
+
+        if (LocalDateTime.now().isAfter(currentEvent.getRegistrationEnd())) {
             lotteryControls.setVisibility(View.GONE);
         }
 

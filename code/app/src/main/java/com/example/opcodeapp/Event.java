@@ -482,7 +482,7 @@ public class Event implements Parcelable {
         Map<String, String> applicantsMap = new HashMap<>();
         applicants.forEach((user, s) -> {
             if (user != null) {
-                applicantsMap.put(user.getDeviceId(), s.name());
+                applicantsMap.put(user.getId(), s.name());
             }
         }); //was map.put(user.getId(), s.name()); before
         map.put("applicants", applicantsMap);
@@ -528,12 +528,16 @@ public class Event implements Parcelable {
             manager.fetchUserByFirebaseId(userId, new FirestoreCallbackUserReceive() {
                 @Override
                 public void onDataReceived(User u) {
+                    if (u == null) {
+                        Log.e("FirestoreLoadEvent", "Error when loading user with device id: " + userId);
+                        return;
+                    }
                     event.addApplicant(u, status);
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    Log.e("FirestoreLoadEvent", "Error when loading user with id: " + userId);
+                    Log.e("FirestoreLoadEvent", "Error when loading user with device id: " + userId);
                 }
             });
         });
