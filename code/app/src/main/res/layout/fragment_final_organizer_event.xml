@@ -68,18 +68,11 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/event_status_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/your_status_waitlisted"
-                    android:textColor="#7A7A7A"
-                    android:textSize="14sp" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/event_date_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/date_amp_time"
@@ -97,7 +90,7 @@
 
             <TextView
                 android:id="@+id/event_price_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/price_if_exists"
@@ -106,7 +99,7 @@
 
             <TextView
                 android:id="@+id/event_reg_close_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:text="@string/registration_closes_soon"
@@ -115,7 +108,7 @@
 
             <TextView
                 android:id="@+id/event_open_closed_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/open_closed"
@@ -124,7 +117,7 @@
 
             <TextView
                 android:id="@+id/event_waitlist_count_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="@string/total_entrants_on_the_waiting_list"

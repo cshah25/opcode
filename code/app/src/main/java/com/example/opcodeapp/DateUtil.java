@@ -4,8 +4,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 public class DateUtil {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
      * @param dt date to be converted
@@ -21,5 +23,9 @@ public class DateUtil {
         return Instant.ofEpochSecond(l)
                 .atZone(ZoneOffset.systemDefault())
                 .toLocalDateTime();
+    }
+
+    public static String toString(LocalDateTime dateTime) {
+        return formatter.format(dateTime);
     }
 }
