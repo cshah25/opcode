@@ -1,5 +1,6 @@
 package com.example.opcodeapp;
 
+import static androidx.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -54,7 +55,7 @@ public class DBManagerTest {
     @Test
     public void testAddUser() {
 
-        User user = new User("Vedant Patel", "vspatel1@ualberta.ca", "67676767");
+        User user = new User("Vedant Patel", "vspatel1@ualberta.ca", "67676767", getContext());
 
         // 5. Tell the mockTask to trigger the Success Listener immediately
         when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
@@ -77,7 +78,7 @@ public class DBManagerTest {
 
     @Test
     public void testUpdateUser() {
-        User newUser = new User("John Doe", "blah@gmail.com", "98372042");
+        User newUser = new User("John Doe", "blah@gmail.com", "98372042", getContext());
     }
 
 }
