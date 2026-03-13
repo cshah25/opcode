@@ -86,8 +86,8 @@ public class WaitListFragment extends Fragment {
             lotteryControls.setVisibility(View.GONE);
         }
 
-        if (LocalDateTime.now().isAfter(currentEvent.getRegistrationEnd())) {
-            lotteryControls.setVisibility(View.GONE);
+        if (LocalDateTime.now().isBefore(currentEvent.getRegistrationEnd())) {
+            lotteryControls.setVisibility(View.GONE); //YOU WERE HERE
         }
 
         // Setup Lottery Draw Listener

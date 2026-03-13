@@ -20,6 +20,7 @@ import androidx.navigation.Navigation;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -118,8 +119,13 @@ public class EntrantEventDetailsFragment extends Fragment {
             //new code added by Vedant to check if a waitlist is full.
             int total_applicants = currentEvent.getInitialApplicants().size() + currentEvent.getAttendees().size() + currentEvent.getInvited().size() + currentEvent.getDeclined().size() + currentEvent.getDeclinedRemoved().size();
 
-            if ( currentEvent.getWaitlistLimit() != -1 && total_applicants >= currentEvent.getWaitlistLimit()) {
+            if (currentEvent.getWaitlistLimit() != -1 && total_applicants >= currentEvent.getWaitlistLimit()) {
                 Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (LocalDateTime.now().isAfter(currentEvent.getRegistrationEnd())) {
+                Toast.makeText(requireContext(), "Registration is closed!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
