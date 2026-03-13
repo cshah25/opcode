@@ -163,7 +163,7 @@ public class FinalOrganizerEventFragment extends Fragment {
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("event", event);
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.ApplicantFragment, bundle);
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.WaitListFragment, bundle);
             }
 
         });

@@ -50,9 +50,12 @@ public class WaitListFragment extends Fragment {
         dbManager = new DBManager(FirebaseFirestore.getInstance());
         lotterySystem = new LotterySystem();
 
+
+        currentUser = SessionController.getInstance(getContext()).getCurrentUser();
+
         if (getArguments() != null) {
-            currentEvent = (Event) getArguments().getSerializable("EVENT");
-            currentUser = (User) getArguments().getSerializable("CURRENT_USER");
+            currentEvent = (Event) getArguments().getParcelable("event");
+
         }
 
         // Setup UI References
