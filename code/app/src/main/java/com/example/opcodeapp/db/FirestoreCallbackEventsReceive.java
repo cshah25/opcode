@@ -2,6 +2,8 @@ package com.example.opcodeapp.db;
 
 import com.example.opcodeapp.model.Event;
 
+import com.example.opcodeapp.model.Event;
+
 import java.util.List;
 
 /**
