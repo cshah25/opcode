@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+
 import java.util.ArrayList;
 
 public class InvitedUserArrayAdapter extends ArrayAdapter<User> {

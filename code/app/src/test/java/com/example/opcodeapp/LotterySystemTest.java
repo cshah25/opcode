@@ -1,6 +1,10 @@
 package com.example.opcodeapp;
 
 import static org.junit.Assert.*;
+
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+
 import org.junit.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

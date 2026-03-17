@@ -11,16 +11,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
 import com.example.opcodeapp.databinding.FragmentInvitedUsersBinding;
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**

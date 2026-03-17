@@ -9,6 +9,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+
 import java.util.Objects;
 
 public class DeclinedUserDialogFragment extends DialogFragment {

@@ -1,9 +1,13 @@
-package com.example.opcodeapp;
+package com.example.opcodeapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.example.opcodeapp.ApplicantStatus;
+import com.example.opcodeapp.DBManager;
+import com.example.opcodeapp.FirestoreCallbackUserReceive;
+import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -22,6 +26,18 @@ import java.util.stream.Collectors;
  */
 public class Event implements Parcelable {
 
+    public static final Creator<Event> CREATOR = new Creator<>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+
     @DocumentId
     private String id;
     private String name;
@@ -33,21 +49,7 @@ public class Event implements Parcelable {
     private LocalDateTime registrationEnd;
     private float price;
     private int waitlistLimit;
-
     private User organizer;
-
-    /**
-     * A map containing all the applicants (instances of User class) of the event as keys.
-     * The corresponding value of the key is the status of the applicant (i.e. "Not Drawn", "Invited", "Accepted", "Declined", "Declined-Removed").
-     *
-     */
-    private Map<User, ApplicantStatus> applicants = new HashMap<>();
-
-    /**
-     * Needed for toObject from Firebase
-     */
-    public Event() {
-    }
 
     /**
      * Constructor for the Event class.
@@ -62,67 +64,37 @@ public class Event implements Parcelable {
      * @param organizer         The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDateTime start, LocalDateTime registrationStart, LocalDateTime end, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit) {
+    public Event(String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit) {
         this.name = name;
         this.location = location;
         this.description = description;
         this.start = start;
-        this.registrationStart = registrationStart;
         this.end = end;
+        this.registrationStart = registrationStart;
         this.registrationEnd = registrationEnd;
         this.organizer = organizer;
         this.price = price;
         this.waitlistLimit = waitlistLimit;
     }
 
-
     protected Event(Parcel in) {
         id = in.readString();
         name = in.readString();
         location = in.readString();
         description = in.readString();
-        start = (LocalDateTime) in.readSerializable();
-        end = (LocalDateTime) in.readSerializable();
-        registrationEnd = (LocalDateTime) in.readSerializable();
-        registrationStart = (LocalDateTime) in.readSerializable();
-        organizer = in.readParcelable(User.class.getClassLoader());
+        start = DateUtil.fromParcel(in);
+        end = DateUtil.fromParcel(in);
+        registrationStart = DateUtil.fromParcel(in);
+        registrationEnd = DateUtil.fromParcel(in);
+        organizer = in.readParcelable(User.class.getClassLoader(), User.class);
         price = in.readFloat();
-        DBManager db = new DBManager(FirebaseFirestore.getInstance());
-        int size = in.readInt();
-        for (int i = 0; i < size; i++) {
-            String key = in.readString();
-            String value = in.readString();
-            db.fetchUserByFirebaseId(key, new FirestoreCallbackUserReceive() {
-                @Override
-                public void onDataReceived(User u) {
-                    applicants.put(u, ApplicantStatus.valueOf(value));
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e("Event", String.format("error loading applicant: %s", e));
-                }
-            });
-        }
+        waitlistLimit = in.readInt();
     }
-
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
-        @Override
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
-        }
-
-        @Override
-        public Event[] newArray(int size) {
-            return new Event[size];
-        }
-    };
 
     @Override
     public int describeContents() {
         return 0;
     }
-
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -132,17 +104,11 @@ public class Event implements Parcelable {
         dest.writeString(description);
         dest.writeSerializable(start);
         dest.writeSerializable(end);
-        dest.writeSerializable(registrationEnd);
         dest.writeSerializable(registrationStart);
-        // store as ids when serialized
-        dest.writeString(organizer.getId());
-        dest.writeInt(applicants.size());
-        for (Map.Entry<User, ApplicantStatus> entry : applicants.entrySet()) {
-            dest.writeString(entry.getKey().getId()); // Write custom key
-            dest.writeString(entry.getValue().name());          // Write value
-        }
-
-
+        dest.writeSerializable(registrationEnd);
+        dest.writeString(organizer.getDeviceId());
+        dest.writeFloat(price);
+        dest.writeInt(waitlistLimit);
     }
 
     /**
@@ -437,29 +403,12 @@ public class Event implements Parcelable {
         this.id = id;
     }
 
-    /**
-     * Removes a user from the event.
-     *
-     * @param user The user to remove.
-     * @return True if the user was removed, false otherwise.
-     */
-    public boolean removeUser(User user) {
-        if (user == null) {
-            return false;
-        }
-        return applicants.remove(user) != null;
-    }
-
     public float getPrice() {
         return price;
     }
 
     public int getWaitlistLimit() {
         return waitlistLimit;
-    }
-
-    public ApplicantStatus getApplicantStatus(User u) {
-        return applicants.get(u);
     }
 
     /**
@@ -478,14 +427,6 @@ public class Event implements Parcelable {
         map.put("price", price);
         map.put("waitlistLimit", waitlistLimit);
         map.put("organizer_id", organizer.getId());
-
-        Map<String, String> applicantsMap = new HashMap<>();
-        applicants.forEach((user, s) -> {
-            if (user != null) {
-                applicantsMap.put(user.getDeviceId(), s.name());
-            }
-        }); //was map.put(user.getId(), s.name()); before
-        map.put("applicants", applicantsMap);
         return map;
     }
 
@@ -520,22 +461,6 @@ public class Event implements Parcelable {
             public void onError(Exception e) {
                 Log.e("FirestoreLoadEvent", "Error when loading organizer of event");
             }
-        });
-
-        Map<String, String> applicantsMap = (Map<String, String>) map.get("applicants");
-        applicantsMap.forEach((userId, statusName) -> {
-            ApplicantStatus status = ApplicantStatus.valueOf(statusName);
-            manager.fetchUserByFirebaseId(userId, new FirestoreCallbackUserReceive() {
-                @Override
-                public void onDataReceived(User u) {
-                    event.addApplicant(u, status);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e("FirestoreLoadEvent", "Error when loading user with id: " + userId);
-                }
-            });
         });
 
         return event;

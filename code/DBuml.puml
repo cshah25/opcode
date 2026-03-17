@@ -1,5 +1,5 @@
 @startuml
-class com.example.opcodeapp.Event {
+class com.example.opcodeapp.model.Event {
 - String id
 - String name
 - String location
@@ -44,7 +44,7 @@ class com.example.opcodeapp.MainActivity {
 }
 
 
-class com.example.opcodeapp.User {
+class com.example.opcodeapp.model.User {
 - String id
 - String name
 - String email
@@ -110,9 +110,9 @@ class com.example.opcodeapp.FirstFragment {
 
 
 
-java.io.Serializable <|.. com.example.opcodeapp.Event
+java.io.Serializable <|.. com.example.opcodeapp.model.Event
 androidx.appcompat.app.AppCompatActivity <|-- com.example.opcodeapp.MainActivity
-java.io.Serializable <|.. com.example.opcodeapp.User
+java.io.Serializable <|.. com.example.opcodeapp.model.User
 androidx.fragment.app.Fragment <|-- com.example.opcodeapp.SecondFragment
 androidx.fragment.app.Fragment <|-- com.example.opcodeapp.FirstFragment
 @enduml

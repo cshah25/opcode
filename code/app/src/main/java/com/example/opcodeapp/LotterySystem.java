@@ -1,5 +1,8 @@
 package com.example.opcodeapp;
 
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

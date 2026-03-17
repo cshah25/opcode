@@ -1,6 +1,11 @@
-package com.example.opcodeapp;
+package com.example.opcodeapp.util;
+import android.companion.DeviceId;
 import android.content.Context;
+import android.os.Build;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
+
 /**
  * Utility class for getting a device identifier
  */
@@ -20,4 +25,8 @@ public final class DeviceIdUtil {
                 Settings.Secure.ANDROID_ID
         );
   }
+
+    public static DeviceId fromString(String id) {
+            return new DeviceId.Builder().setCustomId(id).build();
+    }
 }

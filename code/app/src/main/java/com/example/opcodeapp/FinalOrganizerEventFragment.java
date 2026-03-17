@@ -11,6 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.util.DateUtil;
+
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.Locale;

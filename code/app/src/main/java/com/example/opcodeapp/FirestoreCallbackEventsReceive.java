@@ -1,5 +1,7 @@
 package com.example.opcodeapp;
 
+import com.example.opcodeapp.model.Event;
+
 import java.util.List;
 
 /**

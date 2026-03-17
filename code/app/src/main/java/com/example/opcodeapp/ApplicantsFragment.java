@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;

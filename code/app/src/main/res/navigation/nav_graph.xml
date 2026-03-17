@@ -67,7 +67,7 @@
         </fragment>
         <argument
             android:name="event"
-            app:argType="com.example.opcodeapp.Event" />
+            app:argType="com.example.opcodeapp.model.Event" />
         <fragment
             android:id="@+id/FinalOrganizerEventFragment"
             android:name="com.example.opcodeapp.FinalOrganizerEventFragment"
@@ -125,10 +125,10 @@
 
             <argument
                 android:name="EVENT"
-                app:argType="com.example.opcodeapp.Event" />
+                app:argType="com.example.opcodeapp.model.Event" />
             <argument
                 android:name="CURRENT_USER"
-                app:argType="com.example.opcodeapp.User" />
+                app:argType="com.example.opcodeapp.model.User" />
         </fragment>
         <fragment
             android:id="@+id/WaitListFragment"
@@ -137,10 +137,10 @@
             tools:layout="@layout/waitlist_screen">
             <argument
                 android:name="EVENT"
-                app:argType="com.example.opcodeapp.Event" />
+                app:argType="com.example.opcodeapp.model.Event" />
             <argument
                 android:name="CURRENT_USER"
-                app:argType="com.example.opcodeapp.User" />
+                app:argType="com.example.opcodeapp.model.User" />
         </fragment>
         <fragment
             android:id="@+id/ProfileFragment"
@@ -150,7 +150,7 @@
 
             <argument
                 android:name="CURRENT_USER"
-                app:argType="com.example.opcodeapp.User" />
+                app:argType="com.example.opcodeapp.model.User" />
         </fragment>
         <fragment
             android:id="@+id/EventCreatorFragment"

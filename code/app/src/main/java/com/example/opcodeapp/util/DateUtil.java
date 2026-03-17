@@ -1,4 +1,6 @@
-package com.example.opcodeapp;
+package com.example.opcodeapp.util;
+
+import android.os.Parcel;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -23,6 +25,11 @@ public class DateUtil {
         return Instant.ofEpochSecond(l)
                 .atZone(ZoneOffset.systemDefault())
                 .toLocalDateTime();
+    }
+
+    public static LocalDateTime fromParcel(Parcel in) {
+        Class<LocalDateTime> classs = LocalDateTime.class;
+        return in.readSerializable(classs.getClassLoader(), classs);
     }
 
     public static String toString(LocalDateTime dateTime) {

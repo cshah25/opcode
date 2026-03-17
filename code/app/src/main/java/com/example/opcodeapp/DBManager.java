@@ -2,6 +2,8 @@ package com.example.opcodeapp;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -17,7 +19,6 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 

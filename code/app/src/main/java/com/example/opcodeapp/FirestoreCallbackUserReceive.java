@@ -1,6 +1,6 @@
 package com.example.opcodeapp;
 
-import java.util.List;
+import com.example.opcodeapp.model.User;
 
 public interface FirestoreCallbackUserReceive {
     void onDataReceived(User u);

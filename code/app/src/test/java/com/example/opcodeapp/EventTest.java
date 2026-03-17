@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
-
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

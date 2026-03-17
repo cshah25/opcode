@@ -6,13 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
+import com.example.opcodeapp.model.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;

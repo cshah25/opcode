@@ -1,13 +1,14 @@
 package com.example.opcodeapp;
 
 import android.content.Context;
-import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.util.DeviceIdUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
