@@ -1,0 +1,65 @@
+1.) TLC (Completed)
+2.) Recrystallization (Completed)
+3.) Reflux (Completed)
+4.) Liquid-Liquid Extraction
+5.) IR Spectroscopy
+6.) Melting Point
+7.) Pipette Chromatography
+8.) Distillation
+
+- 3 questions
+
+
+If you were given the boiling points of two liquids contained in a mixture, what technique would you use to purify and separate the two liquids? Do you know how to set up the required apparatus for the separation?
+
+Distillation can be used. If the difference in the boiling points of the two liquids is less than 25, then fractional distillation is ideal. Otherwise, simple distillation is fine. To setup a distillation apparatus...
+	- Take a round bottom flask and attach it to a universal clamp that is connected to a stand.
+	- place the heating mantle on the lab jack and raise the lab jack until the heating mantle touches the round bottom flask.'
+	- connect the heating mantle to a variac.
+	- Place the still head on the round bottom flask.
+	- connect the condenser to the still head 
+
+If you were asked to extract trimyristin from ground nutmeg, what technique would you use and how would you set up the required apparatus? Do you know how to calculate % recovery?
+
+	- I would use solid liquid extraction (using reflux apparatus).
+	- Take a round bottom flask and attach it to a universal clamp that is connected to a stand.
+	- place the heating mantle on the lab jack and raise the lab jack until the heating mantle touches the round bottom flask.'
+	- connect the heating mantle to a variac.
+	- Place the condenser on the flask.
+	- Connect the water input hose to the bottom nozzle and then connect the water output hose to the top nozzle. 
+	- Peform reflux with reagent grade acetone as the solvent.
+
+	- After reflux is complete, perform reduced pressure evaporation to evaporate the solvent and leave behind the hopefully pure trimyristin.
+
+% Recovery = (amount of desired product obtained)/(amount of starting material) x 100%
+
+
+
+
+If you were given an unknown solid and asked to purify by recrystallization, how are you going to determine an optimal solvent and would you be able to perform the recrystallization process? Do you know how to calculate % purity?
+
+	- Consider different solvents (based on literature data).
+	- Find a solvent that barely dissolves the unknown solid in room temp and completely dissolves it in hot temp. 
+	- In different test tubes, add around 10mg of the solid along with 0.5mL of different solvents for test.
+	- select the solvents based on the criteria described above. If there are multiple solvents that match the criteria, then chose the solvent with the smallest boiling point (allows for rapid dissolving at hot temperatures).
+
+	- place the solid in an erlynmyer flask.
+	- add the hot solvent into the erlynmyer flask until a slurry is obtained. 
+	- keep adding the hot solvent until a saturated solution is obtained.
+	- Let the solution cool to room temp
+	- add the solution in an ice bath to induce crystallization
+	- perform vaccum filtration on the crystals by washing off the imputrities using the cold solvent. 
+
+%purity = (amount of pure product)/(amount of crude material).
+
+
+
+
+
+
+
+
+
+
+
+
