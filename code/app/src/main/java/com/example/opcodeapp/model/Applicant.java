@@ -1,5 +1,10 @@
 package com.example.opcodeapp.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
@@ -7,8 +12,21 @@ import com.google.firebase.firestore.DocumentId;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class Applicant {
+public class Applicant implements Parcelable {
+
+    public static final Creator<Applicant> CREATOR = new Creator<>() {
+        @Override
+        public Applicant createFromParcel(Parcel in) {
+            return new Applicant(in);
+        }
+
+        @Override
+        public Applicant[] newArray(int size) {
+            return new Applicant[size];
+        }
+    };
 
     @DocumentId
     private String id;
@@ -25,6 +43,31 @@ public class Applicant {
         this.name = name;
         this.status = status;
         this.joinedAt = joinedAt;
+    }
+
+    protected Applicant(Parcel in) {
+        id = Objects.requireNonNull(in.readString());
+        eventId = in.readString();
+        userId = in.readString();
+        name = in.readString();
+        status = ApplicantStatus.valueOf(in.readString());
+        joinedAt = DateUtil.fromParcel(in);
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(eventId);
+        dest.writeString(userId);
+        dest.writeString(name);
+        dest.writeString(status.name());
+        dest.writeSerializable(joinedAt);
     }
 
     public String getId() {
