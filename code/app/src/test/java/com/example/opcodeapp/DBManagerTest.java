@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
+import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackSend;
 import com.example.opcodeapp.model.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

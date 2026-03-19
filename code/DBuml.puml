@@ -72,12 +72,12 @@ class com.example.opcodeapp.SecondFragment {
 }
 
 
-interface com.example.opcodeapp.FirestoreCallbackUsersReceive {
+interface com.example.opcodeapp.db.FirestoreCallbackUsersReceive {
 ~ void onDataReceived(List<User>)
 ~ void onError(Exception)
 }
 
-interface com.example.opcodeapp.FirestoreCallbackSend {
+interface com.example.opcodeapp.db.FirestoreCallbackSend {
 ~ void onSendSuccess()
 ~ void onSendFailure(Exception)
 }
@@ -95,7 +95,7 @@ class com.example.opcodeapp.DBmanager {
 }
 
 
-interface com.example.opcodeapp.FirestoreCallbackEventsReceive {
+interface com.example.opcodeapp.db.FirestoreCallbackEventsReceive {
 ~ void onDataReceived(List<Event>)
 ~ void onError(Exception)
 }

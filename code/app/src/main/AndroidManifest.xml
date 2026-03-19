@@ -12,11 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpcodeApp">
         <activity
-            android:name=".EnrolledUsersFragment"
+            android:name=".view.EnrolledUsersFragment"
             android:exported="true"
-            android:parentActivityName=".FinalOrganizerEventFragment"/>
+            android:parentActivityName=".view.FinalOrganizerEventFragment"/>
         <activity
-            android:name=".FinalOrganizerEventFragment"
+            android:name=".view.FinalOrganizerEventFragment"
             android:exported="true"
             android:parentActivityName=".MainActivity"/>
         <activity

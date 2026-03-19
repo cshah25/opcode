@@ -6,6 +6,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackSend;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.google.android.gms.tasks.OnFailureListener;

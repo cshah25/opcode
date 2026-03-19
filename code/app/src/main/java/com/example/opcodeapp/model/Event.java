@@ -4,18 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.example.opcodeapp.ApplicantStatus;
-import com.example.opcodeapp.DBManager;
-import com.example.opcodeapp.FirestoreCallbackUserReceive;
+import androidx.annotation.NonNull;
+
+import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackUserReceive;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 
 @SuppressWarnings("deprecated")
@@ -39,6 +39,7 @@ public class Event implements Parcelable {
     };
 
     @DocumentId
+    @NonNull
     private String id;
     private String name;
     private String location;
@@ -47,9 +48,9 @@ public class Event implements Parcelable {
     private LocalDateTime end;
     private LocalDateTime registrationStart;
     private LocalDateTime registrationEnd;
+    private User organizer;
     private float price;
     private int waitlistLimit;
-    private User organizer;
 
     /**
      * Constructor for the Event class.
@@ -64,7 +65,8 @@ public class Event implements Parcelable {
      * @param organizer         The organizer of the event.
      */
 
-    public Event(String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit) {
+    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit) {
+        this.id = id;
         this.name = name;
         this.location = location;
         this.description = description;
@@ -78,7 +80,7 @@ public class Event implements Parcelable {
     }
 
     protected Event(Parcel in) {
-        id = in.readString();
+        id = Objects.requireNonNull(in.readString());
         name = in.readString();
         location = in.readString();
         description = in.readString();
@@ -109,6 +111,26 @@ public class Event implements Parcelable {
         dest.writeString(organizer.getDeviceId());
         dest.writeFloat(price);
         dest.writeInt(waitlistLimit);
+    }
+
+    /**
+     * Getter for the ID of the event. Filled in by Firestore.
+     *
+     * @return The ID of the event.
+     */
+    @NonNull
+    public String getId() {
+        return id;
+    }
+
+
+    /**
+     * Setter for the id of the event.
+     *
+     * @param id The id of the event.
+     */
+    public void setId(@NonNull String id) {
+        this.id = id;
     }
 
     /**
@@ -256,159 +278,41 @@ public class Event implements Parcelable {
         this.organizer = organizer;
     }
 
-
     /**
-     * Adds an applicant to the event.
+     * Getter for the price to join the event
      *
-     * @param applicant the user joining the event
-     * @param status    the status the user has with relation to the event
+     * @return The joining price of the event
      */
-    public void addApplicant(User applicant, ApplicantStatus status) {
-        applicants.put(applicant, status);
-    }
-
-    /**
-     * Adds an applicant to the waiting list of the event.
-     *
-     * @param applicant
-     */
-    //Needs to be tested
-    public void addApplicant(User applicant) {
-        addApplicant(applicant, ApplicantStatus.NOT_DRAWN);
-    }
-
-    /**
-     * Getter for users involved with this event
-     *
-     * @param filter The status of the applicant to filter by
-     * @return a list of users with a matching status
-     */
-    public List<User> getApplicants(ApplicantStatus filter) {
-        return applicants.entrySet()
-                .stream()
-                .filter(e -> e.getValue() == filter)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Getter for the users in the waiting list of the event (Not Drawn).
-     *
-     * @return The applicants of the event.
-     */
-    //Needs to be tested
-    public List<User> getInitialApplicants() {
-        return getApplicants(ApplicantStatus.NOT_DRAWN);
-    }
-
-    /**
-     * Setter for the users in the waiting list of the event who were selected by the lottery system (Invited).
-     *
-     * @param winners The applicants that were selected to be invited to the event.
-     */
-    //Needs to be tested
-    public void setInvited(List<User> winners) {
-        winners.forEach(u -> applicants.replace(u, ApplicantStatus.INVITED));
-    }
-
-    /**
-     * Getter for the users in the waiting list of the event who were invited to the event ("Invited"). The users haven't yet accepted or declined the invite.
-     *
-     * @return The applicants that were invited to the event.
-     */
-    //Needs to be tested
-    public List<User> getInvited() {
-        return getApplicants(ApplicantStatus.INVITED);
-    }
-
-
-    /**
-     * Getter for the attendees of the event ("Accepted").
-     *
-     * @return The attendees of the event.
-     */
-    //Needs to be tested
-    public List<User> getAttendees() {
-        return getApplicants(ApplicantStatus.ACCEPTED);
-    }
-
-    /**
-     * Setter for an attendee of the event (Accepted).
-     *
-     * @param attendee An attendee who accepted the invite.
-     */
-    //Needs to be tested
-    public void setAttendee(User attendee) {
-        applicants.replace(attendee, ApplicantStatus.ACCEPTED);
-    }
-
-
-    /**
-     * Setter for a declined attendee of the event (Declined).
-     *
-     * @param attendee An attendee who declined the invite.
-     */
-    //Needs to be tested
-    public void setDeclined(User attendee) {
-        applicants.replace(attendee, ApplicantStatus.DECLINED);
-    }
-
-
-    /**
-     * Getter for the users in the waiting list of the event who declined the invite ("Declined").
-     *
-     * @return The applicants that declined the invite.
-     */
-
-    //Needs to be tested
-    public List<User> getDeclined() {
-        return getApplicants(ApplicantStatus.DECLINED);
-    }
-
-    /**
-     * If the user declined the invite, this method lets the organizer remove the user from the screen.
-     *
-     * @param user
-     */
-    public void setDeclinedRemoved(User user) {
-        applicants.replace(user, ApplicantStatus.DECLINED_REMOVED);
-    }
-
-
-    /**
-     * Getter for the users in the waiting list of the event who declined the invite and were removed from the screen ("Declined-Removed").
-     *
-     * @return The applicants that declined the invite and were removed from the screen.
-     */
-    public List<User> getDeclinedRemoved() {
-        return getApplicants(ApplicantStatus.DECLINED_REMOVED);
-    }
-
-    /**
-     * Getter for the ID of the event. Filled in by Firestore.
-     *
-     * @return The ID of the event.
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Setter for the ID of the event. Filled in by Firestore.
-     *
-     * @param id The ID of the event.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public float getPrice() {
         return price;
     }
 
+    /**
+     * Setter for the price of the event. The price is clamped to be greater than or equal to 0
+     *
+     * @param price The new price of the event
+     */
+    public void setPrice(float price) {
+        this.price = Math.max(price, 0);
+    }
+
+    /**
+     * Getter for the waitlist limit of the event
+     *
+     * @return The waitlist limit of the event
+     */
     public int getWaitlistLimit() {
         return waitlistLimit;
+    }
+
+    /**
+     * Setter for the waitlist limit of the event. The waitlist limit is clamped to be greater than
+     * or equal to -1 (no limit)
+     *
+     * @param waitlistLimit The new waitlist limit of the event
+     */
+    public void setWaitlistLimit(int waitlistLimit) {
+        this.waitlistLimit = Math.max(waitlistLimit, -1);
     }
 
     /**
@@ -424,9 +328,9 @@ public class Event implements Parcelable {
         map.put("end", DateUtil.toLong(end));
         map.put("registrationStart", DateUtil.toLong(registrationStart));
         map.put("registrationEnd", DateUtil.toLong(registrationEnd));
+        map.put("organizer_id", organizer.getId());
         map.put("price", price);
         map.put("waitlistLimit", waitlistLimit);
-        map.put("organizer_id", organizer.getId());
         return map;
     }
 
@@ -434,10 +338,9 @@ public class Event implements Parcelable {
      * Static function to instantiate event from a map. Used for Firebase retrieval
      *
      * @param map
-     * @return
+     * @return TODO: Improve validation of potential null fields
      */
     public static Event fromMap(String id, Map<String, Object> map) {
-        DBManager manager = new DBManager(FirebaseFirestore.getInstance());
         String name = (String) map.get("name");
         String location = (String) map.get("location");
         String description = (String) map.get("description");
@@ -449,12 +352,23 @@ public class Event implements Parcelable {
         int waitlistLimit = Integer.valueOf(map.get("waitlistLimit").toString());
         String organizer_id = (String) map.get("organizer_id");
 
-        Event event = new Event(name, location, description, start, registrationStart, end, registrationEnd, null, price, waitlistLimit);
-        event.setId(id);
-        manager.fetchUserByFirebaseId(organizer_id, new FirestoreCallbackUserReceive() {
+        Event.Builder b = Event.builder(id)
+                .name(name)
+                .location(location)
+                .description(description)
+                .start(start)
+                .end(end)
+                .registrationStart(registrationStart)
+                .registrationEnd(registrationEnd)
+                .price(price)
+                .waitlistLimit(waitlistLimit);
+
+
+        DBManager manager = new DBManager(FirebaseFirestore.getInstance());
+        manager.fetchUsers(q -> q.whereEqualTo("organizer_id", organizer_id), new FirestoreCallbackUserReceive() {
             @Override
             public void onDataReceived(User u) {
-                event.setOrganizer(u);
+                b.organizer(u);
             }
 
             @Override
@@ -463,6 +377,105 @@ public class Event implements Parcelable {
             }
         });
 
+
         return event;
+    }
+
+    public static Builder builder(String id) {
+        return builder(id);
+    }
+
+    /**
+     * Builder class for Events
+     * TODO: Add input validation
+     */
+    public static class Builder {
+        private final String id;
+        private String name;
+        private String location;
+        private String description;
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private LocalDateTime registrationStart;
+        private LocalDateTime registrationEnd;
+        private User organizer;
+        private Float price;
+        private Integer waitlistLimit;
+
+        public Builder(String id) {
+            this.id = id;
+        }
+
+        public Builder name(@NonNull String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder location(@NonNull String location) {
+            this.location = location;
+            return this;
+        }
+
+        public Builder description(@NonNull String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder start(LocalDateTime start) {
+            this.start = start;
+            return this;
+        }
+
+        public Builder end(LocalDateTime end) {
+            this.end = end;
+            return this;
+        }
+
+        public Builder registrationStart(LocalDateTime registrationStartTime) {
+            this.registrationStart = registrationStartTime;
+            return this;
+        }
+
+        public Builder registrationEnd(LocalDateTime registrationEndTime) {
+            this.registrationEnd = registrationEndTime;
+            return this;
+        }
+
+        public Builder organizer(User organizer) {
+            this.organizer = organizer;
+            return this;
+        }
+
+        public Builder waitlistLimit(int waitlistLimit) {
+            this.waitlistLimit = waitlistLimit;
+            return this;
+        }
+
+        public Builder price(float price) {
+            this.price = price;
+            return this;
+        }
+
+        public Event build() {
+            LocalDateTime now = LocalDateTime.now();
+
+            // Check if registration does not start in the past
+            if (registrationStart.isBefore(now))
+                throw new IllegalArgumentException("Registration start time cannot be in the past");
+
+            // Check if registration end is after the start
+            if (!registrationEnd.isAfter(registrationStart))
+                throw new IllegalArgumentException("Registration end date must be after registration start");
+
+            // Check if the event start is in the future
+            if (!start.isAfter(now))
+                throw new IllegalArgumentException("Event start must be in the future");
+
+            // Check if the event end is after the start
+            if (!end.isAfter(start))
+                throw new IllegalArgumentException("Event end must be after event start");
+
+            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit);
+        }
     }
 }
