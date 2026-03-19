@@ -1,8 +1,8 @@
 1.) TLC (Completed)
 2.) Recrystallization (Completed)
 3.) Reflux (Completed)
-4.) Liquid-Liquid Extraction
-5.) IR Spectroscopy
+4.) Liquid-Liquid Extraction (Completed)
+5.) IR Spectroscopy (Practice needed)
 6.) Melting Point
 7.) Pipette Chromatography
 8.) Distillation
@@ -51,6 +51,50 @@ If you were given an unknown solid and asked to purify by recrystallization, how
 	- perform vaccum filtration on the crystals by washing off the imputrities using the cold solvent. 
 
 %purity = (amount of pure product)/(amount of crude material).
+
+
+
+
+
+
+
+
+If you were provided with an organic acid or an organic base dissolved in dichloromethane, what is required to convert the acid or the base into a water-soluble salt? Would the salt be in the top or the bottom layer? What if the solvent was ethyl acetate instead of dichloromethane - what changes would you expect? Do you know how to properly and safely use a separatory funnel?
+
+If organic acid dissolved in DCM => mix it with dilute base in a separatory funnel
+
+if organic base dissolved in DCM => mix it with dilute acid in a separatory funnel
+
+the salt would be in the top layer dissolved in water since water is more dense than DCM. 
+
+If the solvent was ethyl acetate instead of DCM then the salt would be in the bottom aqueous layer as water is more dense than ethyl acetate.
+
+
+
+
+
+How would you use TLC to determine the identity of an unknown compound? What are the correct steps for performing TLC? What do you need to change if the eluent system used to develop the plate resulted in Rf values what were too close to the baseline (or alternatively too close to the solvent front)? What if your spots were not visible under the UV lamp, what would you do next? Do you know how to calculate Rf values? If you compared a compound containing a carboxylic acid with a compound that contains an ether, would you expect one to have a higher Rf and why?
+
+The Rf value of an unknown compound can be compared with the Rf values of TLC standards and the standard that closely matches the unknown compound should be the identity of it.
+
+Preparing the TLC plate
+	- Draw a line a cm away from the edge of the plate using a ruler (dont press too hard with the pencil)
+	- label the lanes
+
+Preparing the developing chamber:
+
+	- add a half-cut filter paper that is attached to the walls of the beaker touching the bottom.
+	- add the eluent and swirl it. Wet the filter paper we with the eluent to create an atmosphere within the chamber.
+	-  place the watch glass on the chamber to prevent loss by evaporation.
+
+
+Dissolving the samples in the least polar solvent:
+
+
+
+
+
+Can you properly operate the IR spectrometer? Do you know how to run a background spectrum, then run your sample, complete a baseline correction, and perform the peak pick (without referring to any documentation)? Can you complete this in less than 5 minutes along with proper cleaning of the IR plates?
 
 
 
