@@ -1,5 +1,6 @@
 package com.example.opcodeapp.db;
 
+import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
@@ -233,4 +234,39 @@ public class DBManager {
                 })
                 .addOnFailureListener(listener::onError);
     }
+
+    // TODO: Needs testing
+    public void fetchEventApplicants(Event event, FirestoreCallbackApplicantsReceive listener) {
+        applicantsRef.whereEqualTo("event_id", event.getId())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Applicant> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshot) {
+                        Applicant applicant = Applicant.fromMap(doc.getId(), doc.getData());
+                        list.add(applicant);
+                    }
+                    listener.onDataReceived(list);
+                })
+                .addOnFailureListener(listener::onError);
+
+
+
+    }
+
+    // TODO: Needs testing
+    public void fetchApplicantsByStatus(Event event, ApplicantStatus status, FirestoreCallbackApplicantsReceive listener) {
+        applicantsRef.whereEqualTo("event_id", event.getId())
+                .whereEqualTo("status", status)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Applicant> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshot) {
+                        Applicant applicant = Applicant.fromMap(doc.getId(), doc.getData());
+                        list.add(applicant);
+                    }
+                    listener.onDataReceived(list);
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
 }
