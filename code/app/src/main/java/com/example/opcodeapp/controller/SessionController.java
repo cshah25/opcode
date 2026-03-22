@@ -7,10 +7,11 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackUsersReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackUsersReceive;
 import com.example.opcodeapp.enums.LoginState;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,35 +33,28 @@ public class SessionController {
     private MutableLiveData<LoginState> state = new MutableLiveData<>(LoginState.PENDING);
     private FirebaseAuth mAuth;
     private FirebaseUser fire_user;
+    private UserRepository repository;
 
     public SessionController(Context context) {
         String id = DeviceIdUtil.getDeviceId(context);
         mAuth = FirebaseAuth.getInstance();
         fire_user = mAuth.getCurrentUser();
-        DBManager db = new DBManager(FirebaseFirestore.getInstance());
-        db.fetchUsersByDeviceId(id, new FirestoreCallbackUsersReceive() {
+        repository = new UserRepository(FirebaseFirestore.getInstance());
+        repository.fetchUser(id, new FirestoreCallbackUserReceive() {
             @Override
-            public void onDataReceived(List<User> items) {
+            public void onDataReceived(User user) {
                 Log.i("SessionController", "received query result ok");
-                if (!items.isEmpty()) {
-                    current_user = items.get(0);
-                    if (fire_user == null || !fire_user.getEmail().equals(current_user.getEmail())) {
-                        mAuth.signInWithEmailAndPassword(current_user.getEmail(), current_user.getDeviceId())
-                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.i("SessionController", "Logged fire in");
-                                            fire_user = mAuth.getCurrentUser();
-                                        } else {
-                                            Log.e("SessionController", "Couldn't fire base log in");
-                                        }
-                                    }
-                                });
-                    }
-                    state.postValue(LoginState.LOGGED_IN);
-                } else {
-                    state.postValue(LoginState.LOGGED_OUT);
+                if (fire_user == null || !fire_user.getEmail().equals(current_user.getEmail())) {
+                    mAuth.signInWithEmailAndPassword(current_user.getEmail(), current_user.getDeviceId())
+                            .addOnSuccessListener(auth -> {
+                                Log.i("SessionController", "Logged fire in");
+                                fire_user = mAuth.getCurrentUser();
+                                state.postValue(LoginState.LOGGED_IN);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("SessionController", "Could not authenticate with FirebaseAuth");
+                                state.postValue(LoginState.LOGGED_OUT);
+                            });
                 }
             }
 

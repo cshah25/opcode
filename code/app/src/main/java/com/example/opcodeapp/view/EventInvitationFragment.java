@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+import com.example.opcodeapp.callback.DBManager;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;

@@ -14,12 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackEventsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.EventRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -120,8 +120,8 @@ public class EventsListFragment extends Fragment {
     }
 
     private void loadEvents() {
-        DBManager db = new DBManager(FirebaseFirestore.getInstance());
-        db.fetchEvents(new FirestoreCallbackEventsReceive() {
+        EventRepository repository = new EventRepository(FirebaseFirestore.getInstance());
+        repository.fetchEvents(null, new FirestoreCallbackEventsReceive() {
             @Override
             public void onDataReceived(List<Event> events) {
                 allEvents.clear();
