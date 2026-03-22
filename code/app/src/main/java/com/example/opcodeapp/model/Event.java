@@ -386,16 +386,19 @@ public class Event implements Parcelable {
         return b.build();
     }
 
+
     public static Builder builder(String id) {
         return builder(id);
     }
+
+
 
     /**
      * Builder class for Events
      * TODO: Add input validation
      */
     public static class Builder {
-        private final String id;
+        private String id;
         private String name;
         private String location;
         private String description;

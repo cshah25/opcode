@@ -271,4 +271,12 @@ public class DBManager {
                 .addOnFailureListener(listener::onError);
     }
 
+    public void updateApplicant(Applicant applicant, FirestoreCallbackSend listener) {
+        applicantsRef.document(applicant.getId())
+                .set(applicant, SetOptions.merge())
+                .addOnSuccessListener(listener::onSendSuccess)
+                .addOnFailureListener(listener::onSendFailure);
+    }
+
+
 }

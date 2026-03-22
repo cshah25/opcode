@@ -290,18 +290,21 @@ public class EventCreatorFragment extends Fragment {
         DBManager manager = new DBManager(FirebaseFirestore.getInstance());
         SessionController controller = SessionController.getInstance(getContext());
         User organizer = controller.getCurrentUser();
-        Event event = new Event(name, location, description,
-                LocalDate.parse(eventStart, dateFormat).atStartOfDay(),
-                LocalDate.parse(registrationStart, dateFormat).atStartOfDay(),
-                LocalDate.parse(eventEnd, dateFormat).atStartOfDay(),
-                LocalDate.parse(registrationEnd, dateFormat).atStartOfDay(),
-                organizer,
-                price,
-                waitlistLimit
-        );
+
+        //Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit)
+        Event.Builder builder = Event.builder("")
+                .name(name)
+                .location(location)
+                .description(description)
+                .registrationStart(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
+                .registrationEnd(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
+                .start(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
+                .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
+                .organizer(organizer);
+        Event event = builder.build();
         manager.addEvent(event, new FirestoreCallbackSend() {
             @Override
-            public void onSendSuccess() {
+            public void onSendSuccess(Void unused) {
                 createButton.setEnabled(true);
 
                 Bundle args = new Bundle();

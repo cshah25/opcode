@@ -18,13 +18,12 @@ import com.example.opcodeapp.model.User;
 
 import java.util.ArrayList;
 
-public class InvitedUserArrayAdapter extends ArrayAdapter<User> {
+public class InvitedUserArrayAdapter extends ArrayAdapter<Applicant> {
 
-    private final Applicant applicant;
 
-    public InvitedUserArrayAdapter(Context context, ArrayList<User> users, Applicant applicant) {
+
+    public InvitedUserArrayAdapter(Context context, ArrayList<Applicant> users, Event event) {
         super(context, 0, users);
-        this.applicant = applicant;
     }
 
     @NonNull
@@ -38,14 +37,13 @@ public class InvitedUserArrayAdapter extends ArrayAdapter<User> {
         } else {
             view = convertView;
         }
-        User user = getItem(position);
+        Applicant user = getItem(position);
         TextView userName = view.findViewById(R.id.user_name_text);
-        TextView userEmail = view.findViewById(R.id.user_email_text);
         userName.setText(user.getName());
-        userEmail.setText(user.getEmail());
+
 
         TextView userStatus = view.findViewById(R.id.user_status_text);
-        switch (applicant.getStatus()) {
+        switch (user.getStatus()) {
             case INVITED:
                 userStatus.setText("Invited");
                 break;

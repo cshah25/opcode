@@ -30,17 +30,15 @@ public class FirebaseTest {
     dbManager.addEvent(event, new FirestoreCallbackSend() {
 
         @Override
-        public void onSendSuccess() {
-            Toast.makeText(getContext(), "Event added", Toast.LENGTH_SHORT).show();
+        public void onSendSuccess(Void unused) {
+            Toast.makeText(getContext(), "Event created", Toast.LENGTH_SHORT).show();
 
         }
 
-        @Override
-        public void onSendFailure(Exception e) {
-            Toast.makeText(getContext(), "Event not added", Toast.LENGTH_SHORT).show();
-        }
 
-    })
+
+    }
+
 
 }
 

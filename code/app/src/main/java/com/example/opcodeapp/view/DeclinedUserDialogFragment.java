@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 
@@ -18,7 +19,7 @@ import java.util.Objects;
 public class DeclinedUserDialogFragment extends DialogFragment {
 
     interface DeclinedUserDialogListener {
-        void removeUser(User user, Event event);
+        void removeUser(Applicant user, Event event);
 
         //void drawUser(Event event);
 
@@ -28,9 +29,9 @@ public class DeclinedUserDialogFragment extends DialogFragment {
 
     private DeclinedUserDialogListener listener;
 
-    public static DeclinedUserDialogFragment newInstance(User user, Event event) {
+    public static DeclinedUserDialogFragment newInstance(Applicant user, Event event) {
         Bundle args = new Bundle();
-        args.putParcelable("User", user);
+        args.putParcelable("Applicant", user);
         args.putParcelable("Event", event);
 
         DeclinedUserDialogFragment fragment = new DeclinedUserDialogFragment();
@@ -59,11 +60,11 @@ public class DeclinedUserDialogFragment extends DialogFragment {
         String tag = getTag();
 
         Bundle bundle = getArguments();
-        User user;
+        Applicant user;
         Event event;
 
         if (Objects.equals(tag, "Remove") && bundle != null) {
-            user = (User) bundle.getParcelable("User");
+            user = (Applicant) bundle.getParcelable("Applicant");
             event = (Event) bundle.getParcelable("Event");
             assert user != null;
             assert event != null;
