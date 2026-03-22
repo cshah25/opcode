@@ -153,6 +153,8 @@ public class DBManager {
         }).addOnFailureListener(listener::onError);
     }
 
+
+
     /**
      * Fetches users with the given device id from the Users collection in Firestore
      * and notifies the listener.

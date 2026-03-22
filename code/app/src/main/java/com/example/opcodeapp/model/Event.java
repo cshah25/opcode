@@ -1,5 +1,6 @@
 package com.example.opcodeapp.model;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -8,12 +9,14 @@ import androidx.annotation.NonNull;
 
 import com.example.opcodeapp.db.DBManager;
 import com.example.opcodeapp.db.FirestoreCallbackUserReceive;
+import com.example.opcodeapp.db.FirestoreCallbackUsersReceive;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -88,7 +91,9 @@ public class Event implements Parcelable {
         end = DateUtil.fromParcel(in);
         registrationStart = DateUtil.fromParcel(in);
         registrationEnd = DateUtil.fromParcel(in);
-        organizer = in.readParcelable(User.class.getClassLoader(), User.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            organizer = in.readParcelable(User.class.getClassLoader(), User.class);
+        }
         price = in.readFloat();
         waitlistLimit = in.readInt();
     }
@@ -365,10 +370,11 @@ public class Event implements Parcelable {
 
 
         DBManager manager = new DBManager(FirebaseFirestore.getInstance());
-        manager.fetchUsers(q -> q.whereEqualTo("organizer_id", organizer_id), new FirestoreCallbackUserReceive() {
+        manager.fetchUsers(q -> q.whereEqualTo("id", organizer_id), new FirestoreCallbackUsersReceive() {
             @Override
-            public void onDataReceived(User u) {
-                b.organizer(u);
+            public void onDataReceived(List<User> users) {
+
+                b.organizer(users.get(0));
             }
 
             @Override
@@ -377,8 +383,7 @@ public class Event implements Parcelable {
             }
         });
 
-
-        return event;
+        return b.build();
     }
 
     public static Builder builder(String id) {
