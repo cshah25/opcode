@@ -124,7 +124,7 @@ public class Applicant implements Parcelable {
         map.put("user_id", userId);
         map.put("name", name);
         map.put("status", status.name());
-        map.put("joinedAt", DateUtil.toLong(joinedAt));
+        map.put("joined_at", DateUtil.toLong(joinedAt));
         return map;
     }
 
@@ -133,8 +133,9 @@ public class Applicant implements Parcelable {
         String userId = (String) map.get("userId");
         String name = (String) map.get("name");
         ApplicantStatus status = ApplicantStatus.valueOf((String) map.get("status"));
-        LocalDateTime joinedAt = DateUtil.fromLong(Long.valueOf(map.get("phoneNum").toString()));
-        return Applicant.builder(id)
+        LocalDateTime joinedAt = DateUtil.fromLong(Long.valueOf(map.get("phone_num").toString()));
+        return Applicant.builder()
+                .id(id)
                 .eventId(eventId)
                 .userId(userId)
                 .name(name)
@@ -143,8 +144,8 @@ public class Applicant implements Parcelable {
                 .build();
     }
 
-    public static Builder builder(String id) {
-        return new Builder(id);
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -158,8 +159,9 @@ public class Applicant implements Parcelable {
         private ApplicantStatus status;
         private LocalDateTime joinedAt;
 
-        public Builder(String id) {
+        public Builder id(String id) {
             this.id = id;
+            return this;
         }
 
         public Builder eventId(String eventId) {

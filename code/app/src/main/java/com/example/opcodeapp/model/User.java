@@ -201,18 +201,19 @@ public class User implements Parcelable {
         map.put("device_id", deviceId);
         map.put("name", name);
         map.put("email", email);
-        map.put("phoneNum", phoneNum);
-        map.put("isAdmin", isAdmin);
+        map.put("phone_num", phoneNum);
+        map.put("is_admin", isAdmin);
         return map;
     }
 
     public static User fromMap(String id, Map<String, Object> map) {
-        String deviceId = (String) map.get("deviceId");
+        String deviceId = (String) map.get("device_id");
         String name = (String) map.get("name");
         String email = (String) map.get("email");
-        String phoneNum = (String) map.get("phoneNum");
-        boolean isAdmin = Boolean.valueOf(map.get("isAdmin").toString());
-        return User.builder(id)
+        String phoneNum = (String) map.get("phone_num");
+        boolean isAdmin = Boolean.valueOf(map.get("is_admin").toString());
+        return User.builder()
+                .id(id)
                 .name(name)
                 .deviceId(deviceId)
                 .email(email)
@@ -221,23 +222,27 @@ public class User implements Parcelable {
                 .build();
     }
 
-    public static Builder builder(String id) {
-        return new Builder(id);
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
      * Builder class for user creation
      */
     public static class Builder {
-        private final String id;
+        private String id;
         private String deviceId;
         private String name;
         private String email;
         private String phoneNum;
         private boolean isAdmin;
 
-        public Builder(String id) {
+        public Builder() {
+        }
+
+        public Builder id(String id) {
             this.id = id;
+            return this;
         }
 
         public Builder deviceId(String deviceId) {
