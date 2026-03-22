@@ -1,4 +1,4 @@
-package com.example.opcodeapp.db;
+package com.example.opcodeapp.callback;
 
 public interface FirestoreCallbackSend {
     void onSendSuccess(Void unused);
