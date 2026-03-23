@@ -151,7 +151,7 @@ public class Applicant implements Parcelable {
      * Builder class for user creation
      */
     public static class Builder {
-        private final String id;
+        private String id;
         private String eventId;
         private String userId;
         private String name;

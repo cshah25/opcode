@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -76,11 +77,13 @@ public class ProfileFragment extends Fragment {
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
                 db.updateUser(user, new FirestoreCallbackSend() {
                     @Override
-                    public void onSendSuccess() {
+                    public void onSendSuccess(Void aVoid) {
+                        Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onSendFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -95,14 +98,16 @@ public class ProfileFragment extends Fragment {
                 }
 
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                db.deleteUser(user, new FirestoreCallbackSend() {
+                db.deleteUser(user, new FirestoreCallbackSend() {cd CMPUT301
                     @Override
-                    public void onSendSuccess() {
-                        NavHostFragment.findNavController(ProfileFragment.this).navigateUp();
+                    public void onSendSuccess(Void aVoid) {
+                        Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
                     }
 
                     @Override
                     public void onSendFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

@@ -5,6 +5,7 @@ import static android.view.View.GONE;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,17 +14,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.db.DBManager;
 import com.example.opcodeapp.db.FirestoreCallbackSend;
 import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -83,36 +87,79 @@ public class EventInvitationFragment extends Fragment {
 
         TextView entrants = v.findViewById(R.id.invitation_waiting_list_size);
         // android studio was complaining about the locale here
-        entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", event.getInitialApplicants().size()));
+
+        db.fetchEventApplicants(event, new FirestoreCallbackApplicantsReceive() {
+                @Override
+                public void onDataReceived(List<Applicant> applicants) {
+                    entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", applicants.size()));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(getContext(), String.format("Error fetching applicants: %s", e.toString()), Toast.LENGTH_SHORT).show();
+                }
+
+        });
 
         User cur = SessionController.getInstance(getContext()).getCurrentUser();
-        Button accept = v.findViewById(R.id.invitation_accept_button);
-        accept.setOnClickListener(view -> {
-            event.setAttendee(cur);
-            db.updateEvent(event, new FirestoreCallbackSend() {
-                @Override
-                public void onSendSuccess() {
-                    Toast.makeText(getContext(), "Invitation accepted", Toast.LENGTH_SHORT).show();
-                }
 
-                @Override
-                public void onSendFailure(Exception e) {
-                    Toast.makeText(getContext(), String.format("Error accepting invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+        Button accept = v.findViewById(R.id.invitation_accept_button);
+
         Button decline = v.findViewById(R.id.invitation_decline_button);
+
+
+        List<Applicant> cur_applicant = new ArrayList<>();
+
+
+        db.fetchApplicant(event, cur, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                if (applicants.size() > 0) {
+                    cur_applicant.add(applicants.get(0));
+                    if (applicants.get(0).getStatus() != ApplicantStatus.INVITED) {
+                        accept.setVisibility(GONE);
+                        decline.setVisibility(GONE);
+                    }
+                }
+            }
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), String.format("Error fetching applicant: %s", e.toString()), Toast.LENGTH_SHORT).show();
+            }
+
+
+        });
+
+
+        accept.setOnClickListener(view -> {
+
+            cur_applicant.get(0).setStatus(ApplicantStatus.ACCEPTED);
+
+            db.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess(Void aVoid) {
+                        Toast.makeText(getContext(), "Invitation accepted", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(EventInvitationFragment.this).navigateUp();
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        Toast.makeText(getContext(), String.format("Error accepting invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
+                    }
+            });
+
+        });
+
+
         decline.setOnClickListener(view -> {
-            event.setDeclined(cur);
-            LotterySystem l = new LotterySystem();
-            User n = l.drawReplacement(event);
-            ArrayList<User> list = new ArrayList<>();
-            list.add(n);
-            event.setInvited(list);
-            db.updateEvent(event, new FirestoreCallbackSend() {
+
+            cur_applicant.get(0).setStatus(ApplicantStatus.DECLINED);
+
+            db.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
                 @Override
-                public void onSendSuccess() {
+                public void onSendSuccess(Void aVoid) {
                     Toast.makeText(getContext(), "Invitation declined", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(EventInvitationFragment.this).navigateUp();
                 }
 
                 @Override
@@ -120,13 +167,9 @@ public class EventInvitationFragment extends Fragment {
                     Toast.makeText(getContext(), String.format("Error declining invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
                 }
             });
+
         });
 
-        ApplicantStatus status = event.getApplicantStatus(SessionController.getInstance(getContext()).getCurrentUser());
-        if (status != ApplicantStatus.NOT_DRAWN) {
-            accept.setVisibility(GONE);
-            decline.setVisibility(GONE);
-        }
 
         return v;
     }

@@ -95,19 +95,8 @@
             tools:layout="@layout/fragment_enrolled_users">
             <argument
                 android:name="userList"
-                app:argType="com.example.opcodeapp.User[]" />
+                app:argType="com.example.opcodeapp.Applicant[]" />
 
-        </fragment>
-
-        <fragment
-            android:id="@+id/ApplicantFragment"
-            android:name="com.example.opcodeapp.view.ApplicantsFragment"
-            android:label="@string/applicants"
-            tools:layout="@layout/fragment_applicants">
-
-            <argument
-                android:name="userList"
-                app:argType="com.example.opcodeapp.User[]" />
         </fragment>
 
         <fragment

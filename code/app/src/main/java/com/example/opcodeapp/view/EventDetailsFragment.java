@@ -7,18 +7,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.db.FirestoreCallbackSend;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -88,18 +93,37 @@ public class EventDetailsFragment extends Fragment {
                     return;
                 }
 
-                event.removeUser(currentUser);
+                //event.removeUser(currentUser);
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                db.updateEvent(event, new FirestoreCallbackSend() {
+
+                db.fetchApplicant(event, currentUser, new FirestoreCallbackApplicantsReceive() {
                     @Override
-                    public void onSendSuccess() {
-                        NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                    public void onDataReceived(List<Applicant> applicants) {
+
+                        db.deleteApplicant(applicants.get(0), new FirestoreCallbackSend() {
+                            @Override
+                            public void onSendSuccess(Void aVoid) {
+                                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+
+                            }
+
+                            @Override
+                            public void onSendFailure(Exception e) {
+                                Toast.makeText(getContext(), "Error removing applicant", Toast.LENGTH_SHORT).show();
+                                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                            }
+                        });
+
                     }
 
                     @Override
-                    public void onSendFailure(Exception e) {
+                    public void onError(Exception e) {
+                        Toast.makeText(getContext(), "Error fetching applicant", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
                     }
+
                 });
+
             }
         });
 

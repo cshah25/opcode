@@ -18,13 +18,17 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.db.FirestoreCallbackSend;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.enums.ApplicantStatus;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -81,11 +85,24 @@ public class EntrantEventDetailsFragment extends Fragment {
         tvEventDateLoc.setText(currentEvent.getLocation());
 
         // US 01.05.04: Show Waitlist Count
-        int count = 0;
-        if (currentEvent.getInitialApplicants() != null) {
-            count = currentEvent.getInitialApplicants().size();
-        }
-        tvWaitlistCount.setText(count + " people on waitlist");
+
+
+        dbManager.fetchEventApplicants(currentEvent, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                if (applicants != null) {
+                    int count = applicants.size();
+                    tvWaitlistCount.setText(count + " people on waitlist");
+                }
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
+            }
+
+        });
 
         // US 01.05.05: Show Lottery Criteria
         btnLotteryInfo.setOnClickListener(v -> showLotteryCriteriaDialog());
@@ -109,42 +126,63 @@ public class EntrantEventDetailsFragment extends Fragment {
     }
     private void joinEventWaitlist(View view) {
         // Add user to local event object
-        List<User> currentApplicants = currentEvent.getInitialApplicants();
-        if (currentApplicants != null) {
-            for (User u : currentApplicants) {
-                if (u.getId().equals(currentUser.getId())) {
-                    Toast.makeText(requireContext(), "You are already on the waitlist!", Toast.LENGTH_SHORT).show();
-                    navigateNext(view);
-                    return;
+
+
+
+
+        dbManager.fetchEventApplicants(currentEvent, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                if (applicants != null) {
+
+                    for (Applicant u : applicants) {
+                        if (u.getUserId().equals(currentUser.getId())) {
+                            Toast.makeText(requireContext(), "You are already on the waitlist!", Toast.LENGTH_SHORT).show();
+                            navigateNext(view);
+                            return;
+                        }
+                    }
+
+
+                    //new code added by Vedant to check if a waitlist is full.
+
+                    if (currentEvent.getWaitlistLimit() != -1 && applicants.size() >= currentEvent.getWaitlistLimit()) {
+                        Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                 }
+
+                Applicant.Builder b = Applicant.builder("")
+                        .eventId(currentEvent.getId())
+                        .userId(currentUser.getId())
+                        .name(currentUser.getName())
+                        .status(ApplicantStatus.NOT_DRAWN)
+                        .joinedAt(LocalDateTime.now());
+
+                Applicant currentApplicant = b.build();
+
+                dbManager.addApplicant(currentApplicant, new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess(Void aVoid) {
+                        Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
+                        navigateNext(view);
+                    }
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Failed to join waitlist.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
-
-
-            //new code added by Vedant to check if a waitlist is full.
-            int total_applicants = currentEvent.getInitialApplicants().size() + currentEvent.getAttendees().size() + currentEvent.getInvited().size() + currentEvent.getDeclined().size() + currentEvent.getDeclinedRemoved().size();
-
-            if ( currentEvent.getWaitlistLimit() != -1 && total_applicants >= currentEvent.getWaitlistLimit()) {
-                Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-
-        }
-
-        currentEvent.addApplicant(currentUser);
-
-        // Update the Event in Firestore using DBManager
-        dbManager.updateEvent(currentEvent, new FirestoreCallbackSend() {
             @Override
-            public void onSendSuccess() {
-                Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
-                navigateNext(view);
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
             }
-            @Override
-            public void onSendFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to join waitlist.", Toast.LENGTH_SHORT).show();
-            }
+
         });
+
+
     }
 
     private void navigateNext(View view) {

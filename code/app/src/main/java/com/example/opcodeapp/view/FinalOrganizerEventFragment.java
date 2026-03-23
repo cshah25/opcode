@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -13,12 +14,19 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.FinalOrganizerEventFragmentDirections;
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.db.DBManager;
+import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.enums.ApplicantStatus;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.util.DateUtil;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -35,6 +43,8 @@ public class FinalOrganizerEventFragment extends Fragment {
     private TextView waitListText;
     private TextView registrationText;
     private TextView eventRegistrationText;
+
+    private DBManager dbmanager = new DBManager(FirebaseFirestore.getInstance());
 
     public FinalOrganizerEventFragment() {
     }
@@ -98,7 +108,33 @@ public class FinalOrganizerEventFragment extends Fragment {
         if (total == -1) {
             waitListText.setText("Waitlist Limit: None");
         } else {
-            int currentWaitlist = event.getInitialApplicants().size();
+
+            List<Applicant> allApplicants = new ArrayList<>();
+
+
+
+
+            dbmanager.fetchEventApplicants(event, new FirestoreCallbackApplicantsReceive() {
+
+                @Override
+                public void onDataReceived(List<Applicant> applicants) {
+                    List<Applicant> allApplicants = new ArrayList<>(applicants);
+
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                    Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
+
+
+                }
+
+
+            });
+
+            int currentWaitlist = allApplicants.size();
+
             waitListText.setText("Waitlist Limit: " + currentWaitlist + "/" + total);
         }
 
@@ -120,9 +156,28 @@ public class FinalOrganizerEventFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                User[] enrolledUsers = event.getAttendees().toArray(new User[0]);
-                FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+
+
+                dbmanager.fetchApplicantsByStatus(event, ApplicantStatus.ACCEPTED, new FirestoreCallbackApplicantsReceive() {
+                    @Override
+                    public void onDataReceived(List<Applicant> applicants) {
+                        List<Applicant> enrolledApplicants = new ArrayList<>(applicants);
+                        Applicant[] enrolledUsers = enrolledApplicants.toArray(new Applicant[0]);
+                        FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
+                        NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
+
+
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
+                    }
+
+
+                });
+
+
+
 
 
             }

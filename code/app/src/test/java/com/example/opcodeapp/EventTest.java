@@ -4,17 +4,44 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+import com.example.opcodeapp.db.DBManager;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class EventTest {
 
+
+    private DBManager dbManager = new DBManager(FirebaseFirestore.getInstance());
+
+
     private Event mockEvent() {
-        User organizer = new User("mock_organizer", "mock_organizer@ualberta.ca", "676767676");
-        return new Event("Oscars", "California", "Film festival and presentation of awards", LocalDate.of(2026, 3, 15), LocalDateTime.now(), LocalDate.of(2026, 3, 15), LocalDateTime.of(2026, 3, 14, 16, 0), organizer, 0);
+
+        User.Builder b = User.builder("")
+                .name("mock_organizer")
+                .email("mock_organizer@ualberta.ca")
+                .phoneNum("676767676");
+
+
+        User organizer = b.build();
+
+        Event.Builder b2 = Event.builder("")
+                .name("Oscanrs")
+                .location("California")
+                .description("Film festival and presentation of awards")
+                .start(LocalDateTime.of(2026, 3, 15, 0, 0))
+                .end(LocalDateTime.of(2026, 3, 15, 23, 59))
+                .registrationStart(LocalDateTime.of(2026, 3, 14, 16, 0))
+                .registrationEnd(LocalDateTime.of(2026, 3, 14, 16, 0))
+                .organizer(organizer);
+
+
+        Event event = b2.build();
+
+        return event;
 
     }
 
@@ -22,7 +49,14 @@ public class EventTest {
     //tests for addApplicant and getApplicants
     @Test
     void testAddApplicant() {
-        User applicant = new User("mock_applicant_1", "mock_applicant_1@ualberta.ca", "686868686868");
+
+        User.Builder b = User.builder("")
+                .name("mock_applicant_1")
+                .email("mock_applicant_1@ualberta.ca")
+                .phoneNum("686868686868");
+
+
+        User applicant_user = b.build();
         Event event = mockEvent();
         event.addApplicant(applicant);
         assertTrue(event.getApplicants().contains(applicant));

@@ -14,6 +14,7 @@ import com.example.opcodeapp.EnrolledUsersFragmentArgs;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.adapter.UserArrayAdapter;
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.User;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class EnrolledUsersFragment extends Fragment {
     /**
      * The list of users to be displayed.
      */
-    private ArrayList<User> dataList;
+    private ArrayList<Applicant> dataList;
 
     /**
      * The ListView for the list of users.
@@ -38,7 +39,7 @@ public class EnrolledUsersFragment extends Fragment {
     /**
      * The ArrayAdapter for the list of users.
      */
-    private ArrayAdapter<User> userAdapter;
+    private ArrayAdapter<Applicant> userAdapter;
 
 
     /**
@@ -57,7 +58,8 @@ public class EnrolledUsersFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        User[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
+        assert getArguments() != null;
+        Applicant[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
 
         dataList = new ArrayList<>(Arrays.asList(receivedArray));
 

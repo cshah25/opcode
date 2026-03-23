@@ -166,6 +166,18 @@ public class DBManager {
         fetchUsers(f -> f.whereEqualTo("deviceId", deviceId), listener);
     }
 
+
+    public void fetchUserById(String Id, FirestoreCallbackUserReceive listener) {
+        usersRef.document(Id)
+                .get()
+                .addOnSuccessListener(task -> {
+                    Map<String, Object> data = task.getData();
+                    User user = User.fromMap(task.getId(), data);
+                    listener.onDataReceived(user);
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
     /**
      * Deletes a user's profile if they are not organizing any events.
      *
@@ -271,11 +283,45 @@ public class DBManager {
                 .addOnFailureListener(listener::onError);
     }
 
+    public void addApplicant(Applicant applicant, FirestoreCallbackSend listener) {
+        DocumentReference newDocRef = applicantsRef.document();
+        applicant.setId(newDocRef.getId());
+        newDocRef.set(applicant.toMap())
+                .addOnSuccessListener(listener::onSendSuccess)
+                .addOnFailureListener(listener::onSendFailure);
+
+
+    }
+
+
+
+
+    public void deleteApplicant(Applicant applicant, FirestoreCallbackSend listener) {
+        applicantsRef.document(applicant.getId())
+                .delete()
+                .addOnSuccessListener(listener::onSendSuccess)
+                .addOnFailureListener(listener::onSendFailure);
+    }
     public void updateApplicant(Applicant applicant, FirestoreCallbackSend listener) {
         applicantsRef.document(applicant.getId())
                 .set(applicant, SetOptions.merge())
                 .addOnSuccessListener(listener::onSendSuccess)
                 .addOnFailureListener(listener::onSendFailure);
+    }
+
+    public void fetchApplicant(Event event, User user, FirestoreCallbackApplicantsReceive listener) {
+        applicantsRef.whereEqualTo("event_id", event.getId())
+                .whereEqualTo("user_id", user.getId())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Applicant> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshot) {
+                        Applicant applicant = Applicant.fromMap(doc.getId(), doc.getData());
+                        list.add(applicant);
+                    }
+                    listener.onDataReceived(list);
+                })
+                .addOnFailureListener(listener::onError);
     }
 
 
