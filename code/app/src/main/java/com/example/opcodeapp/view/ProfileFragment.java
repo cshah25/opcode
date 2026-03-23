@@ -98,7 +98,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                db.deleteUser(user, new FirestoreCallbackSend() {cd CMPUT301
+                db.deleteUser(user, new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
                         Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
