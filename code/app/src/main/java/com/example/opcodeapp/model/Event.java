@@ -7,9 +7,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackUsersReceive;
 import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackUserReceive;
-import com.example.opcodeapp.db.FirestoreCallbackUsersReceive;
+import com.example.opcodeapp.repository.EventRepository;
+import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -331,11 +333,11 @@ public class Event implements Parcelable {
         map.put("description", description);
         map.put("start", DateUtil.toLong(start));
         map.put("end", DateUtil.toLong(end));
-        map.put("registrationStart", DateUtil.toLong(registrationStart));
-        map.put("registrationEnd", DateUtil.toLong(registrationEnd));
+        map.put("registration_start", DateUtil.toLong(registrationStart));
+        map.put("registration_end", DateUtil.toLong(registrationEnd));
         map.put("organizer_id", organizer.getId());
         map.put("price", price);
-        map.put("waitlistLimit", waitlistLimit);
+        map.put("waitlist_limit", waitlistLimit);
         return map;
     }
 
@@ -351,10 +353,10 @@ public class Event implements Parcelable {
         String description = (String) map.get("description");
         LocalDateTime start = DateUtil.fromLong(Long.valueOf(map.get("start").toString()));
         LocalDateTime end = DateUtil.fromLong(Long.valueOf(map.get("end").toString()));
-        LocalDateTime registrationStart = DateUtil.fromLong(Long.valueOf(map.get("registrationStart").toString()));
-        LocalDateTime registrationEnd = DateUtil.fromLong(Long.valueOf(map.get("registrationEnd").toString()));
+        LocalDateTime registrationStart = DateUtil.fromLong(Long.valueOf(map.get("registration_start").toString()));
+        LocalDateTime registrationEnd = DateUtil.fromLong(Long.valueOf(map.get("registration_end").toString()));
         float price = Float.valueOf(map.get("price").toString());
-        int waitlistLimit = Integer.valueOf(map.get("waitlistLimit").toString());
+        int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
         String organizer_id = (String) map.get("organizer_id");
 
         Event.Builder b = Event.builder(id)
@@ -369,12 +371,11 @@ public class Event implements Parcelable {
                 .waitlistLimit(waitlistLimit);
 
 
-        DBManager manager = new DBManager(FirebaseFirestore.getInstance());
-        manager.fetchUsers(q -> q.whereEqualTo("id", organizer_id), new FirestoreCallbackUsersReceive() {
+        UserRepository repository = new UserRepository(FirebaseFirestore.getInstance());
+        repository.fetchUser(organizer_id, new FirestoreCallbackUserReceive() {
             @Override
-            public void onDataReceived(List<User> users) {
-
-                b.organizer(users.get(0));
+            public void onDataReceived(User user) {
+                b.organizer(user);
             }
 
             @Override
@@ -390,7 +391,6 @@ public class Event implements Parcelable {
     public static Builder builder(String id) {
         return builder(id);
     }
-
 
 
     /**
@@ -412,6 +412,11 @@ public class Event implements Parcelable {
 
         public Builder(String id) {
             this.id = id;
+        }
+
+        public Builder id(@NonNull String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder name(@NonNull String name) {

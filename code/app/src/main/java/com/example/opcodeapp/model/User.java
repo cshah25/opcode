@@ -237,9 +237,6 @@ public class User implements Parcelable {
         private String phoneNum;
         private boolean isAdmin;
 
-        public Builder() {
-        }
-
         public Builder id(String id) {
             this.id = id;
             return this;

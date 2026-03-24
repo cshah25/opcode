@@ -133,7 +133,7 @@ public class Applicant implements Parcelable {
         String userId = (String) map.get("userId");
         String name = (String) map.get("name");
         ApplicantStatus status = ApplicantStatus.valueOf((String) map.get("status"));
-        LocalDateTime joinedAt = DateUtil.fromLong(Long.valueOf(map.get("phone_num").toString()));
+        LocalDateTime joinedAt = DateUtil.fromLong(Long.valueOf(map.get("joined_at").toString()));
         return Applicant.builder()
                 .id(id)
                 .eventId(eventId)
