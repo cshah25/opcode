@@ -13,12 +13,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.callback.DBManager;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.EventRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
@@ -35,7 +35,7 @@ import java.util.Locale;
 /**
  * A simple fragment that handles the input validation including dates with date pickers,
  * strings and numbers for creating {@link Event}. Successful event creation also saves
- * it to the Firestore database using {@link DBManager}
+ * it to the Firestore database using {@link EventRepository}
  */
 public class EventCreatorFragment extends Fragment {
     private EventCreatorFragment instance;
@@ -287,12 +287,12 @@ public class EventCreatorFragment extends Fragment {
 
 
         Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
-        DBManager manager = new DBManager(FirebaseFirestore.getInstance());
+        EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
         SessionController controller = SessionController.getInstance(getContext());
         User organizer = controller.getCurrentUser();
 
         //Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit)
-        Event.Builder builder = Event.builder("")
+        Event.Builder builder = Event.builder()
                 .name(name)
                 .location(location)
                 .description(description)
@@ -302,7 +302,7 @@ public class EventCreatorFragment extends Fragment {
                 .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
                 .organizer(organizer);
         Event event = builder.build();
-        manager.addEvent(event, new FirestoreCallbackSend() {
+        eventRepository.addEvent(event, new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void unused) {
                 createButton.setEnabled(true);

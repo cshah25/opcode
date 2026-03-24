@@ -17,15 +17,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+
+
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.Repository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
@@ -37,7 +40,7 @@ import java.util.List;
  */
 public class EntrantEventDetailsFragment extends Fragment {
 
-    private DBManager dbManager;
+    private ApplicantRepository applicantsRepository;
 
     private Event currentEvent;
     private User currentUser;
@@ -54,7 +57,7 @@ public class EntrantEventDetailsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        dbManager = new DBManager(FirebaseFirestore.getInstance());
+        applicantsRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
 
         // 1. Extract the Event and User passed from the previous screen
@@ -87,14 +90,13 @@ public class EntrantEventDetailsFragment extends Fragment {
         // US 01.05.04: Show Waitlist Count
 
 
-        dbManager.fetchEventApplicants(currentEvent, new FirestoreCallbackApplicantsReceive() {
+        applicantsRepository.fetchApplicantsByEvent(currentEvent.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
                 if (applicants != null) {
                     int count = applicants.size();
                     tvWaitlistCount.setText(count + " people on waitlist");
                 }
-
             }
 
             @Override
@@ -103,6 +105,7 @@ public class EntrantEventDetailsFragment extends Fragment {
             }
 
         });
+
 
         // US 01.05.05: Show Lottery Criteria
         btnLotteryInfo.setOnClickListener(v -> showLotteryCriteriaDialog());
@@ -130,7 +133,7 @@ public class EntrantEventDetailsFragment extends Fragment {
 
 
 
-        dbManager.fetchEventApplicants(currentEvent, new FirestoreCallbackApplicantsReceive() {
+        applicantsRepository.fetchApplicantsByEvent(currentEvent.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
                 if (applicants != null) {
@@ -153,7 +156,7 @@ public class EntrantEventDetailsFragment extends Fragment {
 
                 }
 
-                Applicant.Builder b = Applicant.builder("")
+                Applicant.Builder b = Applicant.builder()
                         .eventId(currentEvent.getId())
                         .userId(currentUser.getId())
                         .name(currentUser.getName())
@@ -162,9 +165,9 @@ public class EntrantEventDetailsFragment extends Fragment {
 
                 Applicant currentApplicant = b.build();
 
-                dbManager.addApplicant(currentApplicant, new FirestoreCallbackSend() {
+                applicantsRepository.addApplicant(currentApplicant, new FirestoreCallbackSend() {
                     @Override
-                    public void onSendSuccess(Void aVoid) {
+                    public void onSendSuccess(Void unused) {
                         Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
                         navigateNext(view);
                     }

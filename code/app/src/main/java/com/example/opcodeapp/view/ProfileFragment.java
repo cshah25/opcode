@@ -13,11 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.UserRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
@@ -74,8 +76,8 @@ public class ProfileFragment extends Fragment {
                 user.setEmail(emailInput.getText().toString().trim());
                 user.setPhoneNum(phoneInput.getText().toString().trim());
 
-                DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                db.updateUser(user, new FirestoreCallbackSend() {
+                UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
+                userRepository.updateUser(user, new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
                         Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
@@ -97,8 +99,8 @@ public class ProfileFragment extends Fragment {
                     return;
                 }
 
-                DBManager db = new DBManager(FirebaseFirestore.getInstance());
-                db.deleteUser(user, new FirestoreCallbackSend() {
+                UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
+                userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
                         Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();

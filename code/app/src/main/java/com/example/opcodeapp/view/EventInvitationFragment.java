@@ -14,7 +14,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
+
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.callback.DBManager;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
@@ -24,6 +26,7 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -38,10 +41,10 @@ import java.util.Locale;
 public class EventInvitationFragment extends Fragment {
 
     private Event event;
-    private DBManager db;
+    private ApplicantRepository applicantRepository;;
 
     public EventInvitationFragment() {
-        db = new DBManager(FirebaseFirestore.getInstance());
+        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         // Required empty public constructor
     }
 
@@ -88,7 +91,7 @@ public class EventInvitationFragment extends Fragment {
         TextView entrants = v.findViewById(R.id.invitation_waiting_list_size);
         // android studio was complaining about the locale here
 
-        db.fetchEventApplicants(event, new FirestoreCallbackApplicantsReceive() {
+        applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
                 @Override
                 public void onDataReceived(List<Applicant> applicants) {
                     entrants.setText(String.format(Locale.getDefault(), "%d waiting to join", applicants.size()));
@@ -111,12 +114,14 @@ public class EventInvitationFragment extends Fragment {
         List<Applicant> cur_applicant = new ArrayList<>();
 
 
-        db.fetchApplicant(event, cur, new FirestoreCallbackApplicantsReceive() {
+        applicantRepository.fetchApplicant(cur.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
+
+
             @Override
-            public void onDataReceived(List<Applicant> applicants) {
-                if (applicants.size() > 0) {
-                    cur_applicant.add(applicants.get(0));
-                    if (applicants.get(0).getStatus() != ApplicantStatus.INVITED) {
+            public void onDataReceived(Applicant applicant) {
+                if (applicant != null) {
+                    cur_applicant.add(applicant);
+                    if (applicant.getStatus() != ApplicantStatus.INVITED) {
                         accept.setVisibility(GONE);
                         decline.setVisibility(GONE);
                     }
@@ -128,14 +133,17 @@ public class EventInvitationFragment extends Fragment {
             }
 
 
+
         });
+
+
 
 
         accept.setOnClickListener(view -> {
 
             cur_applicant.get(0).setStatus(ApplicantStatus.ACCEPTED);
 
-            db.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
+            applicantRepository.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
                         Toast.makeText(getContext(), "Invitation accepted", Toast.LENGTH_SHORT).show();
@@ -155,7 +163,7 @@ public class EventInvitationFragment extends Fragment {
 
             cur_applicant.get(0).setStatus(ApplicantStatus.DECLINED);
 
-            db.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
+            applicantRepository.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void aVoid) {
                     Toast.makeText(getContext(), "Invitation declined", Toast.LENGTH_SHORT).show();

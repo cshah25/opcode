@@ -14,12 +14,12 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.FinalOrganizerEventFragmentDirections;
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -44,7 +44,7 @@ public class FinalOrganizerEventFragment extends Fragment {
     private TextView registrationText;
     private TextView eventRegistrationText;
 
-    private DBManager dbmanager = new DBManager(FirebaseFirestore.getInstance());
+    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
     public FinalOrganizerEventFragment() {
     }
@@ -114,7 +114,7 @@ public class FinalOrganizerEventFragment extends Fragment {
 
 
 
-            dbmanager.fetchEventApplicants(event, new FirestoreCallbackApplicantsReceive() {
+            applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
 
                 @Override
                 public void onDataReceived(List<Applicant> applicants) {
@@ -158,7 +158,7 @@ public class FinalOrganizerEventFragment extends Fragment {
 
 
 
-                dbmanager.fetchApplicantsByStatus(event, ApplicantStatus.ACCEPTED, new FirestoreCallbackApplicantsReceive() {
+                applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.ACCEPTED, new FirestoreCallbackApplicantsReceive() {
                     @Override
                     public void onDataReceived(List<Applicant> applicants) {
                         List<Applicant> enrolledApplicants = new ArrayList<>(applicants);

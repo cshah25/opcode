@@ -9,18 +9,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.enums.ApplicantStatus;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.repository.EventRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.checkerframework.checker.units.qual.N;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +44,8 @@ public class EventsListFragment extends Fragment {
     private User currentUser;
 
     private ArrayAdapter<String> adapter;
+
+    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
     public EventsListFragment() {
     }
@@ -93,24 +102,34 @@ public class EventsListFragment extends Fragment {
             bundle2.putParcelable("event", shownEvents.get(position));
             bundle2.putParcelable("user", currentUser);
 
-            List<User> initial_applicants = selected_event.getInitialApplicants();
+            //List<User> initial_applicants = selected_event.getInitialApplicants();
 
+            List<Applicant> current_applicant = new ArrayList<>();
 
-            if (initial_applicants.contains(currentUser)) {
-                NavHostFragment.findNavController(EventsListFragment.this).navigate(R.id.eventDetailsFragment, bundle2);
+            applicantRepository.fetchApplicant(currentUser.getId(), selected_event.getId(), new FirestoreCallbackApplicantReceive() {
+                @Override
+                public void onDataReceived(Applicant applicant) {
 
+                    current_applicant.add(applicant);
 
+                }
 
-
-            } else if (selected_event.getInvited().contains(currentUser)) {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventInvitationFragment, bundle2);
-            } else if (selected_event.getOrganizer().equals(currentUser)) {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
-            }  else {
+                @Override
+                public void onError(Exception e) {
                     NavHostFragment.findNavController(EventsListFragment.this)
                             .navigate(R.id.EntrantEventDetailsFragment, bundle2);
+                }
+
+            });
+
+            if (selected_event.getOrganizer().getId().equals(currentUser.getId())) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
+            } else if (current_applicant.get(0).getStatus() == ApplicantStatus.NOT_DRAWN) {
+                NavHostFragment.findNavController(EventsListFragment.this).navigate(R.id.eventDetailsFragment, bundle2);
+            } else {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.EventInvitationFragment, bundle2);
 
             }
 
@@ -142,6 +161,7 @@ public class EventsListFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error fetching events", Toast.LENGTH_SHORT).show();
             }
         });
     }

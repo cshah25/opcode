@@ -68,10 +68,7 @@ public class EnrolledUsersFragment extends Fragment {
         userAdapter = new UserArrayAdapter(getContext(), dataList);
 
         userList.setAdapter(userAdapter);
-
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
-
-        userList.setAdapter(userAdapter);
+        userAdapter.notifyDataSetChanged();
     }
 
     @Override

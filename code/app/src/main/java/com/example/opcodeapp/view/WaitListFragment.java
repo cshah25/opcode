@@ -15,13 +15,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.opcodeapp.adapter.UserArrayAdapter;
 import com.example.opcodeapp.callback.DBManager;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.enums.ApplicantStatus;
+import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -35,12 +40,12 @@ public class WaitListFragment extends Fragment {
 
     private Event currentEvent;
     private User currentUser;
-    private DBManager dbManager;
+    private ApplicantRepository applicantRepository;
     private LotterySystem lotterySystem;
 
     private ListView waitlistListView;
-    private ArrayAdapter<User> adapter;
-    private ArrayList<User> applicantDataList;
+    private ArrayAdapter<Applicant> adapter;
+    private ArrayList<Applicant> applicantDataList;
 
     private EditText numToDrawInput;
     private View lotteryControls;
@@ -54,7 +59,7 @@ public class WaitListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize Managers and Data
-        dbManager = new DBManager(FirebaseFirestore.getInstance());
+        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         lotterySystem = new LotterySystem();
 
 
@@ -75,13 +80,25 @@ public class WaitListFragment extends Fragment {
         header.setText(currentEvent.getName() + " Waitlist");
 
         // Initialize List and Adapter
-        List<User> applicants = currentEvent.getInitialApplicants();
-        if (applicants == null)
-            applicantDataList = new ArrayList<>();
-        else
-            applicantDataList = new ArrayList<>(applicants);
+        applicantDataList = new ArrayList<>();
 
-        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, applicantDataList);
+        applicantRepository.fetchApplicantsByStatus(currentEvent, ApplicantStatus.NOT_DRAWN, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                applicantDataList = new ArrayList<>(applicants);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Nobody in waiting list!", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+
+
+
+        adapter = new UserArrayAdapter(getContext(), applicantDataList);
         waitlistListView.setAdapter(adapter);
 
         // Responsibility:  only Organizers can see lottery controls

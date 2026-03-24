@@ -13,14 +13,16 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -94,13 +96,13 @@ public class EventDetailsFragment extends Fragment {
                 }
 
                 //event.removeUser(currentUser);
-                DBManager db = new DBManager(FirebaseFirestore.getInstance());
+                ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
-                db.fetchApplicant(event, currentUser, new FirestoreCallbackApplicantsReceive() {
+                applicantRepository.fetchApplicant(currentUser.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
                     @Override
-                    public void onDataReceived(List<Applicant> applicants) {
+                    public void onDataReceived(Applicant applicant) {
 
-                        db.deleteApplicant(applicants.get(0), new FirestoreCallbackSend() {
+                        applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
                             @Override
                             public void onSendSuccess(Void aVoid) {
                                 NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();

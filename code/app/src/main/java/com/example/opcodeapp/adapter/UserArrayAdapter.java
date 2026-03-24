@@ -13,11 +13,10 @@ import androidx.annotation.Nullable;
 
 
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackUserReceive;
-import com.example.opcodeapp.db.FirestoreCallbackUsersReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.UserRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class UserArrayAdapter extends ArrayAdapter<Applicant> {
         super(context, 0, logs);
     }
 
-    private DBManager dbManager = new DBManager(FirebaseFirestore.getInstance());
+    private UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
 
 
     @NonNull
@@ -46,7 +45,7 @@ public class UserArrayAdapter extends ArrayAdapter<Applicant> {
         TextView userEmail = view.findViewById(R.id.user_email_text);
         userName.setText(user.getName());
 
-        dbManager.fetchUserById(user.getUserId(), new FirestoreCallbackUserReceive() {
+        userRepository.fetchUser(user.getUserId(), new FirestoreCallbackUserReceive() {
             @Override
             public void onDataReceived(User u) {
                 userEmail.setText(u.getEmail());

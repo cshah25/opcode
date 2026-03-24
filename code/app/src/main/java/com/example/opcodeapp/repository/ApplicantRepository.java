@@ -7,6 +7,7 @@ import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
+import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -189,5 +190,20 @@ public class ApplicantRepository extends Repository {
                 })
                 .addOnFailureListener(listener::onSendFailure);
 
+    }
+
+    public void fetchApplicantsByStatus(Event event, ApplicantStatus status, FirestoreCallbackApplicantsReceive listener) {
+        ref.whereEqualTo("event_id", event.getId())
+                .whereEqualTo("status", status)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Applicant> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshot) {
+                        Applicant applicant = Applicant.fromMap(doc.getId(), doc.getData());
+                        list.add(applicant);
+                    }
+                    listener.onDataReceived(list);
+                })
+                .addOnFailureListener(listener::onError);
     }
 }

@@ -11,17 +11,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
+
+
+
 import com.example.opcodeapp.adapter.InvitedUserArrayAdapter;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.databinding.FragmentInvitedUsersBinding;
-import com.example.opcodeapp.db.FirestoreCallbackUsersReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
+
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -55,7 +58,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
      */
     private FragmentInvitedUsersBinding binding;
 
-    private DBManager dbmanager = new DBManager(FirebaseFirestore.getInstance());
+    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
 
 
@@ -73,7 +76,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
 
 
 
-        dbmanager.fetchEventApplicants(event, new FirestoreCallbackApplicantsReceive() {
+        applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
                 allInvitedApplicants.addAll(applicants);
@@ -120,7 +123,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
 
             List<Applicant> declinedApplicants = new ArrayList<>();
 
-            dbmanager.fetchApplicantsByStatus(event, ApplicantStatus.DECLINED, new FirestoreCallbackApplicantsReceive() {
+            applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.DECLINED, new FirestoreCallbackApplicantsReceive() {
                 @Override
                 public void onDataReceived(List<Applicant> applicants) {
                     declinedApplicants.addAll(applicants);
@@ -170,7 +173,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
     public void removeUser(Applicant user, Event event) {
 
         user.setStatus(ApplicantStatus.DECLINED_REMOVED);
-        dbmanager.updateApplicant(user, new FirestoreCallbackSend() {
+        applicantRepository.updateApplicant(user, new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
                 Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
