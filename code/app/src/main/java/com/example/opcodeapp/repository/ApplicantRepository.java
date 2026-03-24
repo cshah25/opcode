@@ -119,7 +119,7 @@ public class ApplicantRepository extends Repository {
      */
     public void updateApplicant(Applicant applicant, FirestoreCallbackSend listener) {
         ref.document(applicant.getId())
-                .set(applicant, SetOptions.merge())
+                .set(applicant.toMap(), SetOptions.merge())
                 .addOnSuccessListener(listener::onSendSuccess)
                 .addOnFailureListener(listener::onSendFailure);
     }

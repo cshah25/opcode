@@ -115,7 +115,7 @@ public class UserRepository extends Repository {
      */
     public void updateUser(User user, FirestoreCallbackSend listener) {
         ref.document(user.getId())
-                .set(user, SetOptions.merge())
+                .set(user.toMap(), SetOptions.merge())
                 .addOnSuccessListener(listener::onSendSuccess)
                 .addOnFailureListener(listener::onSendFailure);
     }

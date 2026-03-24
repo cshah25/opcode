@@ -113,7 +113,7 @@ public class EventRepository extends Repository {
      */
     public void updateEvent(Event event, FirestoreCallbackSend listener) {
         ref.document(event.getId())
-                .set(event, SetOptions.merge())
+                .set(event.toMap(), SetOptions.merge())
                 .addOnSuccessListener(listener::onSendSuccess)
                 .addOnFailureListener(listener::onSendFailure);
     }
