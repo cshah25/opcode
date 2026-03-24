@@ -3,6 +3,8 @@ package com.example.opcodeapp.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.HashMap;
@@ -237,27 +239,27 @@ public class User implements Parcelable {
         private String phoneNum;
         private boolean isAdmin;
 
-        public Builder id(String id) {
+        public Builder id(@NonNull String id) {
             this.id = id;
             return this;
         }
 
-        public Builder deviceId(String deviceId) {
+        public Builder deviceId(@NonNull String deviceId) {
             this.deviceId = deviceId;
             return this;
         }
 
-        public Builder name(String name) {
+        public Builder name(@NonNull String name) {
             this.name = name;
             return this;
         }
 
-        public Builder email(String email) {
+        public Builder email(@NonNull String email) {
             this.email = email;
             return this;
         }
 
-        public Builder phoneNum(String phoneNum) {
+        public Builder phoneNum(@NonNull String phoneNum) {
             this.phoneNum = phoneNum;
             return this;
         }

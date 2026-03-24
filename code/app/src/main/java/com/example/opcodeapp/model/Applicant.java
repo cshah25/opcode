@@ -159,32 +159,32 @@ public class Applicant implements Parcelable {
         private ApplicantStatus status;
         private LocalDateTime joinedAt;
 
-        public Builder id(String id) {
+        public Builder id(@NonNull String id) {
             this.id = id;
             return this;
         }
 
-        public Builder eventId(String eventId) {
+        public Builder eventId(@NonNull String eventId) {
             this.eventId = eventId;
             return this;
         }
 
-        public Builder userId(String userId) {
+        public Builder userId(@NonNull String userId) {
             this.userId = userId;
             return this;
         }
 
-        public Builder name(String name) {
+        public Builder name(@NonNull String name) {
             this.name = name;
             return this;
         }
 
-        public Builder status(ApplicantStatus status) {
+        public Builder status(@NonNull ApplicantStatus status) {
             this.status = status;
             return this;
         }
 
-        public Builder joinedAt(LocalDateTime joinedAt) {
+        public Builder joinedAt(@NonNull LocalDateTime joinedAt) {
             this.joinedAt = joinedAt;
             return this;
         }

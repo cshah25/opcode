@@ -427,27 +427,27 @@ public class Event implements Parcelable {
             return this;
         }
 
-        public Builder start(LocalDateTime start) {
+        public Builder start(@NonNull LocalDateTime start) {
             this.start = start;
             return this;
         }
 
-        public Builder end(LocalDateTime end) {
+        public Builder end(@NonNull LocalDateTime end) {
             this.end = end;
             return this;
         }
 
-        public Builder registrationStart(LocalDateTime registrationStartTime) {
+        public Builder registrationStart(@NonNull LocalDateTime registrationStartTime) {
             this.registrationStart = registrationStartTime;
             return this;
         }
 
-        public Builder registrationEnd(LocalDateTime registrationEndTime) {
+        public Builder registrationEnd(@NonNull LocalDateTime registrationEndTime) {
             this.registrationEnd = registrationEndTime;
             return this;
         }
 
-        public Builder organizer(User organizer) {
+        public Builder organizer(@NonNull User organizer) {
             this.organizer = organizer;
             return this;
         }
