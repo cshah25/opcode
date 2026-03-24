@@ -8,9 +8,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackUsersReceive;
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.repository.EventRepository;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
@@ -18,7 +15,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -359,7 +355,8 @@ public class Event implements Parcelable {
         int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
         String organizer_id = (String) map.get("organizer_id");
 
-        Event.Builder b = Event.builder(id)
+        Event.Builder b = Event.builder()
+                .id(id)
                 .name(name)
                 .location(location)
                 .description(description)
@@ -388,8 +385,8 @@ public class Event implements Parcelable {
     }
 
 
-    public static Builder builder(String id) {
-        return builder(id);
+    public static Builder builder() {
+        return builder();
     }
 
 
@@ -409,10 +406,6 @@ public class Event implements Parcelable {
         private User organizer;
         private Float price;
         private Integer waitlistLimit;
-
-        public Builder(String id) {
-            this.id = id;
-        }
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -471,6 +464,7 @@ public class Event implements Parcelable {
 
         public Event build() {
             LocalDateTime now = LocalDateTime.now();
+            try {
 
             // Check if registration does not start in the past
             if (registrationStart.isBefore(now))
@@ -487,6 +481,9 @@ public class Event implements Parcelable {
             // Check if the event end is after the start
             if (!end.isAfter(start))
                 throw new IllegalArgumentException("Event end must be after event start");
+            } catch (Exception e) {
+                return null;
+            }
 
             return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit);
         }
