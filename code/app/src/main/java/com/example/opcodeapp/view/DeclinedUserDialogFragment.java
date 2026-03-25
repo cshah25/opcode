@@ -66,8 +66,6 @@ public class DeclinedUserDialogFragment extends DialogFragment {
         if (Objects.equals(tag, "Remove") && bundle != null) {
             user = (Applicant) bundle.getParcelable("Applicant");
             event = (Event) bundle.getParcelable("Event");
-            assert user != null;
-            assert event != null;
 
         } else {
             user = null;

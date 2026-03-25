@@ -10,7 +10,6 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.opcodeapp.EnrolledUsersFragmentArgs;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.adapter.UserArrayAdapter;
 import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;

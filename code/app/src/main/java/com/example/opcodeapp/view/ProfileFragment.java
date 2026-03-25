@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.db.DBManager;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;

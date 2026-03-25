@@ -124,7 +124,7 @@ public class WaitListFragment extends Fragment {
 
         // Responsibility: randomly select entrants
 
-        List<User> winners = lotterySystem.drawEntrants(currentEvent, numToDraw);
+        List<Applicant> winners = lotterySystem.drawEntrants(currentEvent, numToDraw);
 
         if (winners==null || winners.isEmpty()) {
             Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
@@ -139,16 +139,31 @@ public class WaitListFragment extends Fragment {
     /**
      * Passes the winning users to the Event instance to update their invited status.
      */
-    private void processWinner(List<User> winners) {
-        currentEvent.setInvited(winners);
-        Log.d("Lottery", "Winners passed to Event.setInvited()");
+    private void processWinner(List<Applicant> winners) {
+        for (Applicant winner: winners) {
+            winner.setStatus(ApplicantStatus.INVITED);
+            applicantRepository.updateApplicant(winner, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void aVoid) {
+                    Log.d("Lottery", "Applicant Invited!");
+                }
 
-        //probably needed
-        dbManager.updateEvent(currentEvent, new FirestoreCallbackSend() {
-            @Override
-            public void onSendSuccess() { Log.d("Lottery", "Event updated with invited users."); }
-            @Override
-            public void onSendFailure(Exception e) { Log.e("Lottery", "Failed to update event", e); }
-        });
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.d("Lottery", "Failed to invite applicant!");
+                }
+
+
+            });
+
+
+
+
+
+
+
+        }
+        Log.d("Lottery", "Winners are invited!");
+
     }
 }

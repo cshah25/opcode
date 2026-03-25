@@ -95,7 +95,7 @@
             tools:layout="@layout/fragment_enrolled_users">
             <argument
                 android:name="userList"
-                app:argType="com.example.opcodeapp.Applicant[]" />
+                app:argType="com.example.opcodeapp.model.Applicant[]" />
 
         </fragment>
 

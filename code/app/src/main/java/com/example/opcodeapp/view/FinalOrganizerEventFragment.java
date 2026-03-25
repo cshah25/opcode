@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.FinalOrganizerEventFragmentDirections;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.enums.ApplicantStatus;
@@ -21,6 +20,7 @@ import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.util.DateUtil;
+import com.example.opcodeapp.view.FinalOrganizerEventFragmentDirections;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.NumberFormat;
@@ -163,6 +163,9 @@ public class FinalOrganizerEventFragment extends Fragment {
                     public void onDataReceived(List<Applicant> applicants) {
                         List<Applicant> enrolledApplicants = new ArrayList<>(applicants);
                         Applicant[] enrolledUsers = enrolledApplicants.toArray(new Applicant[0]);
+
+
+
                         FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
                         NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
 
