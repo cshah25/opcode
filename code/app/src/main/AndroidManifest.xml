@@ -15,6 +15,7 @@
 
 
         <activity
+<<<<<<< HEAD
             android:name=".view.EnrolledUsersFragment"
             android:exported="true"
             android:parentActivityName=".view.FinalOrganizerEventFragment" />
@@ -23,6 +24,8 @@
             android:exported="true"
             android:parentActivityName=".MainActivity" />
         <activity
+=======
+>>>>>>> cc8cd173106c3592d1bad61cd7caad93335cfe26
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.OpcodeApp">

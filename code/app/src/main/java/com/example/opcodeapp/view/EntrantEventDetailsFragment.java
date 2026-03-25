@@ -11,16 +11,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
-
-
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
@@ -28,7 +25,6 @@ import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
-import com.example.opcodeapp.repository.Repository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
@@ -41,12 +37,8 @@ import java.util.List;
 public class EntrantEventDetailsFragment extends Fragment {
 
     private ApplicantRepository applicantsRepository;
-
     private Event currentEvent;
     private User currentUser;
-
-    public EntrantEventDetailsFragment() {
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,17 +49,14 @@ public class EntrantEventDetailsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        applicantsRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
+        Bundle args = getArguments();
+        if (args == null)
+            throw new IllegalArgumentException("No arguments provided");
 
-        // 1. Extract the Event and User passed from the previous screen
-        if (getArguments() != null) {
-            currentEvent = (Event) getArguments().getParcelable("event");
-
-        }
-
+        currentEvent = args.getParcelable("event", Event.class);
         currentUser = SessionController.getInstance(getContext()).getCurrentUser();
-
+        applicantsRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
         // Safety check to prevent crashes
         if (currentEvent == null) {
@@ -88,8 +77,6 @@ public class EntrantEventDetailsFragment extends Fragment {
         tvEventDateLoc.setText(currentEvent.getLocation());
 
         // US 01.05.04: Show Waitlist Count
-
-
         applicantsRepository.fetchApplicantsByEvent(currentEvent.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
@@ -103,13 +90,11 @@ public class EntrantEventDetailsFragment extends Fragment {
             public void onError(Exception e) {
                 Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
             }
-
         });
 
 
         // US 01.05.05: Show Lottery Criteria
         btnLotteryInfo.setOnClickListener(v -> showLotteryCriteriaDialog());
-
         btnJoinWaitlist.setOnClickListener(v -> joinEventWaitlist(view));
     }
 
@@ -127,33 +112,22 @@ public class EntrantEventDetailsFragment extends Fragment {
                 .setPositiveButton("Got it", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
     private void joinEventWaitlist(View view) {
-        // Add user to local event object
-
-
-
-
         applicantsRepository.fetchApplicantsByEvent(currentEvent.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
-                if (applicants != null) {
-
-                    for (Applicant u : applicants) {
-                        if (u.getUserId().equals(currentUser.getId())) {
-                            Toast.makeText(requireContext(), "You are already on the waitlist!", Toast.LENGTH_SHORT).show();
-                            navigateNext(view);
-                            return;
-                        }
+                for (Applicant applicant : applicants) {
+                    if (applicant.getUserId().equals(currentUser.getId())) {
+                        Toast.makeText(requireContext(), "You are already on the waitlist!", Toast.LENGTH_SHORT).show();
+                        navigateNext(view);
+                        return;
                     }
-
-
-                    //new code added by Vedant to check if a waitlist is full.
 
                     if (currentEvent.getWaitlistLimit() != -1 && applicants.size() >= currentEvent.getWaitlistLimit()) {
                         Toast.makeText(requireContext(), "Waitlist is full!", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
                 }
 
                 Applicant.Builder b = Applicant.builder()
@@ -171,6 +145,7 @@ public class EntrantEventDetailsFragment extends Fragment {
                         Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
                         navigateNext(view);
                     }
+
                     @Override
                     public void onSendFailure(Exception e) {
                         Toast.makeText(requireContext(), "Failed to join waitlist.", Toast.LENGTH_SHORT).show();
@@ -178,6 +153,7 @@ public class EntrantEventDetailsFragment extends Fragment {
                 });
 
             }
+
             @Override
             public void onError(Exception e) {
                 Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
@@ -190,6 +166,6 @@ public class EntrantEventDetailsFragment extends Fragment {
 
     private void navigateNext(View view) {
 
-        Navigation.findNavController(view).navigate(R.id.eventsFragment);
+        Navigation.findNavController(view).navigate(R.id.EventListFragment);
     }
 }
