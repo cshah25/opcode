@@ -1,5 +1,6 @@
 package com.example.opcodeapp.view;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +15,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.adapter.UserArrayAdapter;
-import com.example.opcodeapp.callback.DBManager;
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.adapter.ApplicantArrayAdapter;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
@@ -38,71 +38,61 @@ import java.util.List;
  */
 public class WaitListFragment extends Fragment {
 
-    private Event currentEvent;
-    private User currentUser;
+    private Event event;
     private ApplicantRepository applicantRepository;
     private LotterySystem lotterySystem;
 
     private ListView waitlistListView;
+    private List<Applicant> dataList;
     private ArrayAdapter<Applicant> adapter;
-    private ArrayList<Applicant> applicantDataList;
 
     private EditText numToDrawInput;
-    private View lotteryControls;
 
     @Override
-    public View onCreateView (@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.waitlist_screen, container, false);
     }
+
+    @SuppressLint("SetTextI18n")
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize Managers and Data
+        Bundle args = getArguments();
+        if (args == null) {
+            Log.e("MissingBundle", "No arguments set before navigating to this fragment");
+            NavHostFragment.findNavController(WaitListFragment.this).navigateUp();
+            return;
+        }
+
+        event = args.getParcelable("event", Event.class);
+        if (event == null) {
+            Log.e("MissingBundleArgs", "Missing Event argument in bundle");
+            NavHostFragment.findNavController(WaitListFragment.this).navigateUp();
+            return;
+        }
+
+        // Initialize Repository and Data
+        User user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         lotterySystem = new LotterySystem();
 
-
-        currentUser = SessionController.getInstance(getContext()).getCurrentUser();
-
-        if (getArguments() != null) {
-            currentEvent = (Event) getArguments().getParcelable("event");
-
-        }
-
         // Setup UI References
-        waitlistListView = view.findViewById(R.id.waitlist_list_view);
+        ListView waitlistListView = view.findViewById(R.id.waitlist_list_view);
         numToDrawInput = view.findViewById(R.id.num_to_draw_input);
-        lotteryControls = view.findViewById(R.id.lottery_controls);
+        View lotteryControls = view.findViewById(R.id.lottery_controls);
         Button drawButton = view.findViewById(R.id.btn_draw_lottery);
         TextView header = view.findViewById(R.id.event_header);
 
-        header.setText(currentEvent.getName() + " Waitlist");
+        header.setText(event.getName() + " Waitlist");
 
         // Initialize List and Adapter
-        applicantDataList = new ArrayList<>();
-
-        applicantRepository.fetchApplicantsByStatus(currentEvent, ApplicantStatus.NOT_DRAWN, new FirestoreCallbackApplicantsReceive() {
-            @Override
-            public void onDataReceived(List<Applicant> applicants) {
-                applicantDataList = new ArrayList<>(applicants);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(getContext(), "Nobody in waiting list!", Toast.LENGTH_SHORT).show();
-            }
-
-        });
-
-
-
-
-        adapter = new UserArrayAdapter(getContext(), applicantDataList);
+        this.dataList = new ArrayList<>();
+        this.adapter = new ApplicantArrayAdapter(getContext(), dataList);
         waitlistListView.setAdapter(adapter);
 
         // Responsibility:  only Organizers can see lottery controls
-        if (!currentUser.getId().equals(currentEvent.getOrganizer().getId())) {
+        if (!user.getId().equals(event.getOrganizer().getId())) {
             lotteryControls.setVisibility(View.GONE);
         }
 
@@ -120,35 +110,46 @@ public class WaitListFragment extends Fragment {
             return;
         }
 
-        int numToDraw = Integer.parseInt(input);
+        try {
+            int numToDraw = Integer.parseInt(input);
 
-        // Responsibility: randomly select entrants
+            // Responsibility: randomly select entrants
+            List<Applicant> winners = lotterySystem.drawEntrants(event, numToDraw);
+            if (winners == null || winners.isEmpty()) {
+                Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        List<User> winners = lotterySystem.drawEntrants(currentEvent, numToDraw);
+            // Responsibility: notify entrants
+            processWinner(winners);
+            Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
+        } catch (NumberFormatException e) {
 
-        if (winners==null || winners.isEmpty()) {
-            Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
-            return;
         }
-
-        // Responsibility: notify entrants
-        processWinner(winners);
-
-        Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();    }
+    }
 
     /**
      * Passes the winning users to the Event instance to update their invited status.
      */
-    private void processWinner(List<User> winners) {
-        currentEvent.setInvited(winners);
-        Log.d("Lottery", "Winners passed to Event.setInvited()");
+    private void processWinner(List<Applicant> winners) {
+        adapter.clear();
 
         //probably needed
-        dbManager.updateEvent(currentEvent, new FirestoreCallbackSend() {
-            @Override
-            public void onSendSuccess() { Log.d("Lottery", "Event updated with invited users."); }
-            @Override
-            public void onSendFailure(Exception e) { Log.e("Lottery", "Failed to update event", e); }
+        winners.forEach(a -> {
+            a.setStatus(ApplicantStatus.INVITED);
+            applicantRepository.updateApplicant(a, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    Log.d("Lottery", "Applicant updated with invited users.");
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("Lottery", "Failed to update event", e);
+                }
+            });
         });
+
+        adapter.addAll(winners);
     }
 }

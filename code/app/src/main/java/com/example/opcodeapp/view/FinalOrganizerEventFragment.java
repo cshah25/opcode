@@ -1,9 +1,11 @@
 package com.example.opcodeapp.view;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,13 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.FinalOrganizerEventFragmentDirections;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
-import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,49 +34,41 @@ import java.util.Locale;
  */
 public class FinalOrganizerEventFragment extends Fragment {
     private Event event;
-    private TextView nameText;
-    private TextView dateText;
-    private TextView locationText;
-    private TextView descriptionText;
-    private TextView priceText;
-    private TextView waitListText;
-    private TextView registrationText;
-    private TextView eventRegistrationText;
-
-    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-
-    public FinalOrganizerEventFragment() {
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentEventView = inflater.inflate(R.layout.fragment_final_organizer_event, container, false);
-        return fragmentEventView;
+        return inflater.inflate(R.layout.fragment_final_organizer_event, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Bundle args = getArguments();
+        if (args == null)
+            throw new IllegalArgumentException("No arguments passed");
 
-        if (getArguments() != null) {
-            event = getArguments().getParcelable("event");
-        }
-
+        event = args.getParcelable("event", Event.class);
         if (event == null) {
             NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigateUp();
             return;
         }
 
+        ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         ImageButton backButton = view.findViewById(R.id.event_back_button);
+        ImageButton profileButton = view.findViewById(R.id.event_profile_button);
+        Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
+        Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
+        Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
 
-        nameText = view.findViewById(R.id.event_name_text);
-        dateText = view.findViewById(R.id.event_date_text);
-        locationText = view.findViewById(R.id.event_location_text);
-        descriptionText = view.findViewById(R.id.event_description_text);
-        priceText = view.findViewById(R.id.event_price_text);
-        waitListText = view.findViewById(R.id.event_waitlist_count_text);
-        registrationText = view.findViewById(R.id.event_reg_close_text);
-        eventRegistrationText = view.findViewById(R.id.event_open_closed_text);
+        TextView nameText = view.findViewById(R.id.event_name_text);
+        TextView dateText = view.findViewById(R.id.event_date_text);
+        TextView locationText = view.findViewById(R.id.event_location_text);
+        TextView descriptionText = view.findViewById(R.id.event_description_text);
+        TextView priceText = view.findViewById(R.id.event_price_text);
+        TextView waitListText = view.findViewById(R.id.event_waitlist_count_text);
+        TextView registrationText = view.findViewById(R.id.event_reg_close_text);
+        TextView eventRegistrationText = view.findViewById(R.id.event_open_closed_text);
 
         nameText.setText(event.getName());
         dateText.setText("Date: " + event.getStart() + " to " + event.getEnd());
@@ -89,7 +80,6 @@ public class FinalOrganizerEventFragment extends Fragment {
         LocalDateTime registrationEnd = event.getRegistrationEnd();
 
         registrationText.setText("Registration Period: " + DateUtil.toString(registrationStart) + "to " + DateUtil.toString(registrationEnd));
-
         if (registrationStart.isAfter(now) || registrationEnd.isBefore(now)) {
             eventRegistrationText.setText("CLOSED");
         } else {
@@ -105,137 +95,56 @@ public class FinalOrganizerEventFragment extends Fragment {
         }
 
         int total = event.getWaitlistLimit();
-        if (total == -1) {
-            waitListText.setText("Waitlist Limit: None");
-        } else {
-
+        if (total != -1) {
             List<Applicant> allApplicants = new ArrayList<>();
-
-
-
-
             applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
 
                 @Override
                 public void onDataReceived(List<Applicant> applicants) {
-                    List<Applicant> allApplicants = new ArrayList<>(applicants);
-
+                    allApplicants.addAll(applicants);
                 }
 
                 @Override
                 public void onError(Exception e) {
-
                     Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
-
-
                 }
-
-
             });
-
-            int currentWaitlist = allApplicants.size();
-
-            waitListText.setText("Waitlist Limit: " + currentWaitlist + "/" + total);
+            waitListText.setText("Waitlist: " + allApplicants.size() + "/" + total);
+        } else {
+            waitListText.setText("Waitlist Limit: None");
         }
 
+        backButton.setOnClickListener(v -> NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.EventListFragment));
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.eventsFragment);
-            }
+        enrolledApplicantButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", event);
+            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
+                    .navigate(R.id.EnrolledUsersFragment,  bundle);
         });
 
+        profileButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
+                        .navigate(R.id.ProfileFragment)
+        );
 
-        view.findViewById(R.id.enrolled_users_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * The click listener for the enrolled users button.
-             *
-             * @param view The view that was clicked.
-             */
-            @Override
-            public void onClick(View view) {
-
-
-
-                applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.ACCEPTED, new FirestoreCallbackApplicantsReceive() {
-                    @Override
-                    public void onDataReceived(List<Applicant> applicants) {
-                        List<Applicant> enrolledApplicants = new ArrayList<>(applicants);
-                        Applicant[] enrolledUsers = enrolledApplicants.toArray(new Applicant[0]);
-                        FinalOrganizerEventFragmentDirections.ActionFinalOrganizerEventFragmentToEnrolledUsersFragment action = FinalOrganizerEventFragmentDirections.actionFinalOrganizerEventFragmentToEnrolledUsersFragment(enrolledUsers);
-                        NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(action);
-
-
-                    }
-                    @Override
-                    public void onError(Exception e) {
-                        Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
-                    }
-
-
-                });
-
-
-
-
-
-            }
-
+        invitedApplicantButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", event);
+            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
+                    .navigate(R.id.InvitedUsersFragment, bundle);
         });
 
-        view.findViewById(R.id.event_profile_button).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.ProfileFragment);
-            }
-
+        allApplicantButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", event);
+            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
+                    .navigate(R.id.WaitListFragment, bundle);
         });
-
-        view.findViewById(R.id.invited_users_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * The click listener for the invited users button.
-             *
-             * @param view The view that was clicked.
-             */
-            @Override
-            public void onClick(View view) {
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("event", event);
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.InvitedUsersFragment, bundle);
-
-
-            }
-
-
-        });
-
-        view.findViewById(R.id.all_applicants_button).setOnClickListener(new View.OnClickListener() {
-            /**
-             * The click listener for the all applicants button.
-             *
-             * @param view The view that was clicked.
-             */
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("event", event);
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.WaitListFragment, bundle);
-            }
-
-        });
-
-
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
     }
-
-
 }

@@ -4,50 +4,43 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
-import com.example.opcodeapp.model.User;
-
-import java.util.Objects;
 
 public class DeclinedUserDialogFragment extends DialogFragment {
 
     interface DeclinedUserDialogListener {
-        void removeUser(Applicant user, Event event);
-
-        //void drawUser(Event event);
-
-
-
+        void removeUser(Applicant applicant, Event event);
     }
 
     private DeclinedUserDialogListener listener;
 
-    public static DeclinedUserDialogFragment newInstance(Applicant user, Event event) {
-        Bundle args = new Bundle();
-        args.putParcelable("Applicant", user);
-        args.putParcelable("Event", event);
-
+    public static DeclinedUserDialogFragment newInstance(Applicant applicant, Event event) {
         DeclinedUserDialogFragment fragment = new DeclinedUserDialogFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("applicant", applicant);
+        args.putParcelable("event", event);
         fragment.setArguments(args);
         return fragment;
-
-
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof DeclinedUserDialogListener) {
+        if (getParentFragment() instanceof DeclinedUserDialogListener) {
+            listener = (DeclinedUserDialogListener) getParentFragment();
+        } else if (context instanceof DeclinedUserDialogListener) {
             listener = (DeclinedUserDialogListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement DeclinedUserDialogListener");
+            throw new RuntimeException(context + " must implement DeclinedUserDialogListener");
         }
     }
 
@@ -55,43 +48,33 @@ public class DeclinedUserDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.fragment_remove_user, null);
+        Context context = requireContext();
+        Bundle args = getArguments();
 
-
-        String tag = getTag();
-
-        Bundle bundle = getArguments();
-        Applicant user;
-        Event event;
-
-        if (Objects.equals(tag, "Remove") && bundle != null) {
-            user = (Applicant) bundle.getParcelable("Applicant");
-            event = (Event) bundle.getParcelable("Event");
-            assert user != null;
-            assert event != null;
-
-        } else {
-            user = null;
-            event = null;
-
+        if (args == null) {
+            Log.e("MissingBundle", "No arguments set before navigating to this fragment");
+            return new AlertDialog.Builder(context)
+                    .setView(view)
+                    .setTitle("MissingBundle")
+                    .setNeutralButton("Close", null)
+                    .create();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
+        Applicant applicant = args.getParcelable("applicant", Applicant.class);
+        Event event = args.getParcelable("event", Event.class);
+        if (applicant == null || event == null) {
+            return new AlertDialog.Builder(context)
+                    .setView(view)
+                    .setTitle("MissingBundleArguments")
+                    .setNeutralButton("Close", null)
+                    .create();
+        }
+
+        return new AlertDialog.Builder(context)
                 .setView(view)
                 .setTitle("Remove")
+                .setPositiveButton("Remove", (dialog, which) -> listener.removeUser(applicant, event))
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Remove", (dialog, which) -> {
-
-                    if (Objects.equals(tag, "Remove")) {
-                        listener.removeUser(user, event);
-                    }
-                }).create();
-
-
-
+                .create();
     }
-
-
-
-
 }

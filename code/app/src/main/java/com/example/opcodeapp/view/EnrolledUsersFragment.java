@@ -1,6 +1,7 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,17 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.opcodeapp.EnrolledUsersFragmentArgs;
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.adapter.UserArrayAdapter;
-import com.example.opcodeapp.databinding.FragmentEnrolledUsersBinding;
+import com.example.opcodeapp.adapter.ApplicantArrayAdapter;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
-import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.repository.ApplicantRepository;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -26,54 +29,56 @@ import java.util.Arrays;
  */
 public class EnrolledUsersFragment extends Fragment {
 
-    /**
-     * The list of users to be displayed.
-     */
-    private ArrayList<Applicant> dataList;
-
-    /**
-     * The ListView for the list of users.
-     */
-    private ListView userList;
-
-    /**
-     * The ArrayAdapter for the list of users.
-     */
-    private ArrayAdapter<Applicant> userAdapter;
-
-
-    /**
-     * The binding for the fragment.
-     */
-    private FragmentEnrolledUsersBinding binding;
-
-
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentUserView = inflater.inflate(R.layout.fragment_enrolled_users, container, false);
-        return fragmentUserView;
+        return inflater.inflate(R.layout.fragment_enrolled_users, container, false);
     }
-
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        assert getArguments() != null;
-        Applicant[] receivedArray = EnrolledUsersFragmentArgs.fromBundle(getArguments()).getUserList();
 
-        dataList = new ArrayList<>(Arrays.asList(receivedArray));
+        Bundle args = getArguments();
+        if (args == null) {
 
-        userList = view.getRootView().findViewById(R.id.enrolled_users_list_view);
-        
-        userAdapter = new UserArrayAdapter(getContext(), dataList);
+            return;
+        }
 
-        userList.setAdapter(userAdapter);
-        userAdapter.notifyDataSetChanged();
+
+        Event event = args.getParcelable("event", Event.class);
+        if (event == null) {
+
+            return;
+        }
+
+        List<Applicant> dataList = getApplicants();
+        ArrayAdapter<Applicant> applicantAdapter = new ApplicantArrayAdapter(requireContext(), dataList);
+        ListView applicantListView = view.getRootView().findViewById(R.id.enrolled_users_list_view);
+        applicantListView.setAdapter(applicantAdapter);
+        applicantAdapter.notifyDataSetChanged();
+    }
+
+    @NonNull
+    private static List<Applicant> getApplicants() {
+        List<Applicant> dataList = new ArrayList<>();
+        ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        repository.fetchApplicants(f -> f.whereEqualTo("status", ApplicantStatus.ACCEPTED.name()),
+                new FirestoreCallbackApplicantsReceive() {
+                    @Override
+                    public void onDataReceived(List<Applicant> applicant) {
+                        dataList.addAll(applicant);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+                    }
+                }
+        );
+        return dataList;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
     }
 }

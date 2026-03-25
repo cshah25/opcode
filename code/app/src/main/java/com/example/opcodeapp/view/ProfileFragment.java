@@ -13,10 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.db.DBManager;
-
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
@@ -57,62 +55,51 @@ public class ProfileFragment extends Fragment {
             phoneInput.setText(currentUser.getPhoneNum());
         }
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavHostFragment.findNavController(ProfileFragment.this).navigateUp();
-            }
-        });
+        backButton.setOnClickListener(v -> NavHostFragment.findNavController(ProfileFragment.this).navigateUp());
 
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                User user = SessionController.getInstance(requireContext()).getCurrentUser();
-                if (user == null) {
-                    return;
+        updateButton.setOnClickListener(v -> {
+            User user = SessionController.getInstance(requireContext()).getCurrentUser();
+            if (user == null) {
+                return;
+            }
+
+            user.setName(nameInput.getText().toString().trim());
+            user.setEmail(emailInput.getText().toString().trim());
+            user.setPhoneNum(phoneInput.getText().toString().trim());
+
+            UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
+            userRepository.updateUser(user, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void aVoid) {
+                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
                 }
 
-                user.setName(nameInput.getText().toString().trim());
-                user.setEmail(emailInput.getText().toString().trim());
-                user.setPhoneNum(phoneInput.getText().toString().trim());
-
-                UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
-                userRepository.updateUser(user, new FirestoreCallbackSend() {
-                    @Override
-                    public void onSendSuccess(Void aVoid) {
-                        Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onSendFailure(Exception e) {
-                        Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+                @Override
+                public void onSendFailure(Exception e) {
+                    Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                User user = SessionController.getInstance(requireContext()).getCurrentUser();
-                if (user == null) {
-                    return;
+        deleteButton.setOnClickListener(v -> {
+            User user = SessionController.getInstance(requireContext()).getCurrentUser();
+            if (user == null) {
+                return;
+            }
+
+            UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
+            userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void aVoid) {
+                    Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
                 }
 
-                UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
-                userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
-                    @Override
-                    public void onSendSuccess(Void aVoid) {
-                        Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
-                        NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
-                    }
-
-                    @Override
-                    public void onSendFailure(Exception e) {
-                        Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+                @Override
+                public void onSendFailure(Exception e) {
+                    Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 }
