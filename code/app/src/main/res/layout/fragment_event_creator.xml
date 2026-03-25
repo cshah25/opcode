@@ -62,11 +62,11 @@
                 android:layout_height="wrap_content"
                 app:errorEnabled="true">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/event_creator_location_input"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/event_creator_location_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:text="@string/select_location" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
