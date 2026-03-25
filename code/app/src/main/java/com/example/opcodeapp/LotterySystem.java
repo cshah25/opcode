@@ -1,5 +1,18 @@
 package com.example.opcodeapp;
 
+import static java.security.AccessController.getContext;
+
+import android.util.Log;
+import android.widget.Toast;
+
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.enums.ApplicantStatus;
+import com.example.opcodeapp.model.Applicant;
+import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.ApplicantRepository;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +22,9 @@ import java.util.List;
  */
 public class LotterySystem {
 
+    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+
+
     /**
      * Randomly selects a specified number of entrants from the waitlist.
      * Ensures capacity is not exceeded.
@@ -16,13 +32,28 @@ public class LotterySystem {
      * @param numberOfInvites The number of people to draw.
      * @return List of Users selected to receive an invitation.
      */
-    public List<User> drawEntrants(Event event, int numberOfInvites) {
-        List<User> applicants = event.getInitialApplicants(); //change made here since getApplicants returns a list (not an array)
-        if (applicants == null || applicants.isEmpty()) {
-            return new ArrayList<>();
-        }
+    public List<Applicant> drawEntrants(Event event, int numberOfInvites) {
 
-        List<User> waitlist = new ArrayList<>(applicants); //change made here
+        List<Applicant> waitlist = new ArrayList<>();
+
+
+
+
+        applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.NOT_DRAWN, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                waitlist.addAll(applicants);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("Lottery", "Error fetching applicants. Possibly no applicants in the waiting list", e);
+
+            }
+
+        });
+
+         //change made here
 
         // Responsibility: don't exceed capacity or available applicants
         int drawSize = Math.min(numberOfInvites, waitlist.size());
@@ -38,11 +69,33 @@ public class LotterySystem {
      * @param event The event.
      * @return A single randomly selected User from the remaining waitlist.
      */
-    public User drawReplacement(Event event) {
-        List<User> applicants = drawEntrants(event, 1);
-        if (applicants.isEmpty())
+    public Applicant drawReplacement(Event event) {
+
+
+
+
+
+        List<Applicant> waitlist_applicants = new ArrayList<>();
+
+        applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.NOT_DRAWN, new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicants) {
+                waitlist_applicants.addAll(applicants);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("Lottery", "Error fetching applicants. Possibly no applicants in the waiting list", e);
+
+            }
+        });
+
+
+        if (waitlist_applicants.isEmpty()) {
             return null;
-        else
-            return applicants.get(0);
+        } else {
+            return waitlist_applicants.get(0);
+        }
+
     }
 }
