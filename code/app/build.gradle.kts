@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -5,8 +8,15 @@ plugins {
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
+// Initialize secrets.properties file
+val secretsProperties: Properties = Properties()
+val secretsFile = rootProject.file("secrets.properties")
+if (secretsFile.exists()) {
+    secretsProperties.load(FileInputStream(secretsFile))
+}
+
 android {
-    tasks.withType<Test>{
+    tasks.withType<Test> {
         useJUnitPlatform()
     }
 
@@ -23,6 +33,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "GEOAPIFY_API_KEY",
+            "\"${secretsProperties.getProperty("GEOAPIFY_API_KEY", "")}\""
+        )
     }
 
     buildTypes {
@@ -39,6 +54,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }
@@ -51,6 +67,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.zxing)
     implementation(libs.play.services.maps)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
