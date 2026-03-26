@@ -12,29 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpcodeApp">
 
-
-
         <activity
-<<<<<<< HEAD
-            android:name=".view.EnrolledUsersFragment"
-            android:exported="true"
-            android:parentActivityName=".view.FinalOrganizerEventFragment" />
-        <activity
-            android:name=".view.FinalOrganizerEventFragment"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-        <activity
-=======
->>>>>>> cc8cd173106c3592d1bad61cd7caad93335cfe26
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.OpcodeApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

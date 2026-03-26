@@ -250,10 +250,10 @@ public class EventCreatorFragment extends Fragment {
             valid = false;
         }
 
-        Float price = null;
+        float price = 0.0f;
         if (!priceText.isEmpty()) {
             try {
-                price = Float.valueOf(priceText);
+                price = Float.parseFloat(priceText);
                 if (price < 0) {
                     priceLayout.setError("Must be 0 or greater");
                     valid = false;
@@ -262,11 +262,9 @@ public class EventCreatorFragment extends Fragment {
                 priceLayout.setError("Enter a valid price");
                 valid = false;
             }
-        } else {
-            price = 0.0f;
         }
 
-        Integer waitlistLimit = null;
+        int waitlistLimit = -1;
         if (!waitlistText.isEmpty()) {
             try {
                 waitlistLimit = Integer.parseInt(waitlistText);
@@ -278,8 +276,6 @@ public class EventCreatorFragment extends Fragment {
                 waitlistLayout.setError("Enter a valid whole number");
                 valid = false;
             }
-        } else {
-            waitlistLimit = -1;
         }
 
         if (!valid)
@@ -296,11 +292,13 @@ public class EventCreatorFragment extends Fragment {
                 .name(name)
                 .location(location)
                 .description(description)
-                .registrationStart(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
-                .registrationEnd(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
+                .registrationStart(LocalDate.parse(registrationStart, dateFormat).atStartOfDay())
+                .registrationEnd(LocalDate.parse(registrationEnd, dateFormat).atStartOfDay())
                 .start(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
                 .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
-                .organizer(organizer);
+                .organizer(organizer)
+                .price(price)
+                .waitlistLimit(waitlistLimit);
         Event event = builder.build();
         eventRepository.addEvent(event, new FirestoreCallbackSend() {
             @Override

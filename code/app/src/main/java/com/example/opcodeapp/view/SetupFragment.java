@@ -15,11 +15,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -81,33 +79,25 @@ public class SetupFragment extends Fragment {
                         .phoneNum(phone_t)
                         .build();
 
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                auth.createUserWithEmailAndPassword(user.getEmail(), user.getDeviceId())
-                        .addOnSuccessListener(result -> {
-                            SessionController.getInstance(getContext()).updateFireAuth();
-                            repository.addUser(user, new FirestoreCallbackSend() {
-                                @Override
-                                public void onSendSuccess(Void unused) {
-                                    Log.i("Setup", "account created");
-                                    Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
+                repository.addUser(user, new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess(Void unused) {
+                        Log.i("Setup", "Account created");
+                        Toast.makeText(requireContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
 
-                                    Bundle bundle = new Bundle();
-                                    bundle.putParcelable("user", user);
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("user", user);
 
-                                    NavController nav = NavHostFragment.findNavController(not_this);
-                                    nav.navigate(R.id.action_setupFragment_to_main_graph, bundle);
-                                }
+                        NavController nav = NavHostFragment.findNavController(not_this);
+                        nav.navigate(R.id.action_setupFragment_to_main_graph, bundle);
+                    }
 
-                                @Override
-                                public void onSendFailure(Exception e) {
-                                    Log.e("Setup", String.format("error creating account: %s", e));
-                                    Toast.makeText(getContext(), String.format("Error: %s", e), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        })
-                        .addOnFailureListener(e ->
-                                Log.e("Setup", "Could not log in with FirebaseAuth")
-                        );
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        Log.e("Setup", String.format("error creating account: %s", e));
+                        Toast.makeText(getContext(), String.format("Error: %s", e), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
         return view;
