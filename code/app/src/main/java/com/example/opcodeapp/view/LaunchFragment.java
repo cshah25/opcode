@@ -1,19 +1,18 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.example.opcodeapp.enums.LoginState;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.enums.LoginState;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,9 +20,6 @@ import com.example.opcodeapp.controller.SessionController;
  * create an instance of this fragment.
  */
 public class LaunchFragment extends Fragment {
-    public LaunchFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of
