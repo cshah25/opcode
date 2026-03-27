@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs")
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
 }
 
 android {
@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.firebase.auth)
     implementation(libs.zxing)
-    implementation(libs.play.services.maps)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -77,7 +77,5 @@ dependencies {
 
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
-    implementation("com.google.android.gms:play-services-maps:20.0.0")
 
-    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
