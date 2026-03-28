@@ -102,8 +102,10 @@ public class ProfileFragment extends Fragment {
                 userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
+                        SessionController.getInstance(requireContext()).logout();
                         Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
-                        NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
+                        NavHostFragment.findNavController(ProfileFragment.this)
+                                .navigate(R.id.action_ProfileFragment_to_setup_graph);
                     }
 
                     @Override

@@ -65,9 +65,24 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:backgroundTint="@color/profile_button"
-            android:text="Search"
+            android:text="@string/search"
             android:textColor="@android:color/white" />
         </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/events_filter_available_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/filter_available_now"
+            android:textColor="@color/profile_text" />
+
+        <CheckBox
+            android:id="@+id/events_filter_capacity_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_has_capacity"
+            android:textColor="@color/profile_text" />
 
 
     </LinearLayout>

@@ -68,6 +68,8 @@
     <string name="search">Search</string>
     <string name="search_events">Search events</string>
     <string name="search_events_list">Search</string>
+    <string name="filter_available_now">Registration open now</string>
+    <string name="filter_has_capacity">Has waitlist capacity</string>
     <string name="qr_code">QR Code</string>
     <string name="status">Status</string>
     <string name="enrolled_users">Enrolled Users</string>
