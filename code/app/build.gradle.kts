@@ -6,9 +6,13 @@ plugins {
 }
 
 android {
+
+    /*
     tasks.withType<Test>{
         useJUnitPlatform()
     }
+    */
+
 
     namespace = "com.example.opcodeapp"
     compileSdk {

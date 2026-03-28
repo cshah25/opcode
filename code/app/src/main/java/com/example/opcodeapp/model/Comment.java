@@ -135,8 +135,8 @@ public class Comment implements Parcelable {
 
 
     public static Comment fromMap(String id, Map<String, Object> map) {
-        String eventId = (String) map.get("eventId");
-        String userId = (String) map.get("userId");
+        String eventId = (String) map.get("event_id");
+        String userId = (String) map.get("user_id");
         String content = (String) map.get("content");
         LocalDateTime commentTime = DateUtil.fromLong(Long.valueOf(map.get("comment_time").toString()));
         return Comment.builder()

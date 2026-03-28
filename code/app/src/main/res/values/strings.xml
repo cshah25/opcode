@@ -78,4 +78,8 @@
     <string name="view_all_applicants">View all applicants</string>
     <string name="select_location">Select Location</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="user_name">Name</string>
+    <string name="role">Role</string>
+    <string name="comment">Comment</string>
+    <string name="add_comment">Add Comment</string>
 </resources>
