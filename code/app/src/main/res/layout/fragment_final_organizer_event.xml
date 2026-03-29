@@ -19,12 +19,13 @@
             android:paddingHorizontal="16dp">
 
             <ImageButton
-                android:id="@+id/event_back_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/comment_button"
+                android:layout_width="45dp"
+                android:layout_height="43dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/back"
-                android:src="@android:drawable/ic_media_previous" />
+                android:padding="4dp"
+                app:srcCompat="@drawable/comment_icon"
+                app:tint="@color/profile_text" />
 
             <TextView
                 android:layout_width="0dp"
@@ -45,6 +46,7 @@
                 android:padding="4dp"
                 app:srcCompat="@drawable/ic_account_circle_24"
                 app:tint="@color/profile_text" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -60,8 +62,8 @@
 
                 <TextView
                     android:id="@+id/event_name_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/event_name"
                     android:textColor="@color/profile_text"
@@ -126,7 +128,7 @@
 
             <TextView
                 android:id="@+id/event_description_text"
-                android:layout_width="match_parent"
+                android:layout_width="191dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/description"
@@ -135,7 +137,7 @@
 
             <Button
                 android:id="@+id/enrolled_users_button"
-                android:layout_width="match_parent"
+                android:layout_width="359dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="36dp"
                 android:backgroundTint="@color/profile_button"
@@ -144,7 +146,7 @@
 
             <Button
                 android:id="@+id/invited_users_button"
-                android:layout_width="match_parent"
+                android:layout_width="357dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="36dp"
                 android:backgroundTint="@color/profile_button"
@@ -153,7 +155,7 @@
 
             <Button
                 android:id="@+id/all_applicants_button"
-                android:layout_width="match_parent"
+                android:layout_width="357dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="36dp"
                 android:backgroundTint="@color/profile_button"

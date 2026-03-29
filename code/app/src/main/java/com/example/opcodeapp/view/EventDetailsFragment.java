@@ -50,7 +50,7 @@ public class EventDetailsFragment extends Fragment {
         }
 
         User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
-        ImageButton backButton = view.findViewById(R.id.event_back_button);
+        ImageButton commentButton = view.findViewById(R.id.comment_button);
 
         TextView nameText = view.findViewById(R.id.event_name_text);
         TextView dateText = view.findViewById(R.id.event_date_text);
@@ -77,10 +77,14 @@ public class EventDetailsFragment extends Fragment {
 
         });
 
-        backButton.setOnClickListener(new View.OnClickListener() {
+        commentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("event", event);
+                NavHostFragment.findNavController(EventDetailsFragment.this)
+                        .navigate(R.id.CommentsFragment, bundle);
+
             }
         });
 

@@ -19,12 +19,15 @@
             android:paddingHorizontal="16dp">
 
             <ImageButton
-                android:id="@+id/event_back_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/comment_button"
+                android:layout_width="45dp"
+                android:layout_height="43dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/back"
-                android:src="@android:drawable/ic_media_previous" />
+                android:padding="4dp"
+                app:srcCompat="@drawable/comment_icon"
+                app:tint="@color/profile_text" />
+
+
 
             <TextView
                 android:layout_width="0dp"
