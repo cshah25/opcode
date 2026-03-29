@@ -110,15 +110,13 @@ public class EventsListFragment extends Fragment {
                 shownEvents.clear();
                 shownNames.clear();
 
-                if (events != null) {
+                if (events != null && !events.isEmpty()) {
                     allEvents.addAll(events);
                     shownEvents.addAll(events);
 
-                    for (Event event : events) {
+                    for (Event event : events)
                         shownNames.add(event.getName());
-                    }
                 }
-
                 adapter.notifyDataSetChanged();
             }
 

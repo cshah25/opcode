@@ -63,7 +63,7 @@ public class EventInvitationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            event = getArguments().getParcelable("event");
+            event = getArguments().getParcelable("event", Event.class);
         }
     }
 
@@ -101,17 +101,11 @@ public class EventInvitationFragment extends Fragment {
         });
 
         User cur = SessionController.getInstance(getContext()).getCurrentUser();
-
         Button accept = v.findViewById(R.id.invitation_accept_button);
-
         Button decline = v.findViewById(R.id.invitation_decline_button);
 
-
         List<Applicant> cur_applicant = new ArrayList<>();
-
-
         applicantRepository.fetchApplicant(cur.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
-
 
             @Override
             public void onDataReceived(Applicant applicant) {
@@ -127,18 +121,11 @@ public class EventInvitationFragment extends Fragment {
             public void onError(Exception e) {
                 Toast.makeText(getContext(), String.format("Error fetching applicant: %s", e.toString()), Toast.LENGTH_SHORT).show();
             }
-
-
-
         });
 
 
-
-
         accept.setOnClickListener(view -> {
-
             cur_applicant.get(0).setStatus(ApplicantStatus.ACCEPTED);
-
             applicantRepository.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void aVoid) {
@@ -156,9 +143,7 @@ public class EventInvitationFragment extends Fragment {
 
 
         decline.setOnClickListener(view -> {
-
             cur_applicant.get(0).setStatus(ApplicantStatus.DECLINED);
-
             applicantRepository.updateApplicant(cur_applicant.get(0), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void aVoid) {
@@ -171,10 +156,7 @@ public class EventInvitationFragment extends Fragment {
                     Toast.makeText(getContext(), String.format("Error declining invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
                 }
             });
-
         });
-
-
         return v;
     }
 }

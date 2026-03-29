@@ -41,7 +41,7 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (getArguments() != null) {
-            event = getArguments().getParcelable("event");
+            event = getArguments().getParcelable("event", Event.class);
         }
 
         if (event == null) {
@@ -70,38 +70,35 @@ public class EventDetailsFragment extends Fragment {
                 return;
             }
 
-                //event.removeUser(currentUser);
-                ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+            //event.removeUser(currentUser);
+            ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
-                applicantRepository.fetchApplicant(currentUser.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
-                    @Override
-                    public void onDataReceived(Applicant applicant) {
+            applicantRepository.fetchApplicant(currentUser.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
+                @Override
+                public void onDataReceived(Applicant applicant) {
 
-                        applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
-                            @Override
-                            public void onSendSuccess(Void aVoid) {
-                                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                    applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
+                        @Override
+                        public void onSendSuccess(Void aVoid) {
+                            NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
 
-                            }
+                        }
 
-                            @Override
-                            public void onSendFailure(Exception e) {
-                                Toast.makeText(getContext(), "Error removing applicant", Toast.LENGTH_SHORT).show();
-                                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
-                            }
-                        });
+                        @Override
+                        public void onSendFailure(Exception e) {
+                            Toast.makeText(getContext(), "Error removing applicant", Toast.LENGTH_SHORT).show();
+                            NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                        }
+                    });
+                }
 
-                    }
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(getContext(), "Error fetching applicant", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Toast.makeText(getContext(), "Error fetching applicant", Toast.LENGTH_SHORT).show();
-                        NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
-                    }
-
-                });
-
-            }
+            });
         });
 
         qrCodeButton.setOnClickListener(v  -> {
