@@ -38,7 +38,7 @@
             android:id="@+id/EventListFragment"
             android:name="com.example.opcodeapp.view.EventsListFragment"
             android:label="EventsFragment"
-            tools:layout="@layout/fragment_eventslist">
+            tools:layout="@layout/fragment_events_list">
             <action
                 android:id="@+id/action_eventsFragment_to_EntrantEventDetailsFragment"
                 app:destination="@id/EntrantEventDetailsFragment" />
