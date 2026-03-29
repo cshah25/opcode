@@ -124,10 +124,14 @@ public class EventRepository extends Repository {
      * @param listener The listener to be notified of success or failure.
      */
     public void deleteEvent(String id, FirestoreCallbackSend listener) {
+
+
         ref.document(id)
                 .delete()
                 .addOnSuccessListener(listener::onSendSuccess)
                 .addOnFailureListener(listener::onSendFailure);
+
+
     }
 
     /**

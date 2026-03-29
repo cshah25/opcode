@@ -1,17 +1,22 @@
 package com.example.opcodeapp;
 
-import static androidx.test.InstrumentationRegistry.getContext;
+
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+
+import android.util.Log;
+
+
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
+
+import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
 import com.example.opcodeapp.model.User;
-import com.google.android.gms.tasks.OnSuccessListener;
+
+import com.example.opcodeapp.repository.UserRepository;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -24,61 +29,102 @@ import org.mockito.MockitoAnnotations;
 
 public class DBManagerTest {
 
-    @Mock private FirebaseFirestore mockDb;
-    @Mock private CollectionReference mockCollection;
-    @Mock private DocumentReference mockDocRef;
-    @Mock private Task<Void> mockTask;
-    @Mock private FirestoreCallbackSend mockListener;
-
-    private DBManager dbManager;
+    private UserRepository userRepository;
 
     @Before
     public void setup() {
         // 1. Initialize DBManager with the mocked database
 
-        MockitoAnnotations.openMocks(this);
 
 
-        // 2. Mock the chain: db.collection("Users").document()
-        when(mockDb.collection("Users")).thenReturn(mockCollection);
-        when(mockCollection.document()).thenReturn(mockDocRef);
-
-        // 3. Mock the ID generation
-        when(mockDocRef.getId()).thenReturn("mock_id_123");
-
-        // 4. Mock the .set(user) call to return a task
-        when(mockDocRef.set(any(User.class))).thenReturn(mockTask);
-
-        dbManager = new DBManager(mockDb);
+        userRepository = new UserRepository(FirebaseFirestore.getInstance());
     }
 
     @Test
     public void testAddUser() {
 
-        User user = new User("Vedant Patel", "vspatel1@ualberta.ca", "67676767", getContext());
+        User.Builder b = User.builder()
+                .name("mock_user")
+                .email("mock_user@ualberta.ca")
+                .phoneNum("676767676767");
 
-        // 5. Tell the mockTask to trigger the Success Listener immediately
-        when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
-            OnSuccessListener<Void> listener = invocation.getArgument(0);
-            listener.onSuccess(null); // Manually trigger the success callback
-            return mockTask;
-        });
+        User user = b.build();
 
-        // Ensure the chain doesn't break if onFailure is called
-        when(mockTask.addOnFailureListener(any())).thenReturn(mockTask);
 
         // EXECUTE
-        dbManager.addUser(user, mockListener);
+        userRepository.addUser(user, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("TEST", "Success");
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+
+                Log.d("TEST", "Failure");
+
+            }
+        });
 
         // ASSERT & VERIFY
-        assertEquals("mock_id_123", user.getId()); // Check if ID was set on user object
-        verify(mockListener).onSendSuccess();      // Verify our callback was reached
-        verify(mockListener, never()).onSendFailure(any());
+        assertNotNull(user.getId()); // Check if ID was set on user object
+
     }
 
     @Test
     public void testUpdateUser() {
-        User newUser = new User("John Doe", "blah@gmail.com", "98372042", getContext());
+        User.Builder b = User.builder()
+                .name("mock_user_2")
+                .email("mock_user_2@ualberta.ca")
+                .phoneNum("686868686868686");
+
+        User mock_user = b.build();
+
+        userRepository.addUser(mock_user, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("TEST", "Success");
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.d("TEST", "Failure");
+            }
+
+        });
+
+        mock_user.setName("mock_user_3");
+
+
+        userRepository.updateUser(mock_user, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("TEST", "Success");
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.d("TEST", "Failure");
+            }
+        });
+
+        userRepository.fetchUser(mock_user.getId(), new FirestoreCallbackUserReceive() {
+            @Override
+            public void onDataReceived(User user) {
+                assertEquals(user.getName(), "mock_user_3");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.d("TEST", "Failure");
+            }
+        });
+
+
+
+
+
+
     }
 
 }

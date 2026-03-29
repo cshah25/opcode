@@ -77,6 +77,11 @@
     <string name="view_all_the_invited_users">View all the invited users</string>
     <string name="view_all_applicants">View all applicants</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="user_name">Name</string>
+    <string name="role">Role</string>
+    <string name="comment">Comment</string>
+    <string name="add_comment">Add Comment</string>
+    <string name="comments_fragment_label">Comments</string>
     <string name="phone">Phone Number (optional)</string>
     <string name="share">Share</string>
     <string name="save">Save</string>

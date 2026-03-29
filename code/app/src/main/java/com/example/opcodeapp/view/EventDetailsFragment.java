@@ -50,6 +50,7 @@ public class EventDetailsFragment extends Fragment {
         }
 
         User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
+        ImageButton commentButton = view.findViewById(R.id.comment_button);
 
         TextView nameText = view.findViewById(R.id.event_name_text);
         TextView dateText = view.findViewById(R.id.event_date_text);
@@ -70,8 +71,18 @@ public class EventDetailsFragment extends Fragment {
                 return;
             }
 
-            //event.removeUser(currentUser);
-            ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        });
+
+        commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("event", event);
+                NavHostFragment.findNavController(EventDetailsFragment.this)
+                        .navigate(R.id.CommentsFragment, bundle);
+
+            }
+        });
 
             applicantRepository.fetchApplicant(currentUser.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
                 @Override

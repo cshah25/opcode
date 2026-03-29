@@ -25,10 +25,11 @@ import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+@SuppressWarnings("deprecation")
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link EventInvitationFragment#newInstance} factory method to
@@ -83,6 +84,19 @@ public class EventInvitationFragment extends Fragment {
         registration_close.setText(String.format("Registration closes on %s", event.getRegistrationEnd().toString()));
         TextView price = v.findViewById(R.id.invitation_price);
         price.setText(String.valueOf(event.getPrice()));
+        TextView open_closed = v.findViewById(R.id.invitation_open_or_closed);
+
+        TextView status = v.findViewById(R.id.event_status_text);
+
+        if (LocalDateTime.now().isBefore(event.getRegistrationEnd())) {
+            open_closed.setText("Open");
+        } else {
+            open_closed.setText("Closed");
+        }
+
+        TextView description = v.findViewById(R.id.invitation_description);
+        description.setText(event.getDescription());
+
 
         TextView entrants = v.findViewById(R.id.invitation_waiting_list_size);
         // android studio was complaining about the locale here
@@ -101,6 +115,17 @@ public class EventInvitationFragment extends Fragment {
         });
 
         User cur = SessionController.getInstance(getContext()).getCurrentUser();
+
+        Button comment = v.findViewById(R.id.comment_button);
+
+        comment.setOnClickListener(view -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("event", event);
+                    NavHostFragment.findNavController(EventInvitationFragment.this).navigate(R.id.CommentsFragment, bundle);
+
+        });
+
+
         Button accept = v.findViewById(R.id.invitation_accept_button);
         Button decline = v.findViewById(R.id.invitation_decline_button);
 
@@ -114,6 +139,18 @@ public class EventInvitationFragment extends Fragment {
                     if (applicant.getStatus() != ApplicantStatus.INVITED) {
                         accept.setVisibility(GONE);
                         decline.setVisibility(GONE);
+                        if (applicant.getStatus() == ApplicantStatus.ACCEPTED) {
+                            status.setText("Status: Joined");
+                        }else if (applicant.getStatus() == ApplicantStatus.NOT_DRAWN) {
+                            status.setText("Status: Not Drawn");
+                        } else {
+                            status.setText("Status: Declined");
+                        }
+
+                    } else {
+                        accept.setVisibility(View.VISIBLE);
+                        decline.setVisibility(View.VISIBLE);
+                        status.setText("Status: Invited");
                     }
                 }
             }

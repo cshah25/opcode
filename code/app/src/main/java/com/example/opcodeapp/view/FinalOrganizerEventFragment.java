@@ -54,6 +54,7 @@ public class FinalOrganizerEventFragment extends Fragment {
         }
 
         ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        ImageButton commentButton = view.findViewById(R.id.comment_button);
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
@@ -96,11 +97,26 @@ public class FinalOrganizerEventFragment extends Fragment {
             List<Applicant> allApplicants = new ArrayList<>();
             applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
 
+
+                /**
+                 * Called when the applicants are fetched from the database.
+                 *Stores the applicants in a list.
+
+                 * @param applicants
+                 * The list of applicants.
+                 */
                 @Override
                 public void onDataReceived(List<Applicant> applicants) {
                     allApplicants.addAll(applicants);
                 }
 
+
+                /**
+                 * In case of error, display a toast message.
+                 *
+                 * @param e
+                 * The exception that occurred.
+                 */
                 @Override
                 public void onError(Exception e) {
                     Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
@@ -111,6 +127,27 @@ public class FinalOrganizerEventFragment extends Fragment {
             waitListText.setText("Waitlist Limit: None");
         }
 
+
+        /**
+         * Set up the click listeners for the comment button.
+         * Sends the user to the Comment Section.
+         *
+         */
+        commentButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", event);
+            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
+                    .navigate(R.id.CommentsFragment, bundle);
+
+        });
+
+        /**
+         * Set up the click listeners for the enrolled users button.
+         * Sends the user to the Enrolled Users Section.
+         *
+         * @param v
+         * The view that was clicked.
+         */
         enrolledApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
@@ -125,6 +162,13 @@ public class FinalOrganizerEventFragment extends Fragment {
                     .navigate(R.id.InvitedUsersFragment, bundle);
         });
 
+        /**
+         * Set up the click listeners for the all applicants button.
+         * Sends the user to the All Applicants Section.
+         *
+         * @param v
+         * The view that was clicked.
+         */
         allApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
@@ -133,6 +177,9 @@ public class FinalOrganizerEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Called when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

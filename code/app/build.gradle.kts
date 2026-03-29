@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs")
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
 }
 
 // Initialize secrets.properties file
@@ -93,7 +93,5 @@ dependencies {
 
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
-    implementation("com.google.android.gms:play-services-maps:20.0.0")
 
-    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
