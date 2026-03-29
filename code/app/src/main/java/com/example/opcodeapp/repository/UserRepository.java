@@ -101,7 +101,8 @@ public class UserRepository extends Repository {
             for (QueryDocumentSnapshot document : task) {
                 Map<String, Object> data = document.getData();
                 User user = User.fromMap(document.getId(), data);
-                items.add(user);
+                if (user != null)
+                    items.add(user);
             }
             listener.onDataReceived(items);
         }).addOnFailureListener(listener::onError);
