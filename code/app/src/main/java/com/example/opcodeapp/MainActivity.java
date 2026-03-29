@@ -25,39 +25,29 @@ public class MainActivity extends AppCompatActivity {
             R.id.setupFragment
     );
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.topAppBar);
 
-        // Obtain NavController from the NavHostFragment (safer than Navigation.findNavController)
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment != null
-                ? navHostFragment.getNavController()
-                : Navigation.findNavController(this, R.id.nav_host_fragment);
-
+        NavController navController = getNavController();
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.launchFragment,
                 R.id.setupFragment,
                 R.id.EventCreatorFragment,
-                R.id.EventListFragment,
-                R.id.ProfileFragment
+                R.id.EventListFragment
         ).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
         NavigationUI.setupWithNavController(binding.bottomNav, navController);
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            int id = destination.getId();
-            binding.bottomNav.setVisibility((hiddenToolbars.contains(id)) ? View.GONE : View.VISIBLE);
-            binding.topAppBar.setVisibility((hiddenToolbars.contains(id)) ? View.GONE : View.VISIBLE);
+            int visibility = (hiddenToolbars.contains(destination.getId())) ? View.GONE : View.VISIBLE;
+            binding.bottomNav.setVisibility(visibility);
+            binding.topAppBar.setVisibility(visibility);
             binding.topAppBar.setTitle("");
         });
 
@@ -66,13 +56,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment != null
-                ? navHostFragment.getNavController()
-                : Navigation.findNavController(this, R.id.nav_host_fragment);
-
+        NavController navController = getNavController();
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    private NavController getNavController() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        return (navHostFragment != null)
+                ? navHostFragment.getNavController()
+                : Navigation.findNavController(this, R.id.nav_host_fragment);
+    }
+
 }

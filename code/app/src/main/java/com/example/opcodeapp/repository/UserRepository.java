@@ -78,7 +78,7 @@ public class UserRepository extends Repository {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
-                        listener.onError(new IllegalArgumentException("No matching users found"));
+                        listener.onDataReceived(null);
                         return;
                     }
                     QueryDocumentSnapshot doc = (QueryDocumentSnapshot) snapshot.getDocuments().get(0);
