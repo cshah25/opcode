@@ -394,7 +394,7 @@ public class Event extends AbstractModel {
 
 
     public static Builder builder() {
-        return builder();
+        return new Builder();
     }
 
 
@@ -471,24 +471,14 @@ public class Event extends AbstractModel {
         }
 
         public Event build() {
-            LocalDateTime now = LocalDateTime.now();
             try {
+                // Check if registration end is after the registration start
+                if (!registrationEnd.isAfter(registrationStart))
+                    throw new IllegalArgumentException("Registration end date must be after registration start");
 
-            // Check if registration does not start in the past
-            if (registrationStart.isBefore(now))
-                throw new IllegalArgumentException("Registration start time cannot be in the past");
-
-            // Check if registration end is after the start
-            if (!registrationEnd.isAfter(registrationStart))
-                throw new IllegalArgumentException("Registration end date must be after registration start");
-
-            // Check if the event start is in the future
-            if (!start.isAfter(now))
-                throw new IllegalArgumentException("Event start must be in the future");
-
-            // Check if the event end is after the start
-            if (!end.isAfter(start))
-                throw new IllegalArgumentException("Event end must be after event start");
+                // Check if the event end is after the start
+                if (!end.isAfter(start))
+                    throw new IllegalArgumentException("Event end must be after event start");
             } catch (Exception e) {
                 return null;
             }
