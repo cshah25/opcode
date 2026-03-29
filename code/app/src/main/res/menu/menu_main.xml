@@ -3,22 +3,22 @@
     <item
         android:id="@+id/EventListFragment"
         android:icon="@drawable/ic_search_icon"
-        android:title="Search" />
+        android:title="@string/search" />
 
     <item
         android:id="@+id/EventCreatorFragment"
         android:icon="@drawable/ic_circle_add_icon"
-        android:title="Create" />
+        android:title="@string/create" />
 
     <item
         android:id="@id/EventListFragment"
-        android:title="Scan"
+        android:title="@string/scan"
         android:icon="@drawable/ic_qr_code_scan_icon"
         />
 
     <item
         android:id="@id/EventListFragment"
         android:icon="@drawable/ic_notifications_icon"
-        android:title="Notificaitons"/>
+        android:title="@string/notifications"/>
 
 </menu>

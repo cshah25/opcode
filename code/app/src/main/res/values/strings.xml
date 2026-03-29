@@ -82,4 +82,7 @@
     <string name="save">Save</string>
     <string name="update">Update</string>
     <string name="delete">Delete</string>
+    <string name="create">Create</string>
+    <string name="scan">Scan</string>
+    <string name="notifications">Notifications</string>
 </resources>
