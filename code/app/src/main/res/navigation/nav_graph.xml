@@ -7,6 +7,7 @@
 
     <fragment
         android:id="@+id/launchFragment"
+        android:label=""
         android:name="com.example.opcodeapp.view.LaunchFragment"
         tools:layout="@layout/fragment_launch">
         <action

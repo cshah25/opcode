@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.SetupFragment">
-    <LinearLayout
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        tools:context=".view.SetupFragment">
+
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="26dp"
-            android:text="Setup Profile"
-            android:layout_margin="30dp"
-            android:textStyle="bold"/>
+            android:orientation="vertical"
+            android:padding="24dp">
+
+        <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="26dp"
+                android:text="Setup Profile"
+                android:paddingVertical="20dp"
+                android:textStyle="bold" />
 
         <TextView
                 android:id="@+id/textView3"
@@ -25,11 +27,11 @@
                 android:text="@string/name" />
 
         <EditText
-            android:id="@+id/setup_name_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:padding="12dp"/>
+                android:id="@+id/setup_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:padding="12dp" />
 
         <TextView
                 android:id="@+id/textView4"
@@ -39,13 +41,13 @@
                 android:text="@string/email" />
 
         <EditText
-            android:id="@+id/setup_email_input"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp"
-            android:padding="12dp"
-            android:inputType="textEmailAddress"/>
+                android:id="@+id/setup_email_input"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:padding="12dp"
+                android:inputType="textEmailAddress" />
 
         <TextView
                 android:id="@+id/textView5"
@@ -54,14 +56,13 @@
                 android:text="@string/phone" />
 
         <EditText
-            android:id="@+id/setup_phone_input"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp"
-            android:padding="12dp"
-            android:inputType="phone"/>
-
+                android:id="@+id/setup_phone_input"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:padding="12dp"
+                android:inputType="phone" />
 
         <Button
                 android:id="@+id/setup_create_button"

@@ -129,7 +129,7 @@
                     android:id="@+id/event_creator_registration_start_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -163,7 +163,7 @@
                     android:id="@+id/event_creator_registration_end_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -256,7 +256,7 @@
                     android:id="@+id/event_creator_start_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -290,7 +290,7 @@
                     android:id="@+id/event_creator_end_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
