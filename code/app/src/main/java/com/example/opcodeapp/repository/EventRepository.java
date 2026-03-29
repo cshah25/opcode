@@ -15,7 +15,6 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -97,9 +96,9 @@ public class EventRepository extends Repository {
         query.get().addOnSuccessListener(snapshot -> {
             List<Event> items = new ArrayList<>();
             for (QueryDocumentSnapshot document : snapshot) {
-                Map<String, Object> data = document.getData();
-                Event event = Event.fromMap(document.getId(), data);
-                items.add(event);
+                Event event = Event.fromMap(document.getId(), document.getData());
+                if (event != null)
+                    items.add(event);
             }
             listener.onDataReceived(items);
         }).addOnFailureListener(listener::onError);

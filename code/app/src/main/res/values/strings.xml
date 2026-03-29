@@ -77,4 +77,12 @@
     <string name="view_all_the_invited_users">View all the invited users</string>
     <string name="view_all_applicants">View all applicants</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="phone">Phone Number (optional)</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="create">Create</string>
+    <string name="scan">Scan</string>
+    <string name="notifications">Notifications</string>
 </resources>

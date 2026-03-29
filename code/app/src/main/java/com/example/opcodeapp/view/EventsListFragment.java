@@ -49,7 +49,7 @@ public class EventsListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_eventslist, container, false);
+        return inflater.inflate(R.layout.fragment_events_list, container, false);
     }
 
     @Override
@@ -58,21 +58,12 @@ public class EventsListFragment extends Fragment {
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
 
-        ImageButton createButton = view.findViewById(R.id.events_create_button);
-        ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);
         eventListView = view.findViewById(R.id.event_list_view);
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
 
         eventListView.setAdapter(adapter);
-        createButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventCreatorFragment));
-
-        menuButton.setOnClickListener(v -> {
-        });
-
         searchButton.setOnClickListener(v -> filterEvents());
 
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
@@ -119,15 +110,13 @@ public class EventsListFragment extends Fragment {
                 shownEvents.clear();
                 shownNames.clear();
 
-                if (events != null) {
+                if (events != null && !events.isEmpty()) {
                     allEvents.addAll(events);
                     shownEvents.addAll(events);
 
-                    for (Event event : events) {
+                    for (Event event : events)
                         shownNames.add(event.getName());
-                    }
                 }
-
                 adapter.notifyDataSetChanged();
             }
 

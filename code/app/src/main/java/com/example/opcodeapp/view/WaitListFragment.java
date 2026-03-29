@@ -131,11 +131,12 @@ public class WaitListFragment extends Fragment {
         adapter.clear();
 
         //probably needed
-        winners.forEach(a -> {
-            a.setStatus(ApplicantStatus.INVITED);
-            applicantRepository.updateApplicant(a, new FirestoreCallbackSend() {
+        winners.forEach(applicant -> {
+            applicant.setStatus(ApplicantStatus.INVITED);
+            applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
+                    applicant.setDirty(false);
                     Log.d("Lottery", "Applicant updated with invited users.");
                 }
 

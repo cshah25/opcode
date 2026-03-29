@@ -78,7 +78,7 @@ public class UserRepository extends Repository {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
-                        listener.onError(new IllegalArgumentException("No matching users found"));
+                        listener.onDataReceived(null);
                         return;
                     }
                     QueryDocumentSnapshot doc = (QueryDocumentSnapshot) snapshot.getDocuments().get(0);
@@ -101,7 +101,8 @@ public class UserRepository extends Repository {
             for (QueryDocumentSnapshot document : task) {
                 Map<String, Object> data = document.getData();
                 User user = User.fromMap(document.getId(), data);
-                items.add(user);
+                if (user != null)
+                    items.add(user);
             }
             listener.onDataReceived(items);
         }).addOnFailureListener(listener::onError);
