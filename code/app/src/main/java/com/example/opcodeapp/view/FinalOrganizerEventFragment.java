@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,8 +54,6 @@ public class FinalOrganizerEventFragment extends Fragment {
         }
 
         ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        ImageButton backButton = view.findViewById(R.id.event_back_button);
-        ImageButton profileButton = view.findViewById(R.id.event_profile_button);
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
@@ -114,19 +111,12 @@ public class FinalOrganizerEventFragment extends Fragment {
             waitListText.setText("Waitlist Limit: None");
         }
 
-        backButton.setOnClickListener(v -> NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigate(R.id.EventListFragment));
-
         enrolledApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
             NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
                     .navigate(R.id.EnrolledUsersFragment,  bundle);
         });
-
-        profileButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                        .navigate(R.id.ProfileFragment)
-        );
 
         invitedApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();

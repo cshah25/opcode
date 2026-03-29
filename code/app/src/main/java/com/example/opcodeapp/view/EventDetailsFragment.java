@@ -50,7 +50,6 @@ public class EventDetailsFragment extends Fragment {
         }
 
         User currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
-        ImageButton backButton = view.findViewById(R.id.event_back_button);
 
         TextView nameText = view.findViewById(R.id.event_name_text);
         TextView dateText = view.findViewById(R.id.event_date_text);
@@ -66,30 +65,10 @@ public class EventDetailsFragment extends Fragment {
         descriptionText.setText(event.getDescription());
 
 
-        view.findViewById(R.id.event_profile_button).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-
-                NavHostFragment.findNavController(EventDetailsFragment.this).navigate(R.id.ProfileFragment);
+        leaveDrawButton.setOnClickListener(v -> {
+            if (currentUser == null) {
+                return;
             }
-
-        });
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
-            }
-        });
-
-        leaveDrawButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentUser == null) {
-                    return;
-                }
 
                 //event.removeUser(currentUser);
                 ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
