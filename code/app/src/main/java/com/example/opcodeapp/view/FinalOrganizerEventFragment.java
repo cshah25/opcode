@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,8 +55,6 @@ public class FinalOrganizerEventFragment extends Fragment {
 
         ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         ImageButton commentButton = view.findViewById(R.id.comment_button);
-
-        ImageButton profileButton = view.findViewById(R.id.event_profile_button);
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
@@ -158,26 +155,6 @@ public class FinalOrganizerEventFragment extends Fragment {
                     .navigate(R.id.EnrolledUsersFragment,  bundle);
         });
 
-        /**
-         * Set up the click listeners for the invited users button.
-         * Sends the user to the Invited Users Section.
-         *
-         * @param v
-         * The view that was clicked.
-
-         */
-        profileButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                        .navigate(R.id.ProfileFragment)
-        );
-
-        /**
-         * Set up the click listeners for the all applicants button.
-         * Sends the user to the All Applicants Section.
-         *
-         * @param v
-         * The view that was clicked.
-         */
         invitedApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);

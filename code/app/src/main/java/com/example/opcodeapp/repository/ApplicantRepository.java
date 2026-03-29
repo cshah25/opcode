@@ -8,7 +8,6 @@ import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
-import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -18,7 +17,6 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -86,7 +84,8 @@ public class ApplicantRepository extends Repository {
             List<Applicant> items = new ArrayList<>();
             for (QueryDocumentSnapshot document : snapshot) {
                 Applicant applicant = Applicant.fromMap(document.getId(), document.getData());
-                items.add(applicant);
+                if (applicant != null)
+                    items.add(applicant);
             }
             listener.onDataReceived(items);
         }).addOnFailureListener(listener::onError);
@@ -154,9 +153,9 @@ public class ApplicantRepository extends Repository {
                     }
 
                     WriteBatch batch = db.batch();
-                    for (QueryDocumentSnapshot doc : snapshot) {
+                    for (QueryDocumentSnapshot doc : snapshot)
                         batch.delete(doc.getReference());
-                    }
+
                     batch.commit()
                             .addOnSuccessListener(listener::onSendSuccess)
                             .addOnFailureListener(listener::onSendFailure);
@@ -181,9 +180,9 @@ public class ApplicantRepository extends Repository {
                     }
 
                     WriteBatch batch = db.batch();
-                    for (QueryDocumentSnapshot doc : snapshot) {
+                    for (QueryDocumentSnapshot doc : snapshot)
                         batch.delete(doc.getReference());
-                    }
+
                     batch.commit()
                             .addOnSuccessListener(listener::onSendSuccess)
                             .addOnFailureListener(listener::onSendFailure);
@@ -200,7 +199,8 @@ public class ApplicantRepository extends Repository {
                     List<Applicant> list = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : snapshot) {
                         Applicant applicant = Applicant.fromMap(doc.getId(), doc.getData());
-                        list.add(applicant);
+                        if (applicant != null)
+                            list.add(applicant);
                     }
                     listener.onDataReceived(list);
                 })

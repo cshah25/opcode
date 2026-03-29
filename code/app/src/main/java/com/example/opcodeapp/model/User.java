@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class User implements Parcelable {
+public class User extends AbstractModel {
 
     public static final Creator<User> CREATOR = new Creator<>() {
         @Override
@@ -113,6 +113,7 @@ public class User implements Parcelable {
      */
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+        setDirty(true);
     }
 
     /**
@@ -131,6 +132,7 @@ public class User implements Parcelable {
      */
     public void setName(String name) {
         this.name = name;
+        setDirty(true);
     }
 
     /**
@@ -149,6 +151,7 @@ public class User implements Parcelable {
      */
     public void setEmail(String email) {
         this.email = email;
+        setDirty(true);
     }
 
     /**
@@ -167,6 +170,7 @@ public class User implements Parcelable {
      */
     public void setPhoneNum(String phoneNum) {
         this.phoneNum = phoneNum;
+        setDirty(true);
     }
 
     /**
@@ -185,6 +189,7 @@ public class User implements Parcelable {
      */
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+        setDirty(true);
     }
 
     @Override

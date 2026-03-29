@@ -22,8 +22,8 @@ import java.util.List;
 
 public class ApplicantArrayAdapter extends ArrayAdapter<Applicant> {
 
-    public ApplicantArrayAdapter(Context context, List<Applicant> logs) {
-        super(context, 0, logs);
+    public ApplicantArrayAdapter(Context context, List<Applicant> items) {
+        super(context, 0, items);
     }
 
     @NonNull
@@ -58,5 +58,4 @@ public class ApplicantArrayAdapter extends ArrayAdapter<Applicant> {
         });
         return view;
     }
-
 }

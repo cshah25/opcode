@@ -41,9 +41,6 @@ public class WaitListFragment extends Fragment {
     private Event event;
     private ApplicantRepository applicantRepository;
     private LotterySystem lotterySystem;
-
-    private ListView waitlistListView;
-    private List<Applicant> dataList;
     private ArrayAdapter<Applicant> adapter;
 
     private EditText numToDrawInput;
@@ -87,8 +84,7 @@ public class WaitListFragment extends Fragment {
         header.setText(event.getName() + " Waitlist");
 
         // Initialize List and Adapter
-        this.dataList = new ArrayList<>();
-        this.adapter = new ApplicantArrayAdapter(getContext(), dataList);
+        this.adapter = new ApplicantArrayAdapter(getContext(), new ArrayList<>());
         waitlistListView.setAdapter(adapter);
 
         // Responsibility:  only Organizers can see lottery controls
@@ -124,7 +120,7 @@ public class WaitListFragment extends Fragment {
             processWinner(winners);
             Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
         } catch (NumberFormatException e) {
-
+            Toast.makeText(requireContext(), "Could not parse number", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -135,11 +131,12 @@ public class WaitListFragment extends Fragment {
         adapter.clear();
 
         //probably needed
-        winners.forEach(a -> {
-            a.setStatus(ApplicantStatus.INVITED);
-            applicantRepository.updateApplicant(a, new FirestoreCallbackSend() {
+        winners.forEach(applicant -> {
+            applicant.setStatus(ApplicantStatus.INVITED);
+            applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
+                    applicant.setDirty(false);
                     Log.d("Lottery", "Applicant updated with invited users.");
                 }
 

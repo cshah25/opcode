@@ -1,7 +1,6 @@
 package com.example.opcodeapp.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
@@ -14,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class Applicant implements Parcelable {
+public class Applicant extends AbstractModel {
 
     public static final Creator<Applicant> CREATOR = new Creator<>() {
         @Override
@@ -84,6 +83,7 @@ public class Applicant implements Parcelable {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+        setDirty(true);
     }
 
     public String getUserId() {
@@ -92,6 +92,7 @@ public class Applicant implements Parcelable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+        setDirty(true);
     }
 
     public String getName() {
@@ -100,6 +101,7 @@ public class Applicant implements Parcelable {
 
     public void setName(String name) {
         this.name = name;
+        setDirty(true);
     }
 
     public ApplicantStatus getStatus() {
@@ -108,6 +110,7 @@ public class Applicant implements Parcelable {
 
     public void setStatus(ApplicantStatus status) {
         this.status = status;
+        setDirty(true);
     }
 
     public LocalDateTime getJoinedAt() {
@@ -116,6 +119,7 @@ public class Applicant implements Parcelable {
 
     public void setJoinedAt(LocalDateTime joinedAt) {
         this.joinedAt = joinedAt;
+        setDirty(true);
     }
 
     public Map<String, Object> toMap() {

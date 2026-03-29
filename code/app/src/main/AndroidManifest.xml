@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
@@ -12,29 +24,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpcodeApp">
 
-
-
         <activity
-<<<<<<< HEAD
-            android:name=".view.EnrolledUsersFragment"
-            android:exported="true"
-            android:parentActivityName=".view.FinalOrganizerEventFragment" />
-        <activity
-            android:name=".view.FinalOrganizerEventFragment"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-        <activity
-=======
->>>>>>> cc8cd173106c3592d1bad61cd7caad93335cfe26
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.OpcodeApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

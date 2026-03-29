@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -5,14 +8,17 @@ plugins {
 
 }
 
-android {
+// Initialize secrets.properties file
+val secretsProperties: Properties = Properties()
+val secretsFile = rootProject.file("secrets.properties")
+if (secretsFile.exists()) {
+    secretsProperties.load(FileInputStream(secretsFile))
+}
 
-    /*
-    tasks.withType<Test>{
+android {
+    tasks.withType<Test> {
         useJUnitPlatform()
     }
-    */
-
 
     namespace = "com.example.opcodeapp"
     compileSdk {
@@ -27,6 +33,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "GEOAPIFY_API_KEY",
+            "\"${secretsProperties.getProperty("GEOAPIFY_API_KEY", "")}\""
+        )
     }
 
     buildTypes {
@@ -43,6 +54,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }
@@ -53,9 +65,9 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.auth)
     implementation(libs.zxing)
-
+    implementation(libs.play.services.maps)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
