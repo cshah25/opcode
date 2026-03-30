@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+
     <TextView
         android:id="@+id/user_name_text"
-        android:layout_width="wrap_content"
+        android:layout_width="221dp"
         android:layout_height="match_parent"
         android:padding="20dp"
         android:text="@string/name"
@@ -14,17 +15,8 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/user_email_text"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:padding="20dp"
-        android:text="@string/email"
-        android:textAlignment="center"
-        android:textSize="16sp" />
-
-    <TextView
         android:id="@+id/user_status_text"
-        android:layout_width="248dp"
+        android:layout_width="186dp"
         android:layout_height="match_parent"
         android:padding="20dp"
         android:text="@string/status"

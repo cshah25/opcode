@@ -167,6 +167,13 @@
                 android:backgroundTint="@color/profile_button"
                 android:text="@string/qr_code"
                 android:textColor="@android:color/white" />
+            <Button
+                android:id="@+id/admin_delete_event_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Event (Admin)"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>

@@ -1,11 +1,22 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+}
+
+// Initialize secrets.properties file
+val secretsProperties: Properties = Properties()
+val secretsFile = rootProject.file("secrets.properties")
+if (secretsFile.exists()) {
+    secretsProperties.load(FileInputStream(secretsFile))
 }
 
 android {
-    tasks.withType<Test>{
+    tasks.withType<Test> {
         useJUnitPlatform()
     }
 
@@ -16,12 +27,17 @@ android {
 
     defaultConfig {
         applicationId = "com.example.opcodeapp"
-        minSdk = 26
+        minSdk = 36
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "GEOAPIFY_API_KEY",
+            "\"${secretsProperties.getProperty("GEOAPIFY_API_KEY", "")}\""
+        )
     }
 
     buildTypes {
@@ -38,6 +54,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }
@@ -48,8 +65,9 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.auth)
     implementation(libs.zxing)
+    implementation(libs.play.services.maps)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -74,4 +92,8 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.3.1")
 
     testImplementation("org.mockito:mockito-inline:5.2.0")
+
+    implementation("com.google.android.gms:play-services-maps:20.0.0")
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
