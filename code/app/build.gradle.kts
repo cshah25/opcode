@@ -21,7 +21,9 @@ android {
     }
 
     namespace = "com.example.opcodeapp"
-    compileSdk = 36
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
         applicationId = "com.example.opcodeapp"
@@ -64,6 +66,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.zxing)
+    implementation(libs.play.services.maps)
     implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

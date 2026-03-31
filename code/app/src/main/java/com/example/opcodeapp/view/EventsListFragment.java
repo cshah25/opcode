@@ -17,8 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
+import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
@@ -29,10 +29,8 @@ import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -271,7 +269,8 @@ public class EventsListFragment extends Fragment {
                     DateUtil.fromLong(Long.valueOf(data.get("registration_end").toString())),
                     organizer,
                     data.get("price") == null ? 0.0f : Float.valueOf(data.get("price").toString()),
-                    data.get("waitlist_limit") == null ? -1 : Integer.parseInt(data.get("waitlist_limit").toString())
+                    data.get("waitlist_limit") == null ? -1 : Integer.parseInt(data.get("waitlist_limit").toString()),
+                    data.get("waitlist_count") == null ? 0 : Integer.parseInt(data.get("waitlist_count").toString())
             );
         } catch (Exception e) {
             return null;

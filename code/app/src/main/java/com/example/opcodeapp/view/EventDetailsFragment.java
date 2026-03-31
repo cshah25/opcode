@@ -21,6 +21,7 @@ import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.EventRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EventDetailsFragment extends Fragment {
@@ -59,12 +60,40 @@ public class EventDetailsFragment extends Fragment {
 
         Button leaveDrawButton = view.findViewById(R.id.leave_draw_button);
         Button qrCodeButton = view.findViewById(R.id.qr_code_button);
+        Button adminDeleteButton = view.findViewById(R.id.admin_delete_event_button);
 
         nameText.setText(event.getName());
         dateText.setText(event.getStart() + " to " + event.getEnd());
         locationText.setText(event.getLocation());
         descriptionText.setText(event.getDescription());
 
+        //User Story 03.01.01
+        if (currentUser != null && currentUser.isAdmin()) {
+            adminDeleteButton.setVisibility(View.VISIBLE);
+            adminDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
+                    eventRepository.deleteEvent(event.getId(), new FirestoreCallbackSend() {
+                        @Override
+                        public void onSendSuccess(Void aVoid) {
+                            Toast.makeText(getContext(), "Event removed by Admin.", Toast.LENGTH_SHORT).show();
+                            NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                        }
+
+                        @Override
+                        public void onSendFailure(Exception e) {
+                            Toast.makeText(getContext(), "Failed to delete event.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        } else {
+            // Hide for normal entrants/organizers
+            if (adminDeleteButton != null) {
+                adminDeleteButton.setVisibility(View.GONE);
+            }
+        }
 
         leaveDrawButton.setOnClickListener(v -> {
             if (currentUser == null) {

@@ -146,11 +146,6 @@
             android:name="com.example.opcodeapp.view.ProfileFragment"
             android:label="My Profile"
             tools:layout="@layout/fragment_profile">
-            <action
-                android:id="@+id/action_ProfileFragment_to_setup_graph"
-                app:destination="@id/setup_graph"
-                app:popUpTo="@id/main_graph"
-                app:popUpToInclusive="true" />
 
             <argument
                 android:name="CURRENT_USER"
