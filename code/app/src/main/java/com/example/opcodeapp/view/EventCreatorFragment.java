@@ -1,9 +1,15 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
+;import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -13,24 +19,40 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.callback.FirestoreCallbackSend;
+import com.example.opcodeapp.BuildConfig;
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.EventRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A simple fragment that handles the input validation including dates with date pickers,
@@ -51,7 +73,7 @@ public class EventCreatorFragment extends Fragment {
     private TextInputLayout eventEndLayout;
 
     private TextInputEditText nameInput;
-    private TextInputEditText locationInput;
+    private MaterialAutoCompleteTextView locationInput;
     private TextInputEditText descriptionInput;
     private TextInputEditText registrationStartInput;
     private TextInputEditText registrationEndInput;
@@ -73,6 +95,13 @@ public class EventCreatorFragment extends Fragment {
                 }
             });
 
+    // Location prediction
+    private final OkHttpClient client = new OkHttpClient();
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable currentRequest;
+    private ArrayAdapter<String> locationAdapter;
+    private Call currentCall;
+
     public EventCreatorFragment() {
         super(R.layout.fragment_event_creator);
     }
@@ -89,6 +118,8 @@ public class EventCreatorFragment extends Fragment {
         configureDateField(registrationEndLayout, registrationEndInput, "Select registration end");
         configureDateField(eventStartLayout, eventStartInput, "Select event start");
         configureDateField(eventEndLayout, eventEndInput, "Select event end");
+
+        configureLocationField();
 
         uploadButton.setOnClickListener(v -> posterPickerLauncher.launch("image/*"));
         createButton.setOnClickListener(v -> submitForm());
@@ -142,7 +173,7 @@ public class EventCreatorFragment extends Fragment {
      * @param layout The text input layout
      * @param input  The text input text field
      */
-    private void addErrorClearingWatcher(TextInputEditText input, TextInputLayout layout) {
+    private void addErrorClearingWatcher(TextView input, TextInputLayout layout) {
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -170,6 +201,146 @@ public class EventCreatorFragment extends Fragment {
         layout.setEndIconOnClickListener(v -> openDatePicker(input, title));
         input.setOnClickListener(v -> openDatePicker(input, title));
         input.setKeyListener(null);
+    }
+
+    /**
+     * Configures the adapter and listeners for location input with prediction.
+     * The text change listener sends a request to the GeoApify API to retrieve
+     * autocomplete predictions. To reduce the number of API calls:
+     *
+     * <ul>
+     * <li>Autocompletion only starts at 3 characters</li>
+     * <li>A debounce timer of 300ms is used to reduce API spam</li>
+     * <li> The previous GET request in progress is cancelled and replaced should there be a character update</li>
+     * </ul>
+     */
+    private void configureLocationField() {
+        locationAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                new ArrayList<>()
+        );
+
+        locationInput.setAdapter(locationAdapter);
+        locationInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().trim();
+
+                if (currentRequest != null)
+                    handler.removeCallbacks(currentRequest);
+
+                if (currentCall != null && !currentCall.isCanceled())
+                    currentCall.cancel();
+
+                if (query.isEmpty() || query.length() < 3) {
+                    locationAdapter.clear();
+                    locationInput.dismissDropDown();
+                    return;
+                }
+
+                currentRequest = () -> fetchLocationSuggestion(query);
+                handler.postDelayed(currentRequest, 300);
+            }
+        });
+
+        locationInput.setOnItemClickListener((parent, v, position, id) -> {
+            String selected = locationAdapter.getItem(position);
+            if (selected != null)
+                locationInput.setText(selected, false);
+        });
+    }
+
+    /**
+     * Makes an GET request to GeoApify and updates the adapter with the results and triggers the
+     * dropdown to show
+     *
+     * @param query The partial location query from the text field
+     */
+    private void fetchLocationSuggestion(String query) {
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("api.geoapify.com")
+                .addPathSegment("v1")
+                .addPathSegment("geocode")
+                .addPathSegment("autocomplete")
+                .addQueryParameter("text", query)
+                .addQueryParameter("format", "json")
+                .addQueryParameter("apiKey", BuildConfig.GEOAPIFY_API_KEY)
+                .build();
+
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        currentCall = client.newCall(request);
+        currentCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("LocationDebug", "request failed", e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String body = response.body().string();
+                if (!response.isSuccessful()) {
+                    Log.e("LocationDebug", "request unsuccessful");
+                    return;
+                }
+
+                List<String> newSuggestions = parseSuggestions(body);
+                requireActivity().runOnUiThread(() -> {
+                    locationAdapter.clear();
+                    locationAdapter.addAll(newSuggestions);
+                    locationAdapter.notifyDataSetChanged();
+
+                    if (!newSuggestions.isEmpty() && locationInput.hasFocus())
+                        locationInput.showDropDown();
+                    else
+                        locationInput.dismissDropDown();
+                });
+            }
+        });
+    }
+
+    /**
+     * Reads and parses the JSON response of the GET request and returns the formatted items
+     *
+     * @param json The JSON string to parse
+     * @return Formatted suggestions parsed from the JSOn string
+     */
+    private List<String> parseSuggestions(String json) {
+        List<String> results = new ArrayList<>();
+
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONArray items = root.optJSONArray("results");
+
+            if (items == null)
+                return results;
+
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+                String formatted = item.optString("formatted");
+
+                if (!formatted.isEmpty())
+                    results.add(formatted);
+            }
+        } catch (JSONException e) {
+            Log.e("LocationDebug", "json parse error", e);
+        }
+
+        return results;
     }
 
     /**
@@ -250,10 +421,10 @@ public class EventCreatorFragment extends Fragment {
             valid = false;
         }
 
-        Float price = null;
+        float price = 0.0f;
         if (!priceText.isEmpty()) {
             try {
-                price = Float.valueOf(priceText);
+                price = Float.parseFloat(priceText);
                 if (price < 0) {
                     priceLayout.setError("Must be 0 or greater");
                     valid = false;
@@ -262,11 +433,9 @@ public class EventCreatorFragment extends Fragment {
                 priceLayout.setError("Enter a valid price");
                 valid = false;
             }
-        } else {
-            price = 0.0f;
         }
 
-        Integer waitlistLimit = null;
+        int waitlistLimit = -1;
         if (!waitlistText.isEmpty()) {
             try {
                 waitlistLimit = Integer.parseInt(waitlistText);
@@ -278,8 +447,6 @@ public class EventCreatorFragment extends Fragment {
                 waitlistLayout.setError("Enter a valid whole number");
                 valid = false;
             }
-        } else {
-            waitlistLimit = -1;
         }
 
         if (!valid)
@@ -296,11 +463,13 @@ public class EventCreatorFragment extends Fragment {
                 .name(name)
                 .location(location)
                 .description(description)
-                .registrationStart(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
-                .registrationEnd(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
+                .registrationStart(LocalDate.parse(registrationStart, dateFormat).atStartOfDay())
+                .registrationEnd(LocalDate.parse(registrationEnd, dateFormat).atStartOfDay())
                 .start(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
                 .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
-                .organizer(organizer);
+                .organizer(organizer)
+                .price(price)
+                .waitlistLimit(waitlistLimit);
         Event event = builder.build();
         eventRepository.addEvent(event, new FirestoreCallbackSend() {
             @Override
@@ -340,8 +509,19 @@ public class EventCreatorFragment extends Fragment {
     /**
      * @return the text contained in the text input fields
      */
-    private String getText(TextInputEditText input) {
+    private String getText(EditText input) {
         Editable editable = input.getText();
         return editable == null ? "" : editable.toString().trim();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (currentRequest != null)
+            handler.removeCallbacks(currentRequest);
+
+        if (currentCall != null && !currentCall.isCanceled())
+            currentCall.cancel();
     }
 }

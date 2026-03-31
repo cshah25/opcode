@@ -18,7 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
@@ -29,6 +31,7 @@ import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,14 +69,10 @@ public class EventsListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        ImageButton createButton = view.findViewById(R.id.events_create_button);
-
-
+        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
 
-
+        ImageButton createButton = view.findViewById(R.id.events_create_button);
         ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);

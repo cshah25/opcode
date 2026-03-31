@@ -56,12 +56,7 @@ public class ProfileFragment extends Fragment {
             phoneInput.setText(currentUser.getPhoneNum());
         }
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavHostFragment.findNavController(ProfileFragment.this).navigateUp();
-            }
-        });
+        backButton.setOnClickListener(v -> NavHostFragment.findNavController(ProfileFragment.this).navigateUp());
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override

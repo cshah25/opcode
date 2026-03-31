@@ -11,22 +11,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.opcodeapp.R;
+import com.example.opcodeapp.adapter.InvitedUserArrayAdapter;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
-
-
-
-import com.example.opcodeapp.adapter.InvitedUserArrayAdapter;
-import com.example.opcodeapp.R;
 import com.example.opcodeapp.databinding.FragmentInvitedUsersBinding;
 import com.example.opcodeapp.enums.ApplicantStatus;
-
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
-import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,31 +45,18 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
      * The ArrayAdapter for the list of users.
      */
     private ArrayAdapter<Applicant> userAdapter;
-
-
-    /**
-     * The binding for the fragment.
-     */
-    private FragmentInvitedUsersBinding binding;
-
-    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-
-
+    private ApplicantRepository applicantRepository;
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentUserView = inflater.inflate(R.layout.fragment_invited_users, container, false);
-        return fragmentUserView;
+        return inflater.inflate(R.layout.fragment_invited_users, container, false);
     }
 
     //may need to test this
     public List<Applicant> combineLists(Event event) {
 
         List<Applicant> allInvitedApplicants = new ArrayList<>();
-
-
-
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
@@ -86,32 +67,20 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             public void onError(Exception e) {
                 Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
             }
-
         });
 
         return allInvitedApplicants;
-
-
     }
-
 
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Event event = getArguments().getParcelable("event");
 
-
-
-
-
-
-
+        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         dataList = new ArrayList<>(combineLists(event));
-
         userList = view.getRootView().findViewById(R.id.invited_users_list_view);
-
         userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
-
         userList.setAdapter(userAdapter);
 
 
@@ -124,32 +93,24 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             List<Applicant> declinedApplicants = new ArrayList<>();
 
             applicantRepository.fetchApplicantsByStatus(event, ApplicantStatus.DECLINED, new FirestoreCallbackApplicantsReceive() {
-                @Override
-                public void onDataReceived(List<Applicant> applicants) {
-                    declinedApplicants.addAll(applicants);
+                        @Override
+                        public void onDataReceived(List<Applicant> applicants) {
+                            declinedApplicants.addAll(applicants);
+                        }
 
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
-                }
-            }
-);
+                        @Override
+                        public void onError(Exception e) {
+                            Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
 
 
             if (declinedApplicants.contains(user)) {
                 DeclinedUserDialogFragment declinedUserDialogFragment = DeclinedUserDialogFragment.newInstance(user, event);
                 declinedUserDialogFragment.show(getParentFragmentManager(), "Remove");
-
-
             }
-
-;
-
         });
-
-
 
 
     }
@@ -157,23 +118,19 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
     }
 
 
     /**
      * Removes a user from the list of invited users.
      *
-     * @param user
-     * The user that has declined the invitation.
-     * @param event
-     * The event.
+     * @param applicant The user that has declined the invitation.
+     * @param event     The event.
      */
     @Override
-    public void removeUser(Applicant user, Event event) {
-
-        user.setStatus(ApplicantStatus.DECLINED_REMOVED);
-        applicantRepository.updateApplicant(user, new FirestoreCallbackSend() {
+    public void removeUser(Applicant applicant, Event event) {
+        applicant.setStatus(ApplicantStatus.DECLINED_REMOVED);
+        applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
                 Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
@@ -185,16 +142,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             }
         });
 
-        dataList.remove(user);
-
+        dataList.remove(applicant);
         userAdapter.notifyDataSetChanged();
-
-
-
-
-
-
-
-
     }
 }

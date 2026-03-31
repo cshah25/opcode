@@ -3,10 +3,6 @@ package com.example.opcodeapp.view;
 import static android.view.View.GONE;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +10,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
-import com.example.opcodeapp.enums.ApplicantStatus;
-import com.example.opcodeapp.callback.DBManager;
-import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
+import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
