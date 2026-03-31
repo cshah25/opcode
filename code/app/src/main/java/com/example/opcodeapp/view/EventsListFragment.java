@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -20,8 +19,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
-import com.example.opcodeapp.R;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
@@ -63,7 +60,7 @@ public class EventsListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_eventslist, container, false);
+        return inflater.inflate(R.layout.fragment_events_list, container, false);
     }
 
     @Override
@@ -72,8 +69,6 @@ public class EventsListFragment extends Fragment {
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
 
-        ImageButton createButton = view.findViewById(R.id.events_create_button);
-        ImageButton menuButton = view.findViewById(R.id.events_menu_button);
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);
         eventListView = view.findViewById(R.id.event_list_view);
@@ -82,18 +77,6 @@ public class EventsListFragment extends Fragment {
 
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
         eventListView.setAdapter(adapter);
-
-
-
-        createButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventCreatorFragment));
-
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,37 +104,39 @@ public class EventsListFragment extends Fragment {
         capacityOnlyFilter.setOnCheckedChangeListener((buttonView, isChecked) -> applyFilters());
 
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
-            Bundle bundle2 = new Bundle();
+            Bundle bundle = new Bundle();
 
-            Event selected_event = shownEvents.get(position);
+            Event selectedEvent = shownEvents.get(position);
 
-            bundle2.putParcelable("event", shownEvents.get(position));
-            bundle2.putParcelable("user", currentUser);
+            bundle.putParcelable("event", selectedEvent);
+            bundle.putParcelable("user", currentUser);
 
-            List<Applicant> current_applicant = new ArrayList<>();
+            if (selectedEvent.getOrganizer() != null
+                    && selectedEvent.getOrganizer().getId() != null
+                    && selectedEvent.getOrganizer().getId().equals(currentUser.getId())) {
+                NavHostFragment.findNavController(EventsListFragment.this)
+                        .navigate(R.id.FinalOrganizerEventFragment, bundle);
+                return;
+            }
 
-            applicantRepository.fetchApplicant(currentUser.getId(), selected_event.getId(), new FirestoreCallbackApplicantReceive() {
+            applicantRepository.fetchApplicant(currentUser.getId(), selectedEvent.getId(), new FirestoreCallbackApplicantReceive() {
                 @Override
                 public void onDataReceived(Applicant applicant) {
-                    current_applicant.add(applicant);
+                    if (applicant.getStatus() == ApplicantStatus.NOT_DRAWN) {
+                        NavHostFragment.findNavController(EventsListFragment.this)
+                                .navigate(R.id.eventDetailsFragment, bundle);
+                    } else {
+                        NavHostFragment.findNavController(EventsListFragment.this)
+                                .navigate(R.id.EventInvitationFragment, bundle);
+                    }
                 }
 
                 @Override
                 public void onError(Exception e) {
                     NavHostFragment.findNavController(EventsListFragment.this)
-                            .navigate(R.id.EntrantEventDetailsFragment, bundle2);
+                            .navigate(R.id.EntrantEventDetailsFragment, bundle);
                 }
             });
-
-            if (selected_event.getOrganizer().getId().equals(currentUser.getId())) {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
-            } else if (current_applicant.get(0).getStatus() == ApplicantStatus.NOT_DRAWN) {
-                NavHostFragment.findNavController(EventsListFragment.this).navigate(R.id.eventDetailsFragment, bundle2);
-            } else {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventInvitationFragment, bundle2);
-            }
         });
 
         loadEvents();
