@@ -2,7 +2,6 @@ package com.example.opcodeapp.model;
 
 import android.os.Build;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,7 +24,7 @@ import java.util.Objects;
  * The Event class.
  * Contains all the information about an event.
  */
-public class Event implements Parcelable {
+public class Event extends AbstractModel {
 
     public static final Creator<Event> CREATOR = new Creator<>() {
         @Override
@@ -34,7 +33,9 @@ public class Event implements Parcelable {
         }
 
         @Override
-        public Event[] newArray(int size) {return new Event[size];}
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
     };
 
     @DocumentId
@@ -154,6 +155,7 @@ public class Event implements Parcelable {
      */
     public void setName(String name) {
         this.name = name;
+        setDirty(true);
     }
 
     /**
@@ -172,6 +174,7 @@ public class Event implements Parcelable {
      */
     public void setDescription(String description) {
         this.description = description;
+        setDirty(true);
     }
 
     /**
@@ -190,6 +193,7 @@ public class Event implements Parcelable {
      */
     public void setLocation(String location) {
         this.location = location;
+        setDirty(true);
     }
 
     /**
@@ -209,6 +213,7 @@ public class Event implements Parcelable {
      */
     public void setStart(LocalDateTime start) {
         this.start = start;
+        setDirty(true);
     }
 
     /**
@@ -227,6 +232,7 @@ public class Event implements Parcelable {
      */
     public void setEnd(LocalDateTime end) {
         this.end = end;
+        setDirty(true);
     }
 
     /**
@@ -245,6 +251,7 @@ public class Event implements Parcelable {
      */
     public void setRegistrationEnd(LocalDateTime registrationEnd) {
         this.registrationEnd = registrationEnd;
+        setDirty(true);
     }
 
     /**
@@ -263,6 +270,7 @@ public class Event implements Parcelable {
      */
     public void setRegistrationStart(LocalDateTime registrationStart) {
         this.registrationStart = registrationStart;
+        setDirty(true);
     }
 
     /**
@@ -281,6 +289,7 @@ public class Event implements Parcelable {
      */
     public void setOrganizer(User organizer) {
         this.organizer = organizer;
+        setDirty(true);
     }
 
     /**
@@ -299,6 +308,7 @@ public class Event implements Parcelable {
      */
     public void setPrice(float price) {
         this.price = Math.max(price, 0);
+        setDirty(true);
     }
 
     /**
@@ -318,6 +328,7 @@ public class Event implements Parcelable {
      */
     public void setWaitlistLimit(int waitlistLimit) {
         this.waitlistLimit = Math.max(waitlistLimit, -1);
+        setDirty(true);
     }
     /**
      * Getter for the current waitlist count.
@@ -333,6 +344,7 @@ public class Event implements Parcelable {
      */
     public void setWaitlistCount(int waitlistCount) {
         this.waitlistCount = Math.max(waitlistCount, 0);
+        setDirty(true);
     }
 
     /**
@@ -410,7 +422,7 @@ public class Event implements Parcelable {
 
 
     public static Builder builder() {
-        return builder();
+        return new Builder();
     }
 
 
@@ -494,22 +506,13 @@ public class Event implements Parcelable {
         public Event build() {
             LocalDateTime now = LocalDateTime.now();
             try {
+                // Check if registration end is after the registration start
+                if (!registrationEnd.isAfter(registrationStart))
+                    throw new IllegalArgumentException("Registration end date must be after registration start");
 
-            // Check if registration does not start in the past
-            if (registrationStart.isBefore(now))
-                throw new IllegalArgumentException("Registration start time cannot be in the past");
-
-            // Check if registration end is after the start
-            if (!registrationEnd.isAfter(registrationStart))
-                throw new IllegalArgumentException("Registration end date must be after registration start");
-
-            // Check if the event start is in the future
-            if (!start.isAfter(now))
-                throw new IllegalArgumentException("Event start must be in the future");
-
-            // Check if the event end is after the start
-            if (!end.isAfter(start))
-                throw new IllegalArgumentException("Event end must be after event start");
+                // Check if the event end is after the start
+                if (!end.isAfter(start))
+                    throw new IllegalArgumentException("Event end must be after event start");
             } catch (Exception e) {
                 return null;
             }

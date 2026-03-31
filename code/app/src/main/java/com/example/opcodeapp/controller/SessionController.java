@@ -30,7 +30,6 @@ public class SessionController {
             @Override
             public void onDataReceived(User user) {
                 Log.i("SessionController", "received query result ok");
-
                 current_user = user;
 
                 if (current_user == null) {

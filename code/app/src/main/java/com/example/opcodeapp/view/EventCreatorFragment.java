@@ -1,7 +1,7 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
-;import android.os.Handler;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,6 +25,7 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.EventRepository;
+import com.example.opcodeapp.util.UIValidationUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -46,6 +46,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -81,6 +82,7 @@ public class EventCreatorFragment extends Fragment {
     private TextInputEditText waitlistInput;
     private TextInputEditText eventStartInput;
     private TextInputEditText eventEndInput;
+    private Map<EditText, TextInputLayout> requiredFields;
 
     private MaterialButton createButton;
     private MaterialButton uploadButton;
@@ -150,44 +152,31 @@ public class EventCreatorFragment extends Fragment {
         waitlistInput = view.findViewById(R.id.event_creator_waitlist_input);
         eventStartInput = view.findViewById(R.id.event_creator_start_input);
         eventEndInput = view.findViewById(R.id.event_creator_end_input);
+
+        requiredFields = Map.of(
+                nameInput, nameLayout,
+                locationInput, locationLayout,
+                descriptionInput, descriptionLayout,
+                registrationStartInput, registrationStartLayout,
+                registrationEndInput, registrationEndLayout,
+                eventStartInput, eventStartLayout,
+                eventEndInput, eventEndLayout
+        );
     }
 
     /**
      * Attaches watchers to all fields to clear errors when updated
      */
     private void addErrorClearingWatchers() {
-        addErrorClearingWatcher(nameInput, nameLayout);
-        addErrorClearingWatcher(locationInput, locationLayout);
-        addErrorClearingWatcher(descriptionInput, descriptionLayout);
-        addErrorClearingWatcher(registrationStartInput, registrationStartLayout);
-        addErrorClearingWatcher(registrationEndInput, registrationEndLayout);
-        addErrorClearingWatcher(priceInput, priceLayout);
-        addErrorClearingWatcher(waitlistInput, waitlistLayout);
-        addErrorClearingWatcher(eventStartInput, eventStartLayout);
-        addErrorClearingWatcher(eventEndInput, eventEndLayout);
-    }
-
-    /**
-     * Clears the error hint messages when the text is being updated
-     *
-     * @param layout The text input layout
-     * @param input  The text input text field
-     */
-    private void addErrorClearingWatcher(TextView input, TextInputLayout layout) {
-        input.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                layout.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        UIValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
+        UIValidationUtil.addErrorClearingWatcher(locationInput, locationLayout);
+        UIValidationUtil.addErrorClearingWatcher(descriptionInput, descriptionLayout);
+        UIValidationUtil.addErrorClearingWatcher(registrationStartInput, registrationStartLayout);
+        UIValidationUtil.addErrorClearingWatcher(registrationEndInput, registrationEndLayout);
+        UIValidationUtil.addErrorClearingWatcher(priceInput, priceLayout);
+        UIValidationUtil.addErrorClearingWatcher(waitlistInput, waitlistLayout);
+        UIValidationUtil.addErrorClearingWatcher(eventStartInput, eventStartLayout);
+        UIValidationUtil.addErrorClearingWatcher(eventEndInput, eventEndLayout);
     }
 
     /**
@@ -371,55 +360,21 @@ public class EventCreatorFragment extends Fragment {
      * forward to the event details screen.
      */
     private void submitForm() {
-        clearAllErrors();
+        UIValidationUtil.clearErrors(requiredFields.values());
         createButton.setEnabled(false);
 
-        String name = getText(nameInput);
-        String location = getText(locationInput);
-        String description = getText(descriptionInput);
-        String registrationStart = getText(registrationStartInput);
-        String registrationEnd = getText(registrationEndInput);
-        String priceText = getText(priceInput);
-        String waitlistText = getText(waitlistInput);
-        String eventStart = getText(eventStartInput);
-        String eventEnd = getText(eventEndInput);
+        String name = UIValidationUtil.getText(nameInput);
+        String location = UIValidationUtil.getText(locationInput);
+        String description = UIValidationUtil.getText(descriptionInput);
+        String registrationStart = UIValidationUtil.getText(registrationStartInput);
+        String registrationEnd = UIValidationUtil.getText(registrationEndInput);
+        String priceText = UIValidationUtil.getText(priceInput);
+        String waitlistText = UIValidationUtil.getText(waitlistInput);
+        String eventStart = UIValidationUtil.getText(eventStartInput);
+        String eventEnd = UIValidationUtil.getText(eventEndInput);
 
-        boolean valid = true;
 
-        if (name.isEmpty()) {
-            nameLayout.setError("Required");
-            valid = false;
-        }
-
-        if (location.isEmpty()) {
-            locationLayout.setError("Required");
-            valid = false;
-        }
-
-        if (description.isEmpty()) {
-            descriptionLayout.setError("Required");
-            valid = false;
-        }
-
-        if (registrationStart.isEmpty()) {
-            registrationStartLayout.setError("Required");
-            valid = false;
-        }
-
-        if (registrationEnd.isEmpty()) {
-            registrationEndLayout.setError("Required");
-            valid = false;
-        }
-
-        if (eventStart.isEmpty()) {
-            eventStartLayout.setError("Required");
-            valid = false;
-        }
-
-        if (eventEnd.isEmpty()) {
-            eventEndLayout.setError("Required");
-            valid = false;
-        }
+        boolean valid = UIValidationUtil.validateRequiredFields(requiredFields);
 
         float price = 0.0f;
         if (!priceText.isEmpty()) {
@@ -452,7 +407,6 @@ public class EventCreatorFragment extends Fragment {
         if (!valid)
             return;
 
-
         Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
         EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
         SessionController controller = SessionController.getInstance(getContext());
@@ -470,6 +424,7 @@ public class EventCreatorFragment extends Fragment {
                 .organizer(organizer)
                 .price(price)
                 .waitlistLimit(waitlistLimit);
+
         Event event = builder.build();
         eventRepository.addEvent(event, new FirestoreCallbackSend() {
             @Override
@@ -489,29 +444,6 @@ public class EventCreatorFragment extends Fragment {
                 Toast.makeText(getContext(), "Error creating event", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    /**
-     * Clears all error hints from the text input layouts
-     */
-    private void clearAllErrors() {
-        nameLayout.setError(null);
-        locationLayout.setError(null);
-        descriptionLayout.setError(null);
-        registrationStartLayout.setError(null);
-        registrationEndLayout.setError(null);
-        priceLayout.setError(null);
-        waitlistLayout.setError(null);
-        eventStartLayout.setError(null);
-        eventEndLayout.setError(null);
-    }
-
-    /**
-     * @return the text contained in the text input fields
-     */
-    private String getText(EditText input) {
-        Editable editable = input.getText();
-        return editable == null ? "" : editable.toString().trim();
     }
 
     @Override

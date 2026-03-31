@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/profile_bg">
@@ -8,6 +7,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+            android:layout_margin="35dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -19,12 +19,15 @@
             android:paddingHorizontal="16dp">
 
             <ImageButton
-                android:id="@+id/event_back_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:id="@+id/comment_button"
+                android:layout_width="45dp"
+                android:layout_height="43dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/back"
-                android:src="@android:drawable/ic_media_previous" />
+                android:padding="4dp"
+                app:srcCompat="@drawable/comment_icon"
+                app:tint="@color/profile_text" />
+
+
 
             <TextView
                 android:layout_width="0dp"
@@ -35,16 +38,6 @@
                 android:textColor="@color/profile_text"
                 android:textSize="24sp"
                 android:textStyle="bold" />
-
-            <ImageButton
-                android:id="@+id/event_profile_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/profile"
-                android:padding="4dp"
-                app:srcCompat="@drawable/ic_account_circle_24"
-                app:tint="@color/profile_text" />
         </LinearLayout>
 
         <LinearLayout
@@ -58,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+            <TextView
                     android:id="@+id/event_name_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -68,7 +61,7 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <TextView
+            <TextView
                     android:id="@+id/event_status_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -76,9 +69,9 @@
                     android:text="@string/your_status_waitlisted"
                     android:textColor="#7A7A7A"
                     android:textSize="14sp" />
-            </LinearLayout>
+        </LinearLayout>
 
-            <TextView
+        <TextView
                 android:id="@+id/event_date_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,7 +80,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_location_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,7 +89,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_price_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +98,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_reg_close_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,7 +107,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_open_closed_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,7 +116,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_waitlist_count_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -132,7 +125,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <TextView
+        <TextView
                 android:id="@+id/event_description_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,7 +134,7 @@
                 android:textColor="#6A6A6A"
                 android:textSize="18sp" />
 
-            <Button
+        <Button
                 android:id="@+id/leave_draw_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -150,7 +143,7 @@
                 android:text="@string/leave_the_draw"
                 android:textColor="@android:color/white" />
 
-            <Button
+        <Button
                 android:id="@+id/block_notifications_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,7 +152,7 @@
                 android:text="@string/block_notifications"
                 android:textColor="@android:color/white" />
 
-            <Button
+        <Button
                 android:id="@+id/qr_code_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -175,6 +168,5 @@
                 android:backgroundTint="@android:color/holo_red_dark"
                 android:visibility="gone" />
 
-        </LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -1,8 +1,6 @@
 package com.example.opcodeapp.view;
 
-import android.app.Dialog;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +11,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.example.opcodeapp.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.button.MaterialButton;
 import com.google.common.base.Preconditions;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -34,17 +32,6 @@ public class QrCodeViewerFragment extends BottomSheetDialogFragment {
     private QrCodeViewerFragment() {
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new BottomSheetDialog(requireContext(), getTheme());
-    }
-
-    @Override
-    public int getTheme() {
-        return R.style.ThemeOverlay_App_BottomSheetDialog;
-    }
-
     @Nullable
     @Override
     public View onCreateView(
@@ -55,20 +42,29 @@ public class QrCodeViewerFragment extends BottomSheetDialogFragment {
         return inflater.inflate(R.layout.dialog_qr_code, container, false);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     public void onStart() {
         super.onStart();
 
         BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
-        if (dialog != null) {
+        if (dialog != null)
             dialog.setDismissWithAnimation(true);
-        }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ImageView qrImage = view.findViewById(R.id.qr_image);
+
+        MaterialButton saveButton = view.findViewById(R.id.qr_code_save);
+        saveButton.setOnClickListener(v -> {
+
+        });
+
+        MaterialButton shareButton = view.findViewById(R.id.qr_code_share);
+        shareButton.setOnClickListener(v -> {
+
+        });
+
         qrImage.post(() -> {
             Bitmap bitmap = generateQrBitmap("event:" + encodedData, qrImage.getWidth());
             if (bitmap != null)
