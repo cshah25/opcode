@@ -85,7 +85,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description" />
+                android:text="@string/description" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/event_creator_description_layout"
@@ -129,7 +129,7 @@
                     android:id="@+id/event_creator_registration_start_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -163,7 +163,7 @@
                     android:id="@+id/event_creator_registration_end_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -256,7 +256,7 @@
                     android:id="@+id/event_creator_start_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -290,7 +290,7 @@
                     android:id="@+id/event_creator_end_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconDrawable="@drawable/ic_calendar"
+                    app:endIconDrawable="@drawable/ic_calendar_icon"
                     app:endIconMode="custom"
                     app:errorEnabled="true">
 
@@ -332,7 +332,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="20dp"
-                android:text="Create"
+                android:text="@string/create"
                 app:icon="@drawable/ic_circle_add_icon" />
         </LinearLayout>
 

@@ -68,8 +68,6 @@
     <string name="search">Search</string>
     <string name="search_events">Search events</string>
     <string name="search_events_list">Search</string>
-    <string name="filter_available_now">Registration open now</string>
-    <string name="filter_has_capacity">Has waitlist capacity</string>
     <string name="qr_code">QR Code</string>
     <string name="status">Status</string>
     <string name="enrolled_users">Enrolled Users</string>
@@ -79,4 +77,17 @@
     <string name="view_all_the_invited_users">View all the invited users</string>
     <string name="view_all_applicants">View all applicants</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="user_name">Name</string>
+    <string name="role">Role</string>
+    <string name="comment">Comment</string>
+    <string name="add_comment">Add Comment</string>
+    <string name="comments_fragment_label">Comments</string>
+    <string name="phone">Phone Number (optional)</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="create">Create</string>
+    <string name="scan">Scan</string>
+    <string name="notifications">Notifications</string>
 </resources>

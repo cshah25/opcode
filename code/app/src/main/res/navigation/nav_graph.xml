@@ -7,6 +7,7 @@
 
     <fragment
         android:id="@+id/launchFragment"
+        android:label=""
         android:name="com.example.opcodeapp.view.LaunchFragment"
         tools:layout="@layout/fragment_launch">
         <action
@@ -38,7 +39,7 @@
             android:id="@+id/EventListFragment"
             android:name="com.example.opcodeapp.view.EventsListFragment"
             android:label="EventsFragment"
-            tools:layout="@layout/fragment_eventslist">
+            tools:layout="@layout/fragment_events_list">
             <action
                 android:id="@+id/action_eventsFragment_to_EntrantEventDetailsFragment"
                 app:destination="@id/EntrantEventDetailsFragment" />
@@ -64,6 +65,9 @@
             <action
                 android:id="@+id/action_eventDetailsFragment_to_ProfileFragment"
                 app:destination="@id/ProfileFragment" />
+            <action
+                android:id="@+id/action_eventDetailsFragment_to_CommentsFragment"
+                app:destination="@id/CommentsFragment" />
         </fragment>
         <argument
             android:name="event"
@@ -86,6 +90,9 @@
             <action
                 android:id="@+id/action_FinalOrganizerEventFragment_to_WaitListFragment"
                 app:destination="@id/WaitListFragment" />
+            <action
+                android:id="@+id/action_FinalOrganizerEventFragment_to_CommentsFragment"
+                app:destination="@id/CommentsFragment" />
         </fragment>
 
         <fragment
@@ -94,6 +101,14 @@
             android:label="@string/enrolled_users_fragment_label"
             tools:layout="@layout/fragment_enrolled_users">
         </fragment>
+
+        <fragment
+            android:id="@+id/CommentsFragment"
+            android:name="com.example.opcodeapp.view.CommentsFragment"
+            android:label="@string/comments_fragment_label"
+            tools:layout="@layout/fragment_comments">
+        </fragment>
+
 
         <fragment
             android:id="@+id/InvitedUsersFragment"
@@ -154,7 +169,11 @@
             android:id="@+id/EventInvitationFragment"
             android:name="com.example.opcodeapp.view.EventInvitationFragment"
             android:label="Event Invitation"
-            tools:layout="@layout/fragment_event_invitation" />
+            tools:layout="@layout/fragment_event_invitation" >
+            <action
+                android:id="@+id/action_EventInvitationFragment_to_CommentsFragment"
+                app:destination="@id/CommentsFragment" />
+        </fragment>
 
     </navigation>
 </navigation>
