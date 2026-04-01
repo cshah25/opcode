@@ -61,7 +61,7 @@ public class ApplicantRepository extends Repository {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
-                        listener.onError(new IllegalArgumentException("No matching users found"));
+                        listener.onDataReceived(null);
                         return;
                     }
                     QueryDocumentSnapshot doc = (QueryDocumentSnapshot) snapshot.getDocuments().get(0);
@@ -125,7 +125,7 @@ public class ApplicantRepository extends Repository {
     }
 
     /**
-     * Deletes ab even by the Firestore id.
+     * Deletes an applicant by the Firestore id.
      *
      * @param id       The Firestore id of the applicant
      * @param listener The listener to be notified of success or failure.
@@ -188,7 +188,28 @@ public class ApplicantRepository extends Repository {
                             .addOnFailureListener(listener::onSendFailure);
                 })
                 .addOnFailureListener(listener::onSendFailure);
+    }
 
+    public void deleteApplicant(String userId, String eventId, FirestoreCallbackSend listener) {
+        ref.whereEqualTo("event_id", eventId)
+                .whereEqualTo("user_id", userId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        listener.onSendSuccess(null);
+                        return;
+                    }
+
+                    WriteBatch batch = db.batch();
+                    for (QueryDocumentSnapshot doc : snapshot)
+                        batch.delete(doc.getReference());
+
+                    batch.commit()
+                            .addOnSuccessListener(listener::onSendSuccess)
+                            .addOnFailureListener(listener::onSendFailure);
+
+                })
+                .addOnFailureListener(listener::onSendFailure);
     }
 
     public void fetchApplicantsByStatus(Event event, ApplicantStatus status, FirestoreCallbackApplicantsReceive listener) {

@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.launchFragment,
                 R.id.setupFragment,
-                R.id.EventCreatorFragment,
-                R.id.EventListFragment
+                R.id.eventCreatorFragment,
+                R.id.eventListFragment
         ).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             binding.topAppBar.setTitle("");
         });
 
-        binding.profileIcon.setOnClickListener(v -> navController.navigate(R.id.ProfileFragment));
+        binding.profileIcon.setOnClickListener(v -> navController.navigate(R.id.profileFragment));
     }
 
     @Override

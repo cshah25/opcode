@@ -15,17 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.opcodeapp.R;
-
 import com.example.opcodeapp.adapter.CommentArrayAdapter;
-
 import com.example.opcodeapp.callback.FirestoreCallbackCommentsReceive;
-
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
-import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Comment;
 import com.example.opcodeapp.model.Event;
-
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.CommentRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -56,32 +51,25 @@ public class CommentsFragment extends Fragment {
             return;
         }
 
-
         Event event = args.getParcelable("event", Event.class);
         if (event == null) {
             return;
         }
 
-        List<Comment> dataList = getComments(event);
-        commentAdapter = new CommentArrayAdapter(requireContext(), dataList);
         ListView commentListView = view.getRootView().findViewById(R.id.comments_list_view);
+        commentAdapter = new CommentArrayAdapter(requireContext(), getComments(event), event);
         commentListView.setAdapter(commentAdapter);
         commentAdapter.notifyDataSetChanged();
 
         View comment_controls = view.findViewById(R.id.comment_controls);
-
         Button add_comment = view.findViewById(R.id.btn_add_comment);
-
         commentInput = view.findViewById(R.id.comment_input);
-
 
         add_comment.setOnClickListener(v -> {
             addComment(event);
             commentAdapter.notifyDataSetChanged();
             commentInput.setText("");
         });
-
-
     }
 
     private void addComment(Event event) {
@@ -94,13 +82,9 @@ public class CommentsFragment extends Fragment {
         }
 
         try {
-
             CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
-
             SessionController sessionController = SessionController.getInstance(requireContext());
-
             User curr_user = sessionController.getCurrentUser();
-
             Comment comment = Comment.builder()
                     .eventId(event.getId())
                     .userId(curr_user.getId())

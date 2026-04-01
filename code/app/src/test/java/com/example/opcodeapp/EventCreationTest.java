@@ -1,16 +1,15 @@
 package com.example.opcodeapp;
 
-import static androidx.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.opcodeapp.db.DBManager;
-import com.example.opcodeapp.db.FirestoreCallbackSend;
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.repository.EventRepository;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +33,7 @@ public class EventCreationTest {
     @Mock private Task<Void> mockTask;
     @Mock private FirestoreCallbackSend mockListener;
 
-    private DBManager dbManager;
+    private EventRepository eventRepository;
     private User organizer;
     private Event event;
 

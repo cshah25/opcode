@@ -88,7 +88,7 @@ public class WaitListFragment extends Fragment {
         waitlistListView.setAdapter(adapter);
 
         // Responsibility:  only Organizers can see lottery controls
-        if (!user.getId().equals(event.getOrganizer().getId())) {
+        if (!user.getId().equals(event.getOrganizerId())) {
             lotteryControls.setVisibility(View.GONE);
         }
 

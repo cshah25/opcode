@@ -5,5 +5,5 @@
     <item name="edit_profile_email" type="id" />
     <item name="edit_profile_name" type="id" />
     <item name="action_EntrantEventDetails_to_WaitList" type="id" />
-    <item name="WaitListFragment" type="id" />
+    <item name="waitListFragment" type="id" />
 </resources>

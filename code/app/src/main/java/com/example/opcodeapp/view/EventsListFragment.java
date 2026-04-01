@@ -1,25 +1,25 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.controller.SessionController;
-import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
@@ -33,18 +33,14 @@ import java.util.List;
 public class EventsListFragment extends Fragment {
 
     private EditText searchInput;
-    private ListView eventListView;
 
     private final List<Event> allEvents = new ArrayList<>();
-    private final List<Event> shownEvents = new ArrayList<>();
+    private final List<Event> dataList = new ArrayList<>();
     private final List<String> shownNames = new ArrayList<>();
 
-    private User currentUser;
     private ArrayAdapter<String> adapter;
-    private ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-
-    public EventsListFragment() {
-    }
+    private ApplicantRepository applicantRepository;
+    private User user;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -55,50 +51,53 @@ public class EventsListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
 
+        // Bind views
         Button searchButton = view.findViewById(R.id.search_button);
         searchInput = view.findViewById(R.id.search_input);
-        eventListView = view.findViewById(R.id.event_list_view);
-        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
+        ListView eventListView = view.findViewById(R.id.event_list_view);
 
+        // Load the events list
+        loadEvents();
+
+        // Set the list view adapter
+        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
         eventListView.setAdapter(adapter);
+
+        // Call filterEvents when the search button is clicked
         searchButton.setOnClickListener(v -> filterEvents());
 
+        // Navigate to the appropriate view when an item is clicked on the list
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
-            Bundle bundle2 = new Bundle();
-            Event selected_event = shownEvents.get(position);
-            bundle2.putParcelable("event", shownEvents.get(position));
-            bundle2.putParcelable("user", currentUser);
+            NavController controller = NavHostFragment.findNavController(this);
+            Event event = dataList.get(position);
+            applicantRepository.fetchApplicant(user.getId(), event.getId(),
+                    new FirestoreCallbackApplicantReceive() {
+                        @Override
+                        public void onDataReceived(Applicant applicant) {
+                            Bundle args = new Bundle();
+                            args.putParcelable("event", event);
+                            Log.d("EventList", event.toString());
+                            Log.d("EventList", user.toString());
+                            Log.d("EventList", event.getOrganizerId());
 
-            List<Applicant> current_applicant = new ArrayList<>();
-            applicantRepository.fetchApplicant(currentUser.getId(), selected_event.getId(), new FirestoreCallbackApplicantReceive() {
-                @Override
-                public void onDataReceived(Applicant applicant) {
-                    current_applicant.add(applicant);
-                }
 
-                @Override
-                public void onError(Exception e) {
-                    NavHostFragment.findNavController(EventsListFragment.this)
-                            .navigate(R.id.EntrantEventDetailsFragment, bundle2);
-                }
+                            if (event.getOrganizerId().equals(user.getId())) {
+                                controller.navigate(R.id.organizerEventFragment, args);
+                            } else {
+                                args.putParcelable("applicant", applicant);
+                                controller.navigate(R.id.entrantEventFragment, args);
+                            }
+                        }
 
-            });
-
-            if (selected_event.getOrganizer().getId().equals(currentUser.getId())) {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.FinalOrganizerEventFragment, bundle2);
-            } else if (current_applicant.get(0).getStatus() == ApplicantStatus.NOT_DRAWN) {
-                NavHostFragment.findNavController(EventsListFragment.this).navigate(R.id.eventDetailsFragment, bundle2);
-            } else {
-                NavHostFragment.findNavController(EventsListFragment.this)
-                        .navigate(R.id.EventInvitationFragment, bundle2);
-            }
-
+                        @Override
+                        public void onError(Exception e) {
+                            Log.e("EventsListFragment", "Could not retrieve applicant");
+                        }
+                    });
         });
-        loadEvents();
     }
 
     private void loadEvents() {
@@ -107,12 +106,12 @@ public class EventsListFragment extends Fragment {
             @Override
             public void onDataReceived(List<Event> events) {
                 allEvents.clear();
-                shownEvents.clear();
+                dataList.clear();
                 shownNames.clear();
 
                 if (events != null && !events.isEmpty()) {
                     allEvents.addAll(events);
-                    shownEvents.addAll(events);
+                    dataList.addAll(events);
 
                     for (Event event : events)
                         shownNames.add(event.getName());
@@ -130,14 +129,14 @@ public class EventsListFragment extends Fragment {
     private void filterEvents() {
         String text = searchInput.getText().toString().trim().toLowerCase();
 
-        shownEvents.clear();
+        dataList.clear();
         shownNames.clear();
 
         for (Event event : allEvents) {
             String name = event.getName();
 
             if (name != null && name.toLowerCase().contains(text)) {
-                shownEvents.add(event);
+                dataList.add(event);
                 shownNames.add(name);
             }
         }
