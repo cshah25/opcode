@@ -1,7 +1,6 @@
 package com.example.opcodeapp.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
@@ -203,6 +202,7 @@ public class User extends AbstractModel {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("device_id", deviceId);
@@ -214,11 +214,14 @@ public class User extends AbstractModel {
     }
 
     public static User fromMap(String id, Map<String, Object> map) {
+        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin"))
+            return null;
+
         String deviceId = (String) map.get("device_id");
         String name = (String) map.get("name");
         String email = (String) map.get("email");
         String phoneNum = (String) map.get("phone_num");
-        boolean isAdmin = Boolean.valueOf(map.get("is_admin").toString());
+        boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
         return User.builder()
                 .id(id)
                 .name(name)
@@ -273,6 +276,7 @@ public class User extends AbstractModel {
             this.isAdmin = isAdmin;
             return this;
         }
+
         public User build() {
             // TODO: Validation
             return new User(id, deviceId, name, email, phoneNum, isAdmin);

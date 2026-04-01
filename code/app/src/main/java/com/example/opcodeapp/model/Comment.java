@@ -1,7 +1,7 @@
 package com.example.opcodeapp.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
 
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class Comment implements Parcelable {
+public class Comment extends AbstractModel {
 
     public static final Creator<Comment> CREATOR = new Creator<>() {
         @Override
@@ -27,20 +27,12 @@ public class Comment implements Parcelable {
         }
     };
 
-
-
-
-
     @DocumentId
     private String id;
     private String eventId;
     private String userId;
     private String content;
-
     private LocalDateTime commentTime;
-
-
-
 
     public Comment(@NonNull String id, String eventId, String userId, String content, LocalDateTime commentTime) {
         this.id = id;
@@ -50,22 +42,13 @@ public class Comment implements Parcelable {
         this.commentTime = commentTime;
     }
 
-
-
-
-
-
-
-
     protected Comment(Parcel in) {
         id = Objects.requireNonNull(in.readString());
         eventId = in.readString();
         userId = in.readString();
         content = in.readString();
         commentTime = DateUtil.fromParcel(in);
-
     }
-
 
     @Override
     public int describeContents() {
@@ -88,6 +71,7 @@ public class Comment implements Parcelable {
 
     public void setId(String id) {
         this.id = id;
+        setDirty(true);
     }
 
     public String getUserId() {
@@ -96,6 +80,7 @@ public class Comment implements Parcelable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+        setDirty(true);
     }
 
     public String getEventId() {
@@ -104,6 +89,7 @@ public class Comment implements Parcelable {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+        setDirty(true);
     }
 
     public String getContent() {
@@ -112,16 +98,25 @@ public class Comment implements Parcelable {
 
     public void setContent(String content) {
         this.content = content;
+        setDirty(true);
     }
 
     public LocalDateTime getCommentTime() {
         return commentTime;
     }
 
-    public void setCommentTime(LocalDateTime commentTime) {
-        this.commentTime = commentTime;
+    public String getFormattedTime() {
+        return (String) DateUtils.getRelativeTimeSpanString(
+                DateUtil.toLong(commentTime),
+                System.currentTimeMillis(),
+                DateUtils.MINUTE_IN_MILLIS
+        );
     }
 
+    public void setCommentTime(LocalDateTime commentTime) {
+        this.commentTime = commentTime;
+        setDirty(true);
+    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
@@ -132,9 +127,10 @@ public class Comment implements Parcelable {
         return map;
     }
 
-
-
     public static Comment fromMap(String id, Map<String, Object> map) {
+        if (!hasRequiredFields(map, "event_id", "user_id", "content", "comment_time"))
+            return null;
+
         String eventId = (String) map.get("event_id");
         String userId = (String) map.get("user_id");
         String content = (String) map.get("content");
@@ -148,7 +144,6 @@ public class Comment implements Parcelable {
                 .build();
     }
 
-
     public static Comment.Builder builder() {
         return new Comment.Builder();
     }
@@ -157,50 +152,42 @@ public class Comment implements Parcelable {
      * Builder class for user creation
      */
     public static class Builder {
-        private String comment_id;
-        private String eventid;
-        private String userid;
-        private String comment_content;
-        private LocalDateTime comment_time;
+        private String id;
+        private String eventId;
+        private String userId;
+        private String content;
+        private LocalDateTime time;
 
         public Comment.Builder id(@NonNull String id) {
-            this.comment_id = id;
+            this.id = id;
             return this;
         }
 
         public Comment.Builder eventId(@NonNull String eventId) {
-            this.eventid = eventId;
+            this.eventId = eventId;
             return this;
         }
 
         public Comment.Builder userId(@NonNull String userId) {
-            this.userid = userId;
+            this.userId = userId;
             return this;
         }
 
         public Comment.Builder content(@NonNull String content) {
-            this.comment_content = content;
+            this.content = content;
             return this;
         }
 
         public Comment.Builder time(@NonNull LocalDateTime time) {
-            this.comment_time = time;
+            this.time = time;
             return this;
         }
 
-
-
-
-
-
         public Comment build() {
             // TODO: Validation
-            return new Comment(comment_id, eventid, comment_id, comment_content, comment_time);
+            return new Comment(id, eventId, userId, content, time);
         }
     }
-
-
-
 
 
 }

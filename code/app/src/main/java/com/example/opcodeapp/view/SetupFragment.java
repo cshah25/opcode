@@ -89,7 +89,7 @@ public class SetupFragment extends Fragment {
                         bundle.putParcelable("user", user);
 
                         NavController nav = NavHostFragment.findNavController(not_this);
-                        nav.navigate(R.id.action_setupFragment_to_main_graph, bundle);
+                        nav.navigate(R.id.eventListFragment, bundle);
                     }
 
                     @Override

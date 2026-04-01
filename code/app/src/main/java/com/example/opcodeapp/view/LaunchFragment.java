@@ -51,9 +51,9 @@ public class LaunchFragment extends Fragment {
         SessionController.getInstance(getContext()).getLoginState()
                 .observe(getViewLifecycleOwner(), state -> {
                     if (state == LoginState.LOGGED_IN) {
-                        nav.navigate(R.id.main_graph, null, options);
+                        nav.navigate(R.id.eventListFragment, null, options);
                     } else if (state == LoginState.LOGGED_OUT) {
-                        nav.navigate(R.id.setup_graph, null, options);
+                        nav.navigate(R.id.setupFragment, null, options);
                     }
                 });
         return v;
