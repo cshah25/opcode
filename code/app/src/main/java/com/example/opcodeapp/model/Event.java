@@ -1,16 +1,11 @@
 package com.example.opcodeapp.model;
 
-import android.os.Build;
 import android.os.Parcel;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
-import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -48,7 +43,7 @@ public class Event extends AbstractModel {
     private LocalDateTime end;
     private LocalDateTime registrationStart;
     private LocalDateTime registrationEnd;
-    private User organizer;
+    private String organizerId;
     private float price;
     private int waitlistLimit;
     private int waitlistCount;
@@ -63,10 +58,10 @@ public class Event extends AbstractModel {
      * @param registrationStart The registration start time of the event.
      * @param end               The end date of the event.
      * @param registrationEnd   The registration end time of the event.
-     * @param organizer         The organizer of the event.
+     * @param organizerId       The organizer id of the event.
      */
 
-    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, User organizer, float price, int waitlistLimit, int waitlistCount) {
+    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, String organizerId, float price, int waitlistLimit, int waitlistCount) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -75,7 +70,7 @@ public class Event extends AbstractModel {
         this.end = end;
         this.registrationStart = registrationStart;
         this.registrationEnd = registrationEnd;
-        this.organizer = organizer;
+        this.organizerId = organizerId;
         this.price = price;
         this.waitlistLimit = waitlistLimit;
         this.waitlistCount = waitlistCount;
@@ -90,12 +85,10 @@ public class Event extends AbstractModel {
         end = DateUtil.fromParcel(in);
         registrationStart = DateUtil.fromParcel(in);
         registrationEnd = DateUtil.fromParcel(in);
-        waitlistCount = in.readInt();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            organizer = in.readParcelable(User.class.getClassLoader(), User.class);
-        }
+        organizerId = in.readString();
         price = in.readFloat();
         waitlistLimit = in.readInt();
+        waitlistCount = in.readInt();
     }
 
     @Override
@@ -113,7 +106,7 @@ public class Event extends AbstractModel {
         dest.writeSerializable(end);
         dest.writeSerializable(registrationStart);
         dest.writeSerializable(registrationEnd);
-        dest.writeString(organizer.getDeviceId());
+        dest.writeString(organizerId);
         dest.writeFloat(price);
         dest.writeInt(waitlistLimit);
         dest.writeInt(waitlistCount);
@@ -278,17 +271,17 @@ public class Event extends AbstractModel {
      *
      * @return The organizer of the event.
      */
-    public User getOrganizer() {
-        return organizer;
+    public String getOrganizerId() {
+        return organizerId;
     }
 
     /**
      * Setter for the organizer of the event.
      *
-     * @param organizer The organizer of the event.
+     * @param organizerId The organizer id of the event.
      */
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
+    public void setOrganizer(String organizerId) {
+        this.organizerId = organizerId;
         setDirty(true);
     }
 
@@ -330,6 +323,7 @@ public class Event extends AbstractModel {
         this.waitlistLimit = Math.max(waitlistLimit, -1);
         setDirty(true);
     }
+
     /**
      * Getter for the current waitlist count.
      * @return The number of users currently on the waitlist.
@@ -348,7 +342,6 @@ public class Event extends AbstractModel {
     }
 
     /**
-     *
      * @return a mapping of the fields in this object. Used for Firestore saving
      */
     public Map<String, Object> toMap() {
@@ -360,7 +353,7 @@ public class Event extends AbstractModel {
         map.put("end", DateUtil.toLong(end));
         map.put("registration_start", DateUtil.toLong(registrationStart));
         map.put("registration_end", DateUtil.toLong(registrationEnd));
-        map.put("organizer_id", organizer.getId());
+        map.put("organizer_id", organizerId);
         map.put("price", price);
         map.put("waitlist_limit", waitlistLimit);
         map.put("waitlist_count", waitlistCount);
@@ -374,6 +367,9 @@ public class Event extends AbstractModel {
      * @return TODO: Improve validation of potential null fields
      */
     public static Event fromMap(String id, Map<String, Object> map) {
+        if (!hasRequiredFields(map, "name", "location", "description", "start", "end", "registration_start", "registration_end", "organizer_id", "price", "waitlist_limit", "waitlist_count"))
+            return null;
+
         String name = (String) map.get("name");
         String location = (String) map.get("location");
         String description = (String) map.get("description");
@@ -381,16 +377,12 @@ public class Event extends AbstractModel {
         LocalDateTime end = DateUtil.fromLong(Long.valueOf(map.get("end").toString()));
         LocalDateTime registrationStart = DateUtil.fromLong(Long.valueOf(map.get("registration_start").toString()));
         LocalDateTime registrationEnd = DateUtil.fromLong(Long.valueOf(map.get("registration_end").toString()));
+        String organizerId = (String) map.get("organizer_id");
         float price = Float.valueOf(map.get("price").toString());
         int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
-        String organizer_id = (String) map.get("organizer_id");
-        int waitlistCount = 0;
-        if (map.containsKey("waitlist_count") && map.get("waitlist_count") != null) {
-            waitlistCount = Integer.valueOf(map.get("waitlist_count").toString());
-        }
+        int waitlistCount =  Integer.valueOf(map.get("waitlist_count").toString());
 
-
-        Event.Builder b = Event.builder()
+        return Event.builder()
                 .id(id)
                 .name(name)
                 .location(location)
@@ -399,30 +391,24 @@ public class Event extends AbstractModel {
                 .end(end)
                 .registrationStart(registrationStart)
                 .registrationEnd(registrationEnd)
+                .organizerId(organizerId)
                 .price(price)
                 .waitlistLimit(waitlistLimit)
-                .waitlistCount(waitlistCount);
-
-
-        UserRepository repository = new UserRepository(FirebaseFirestore.getInstance());
-        repository.fetchUser(organizer_id, new FirestoreCallbackUserReceive() {
-            @Override
-            public void onDataReceived(User user) {
-                b.organizer(user);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("FirestoreLoadEvent", "Error when loading organizer of event");
-            }
-        });
-
-        return b.build();
+                .waitlistCount(waitlistCount)
+                .build();
     }
 
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public String getFormattedDates() {
+        return DateUtil.toString(start) + " - " + DateUtil.toString(end);
+    }
+
+    public String getFormattedRegistration() {
+        return DateUtil.toString(registrationStart) + " - " + DateUtil.toString(registrationEnd);
     }
 
 
@@ -439,10 +425,10 @@ public class Event extends AbstractModel {
         private LocalDateTime end;
         private LocalDateTime registrationStart;
         private LocalDateTime registrationEnd;
-        private User organizer;
-        private Float price;
-        private Integer waitlistLimit;
-        private Integer waitlistCount = 0;
+        private String organizerId;
+        private float price;
+        private int waitlistLimit;
+        private int waitlistCount;
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -484,8 +470,8 @@ public class Event extends AbstractModel {
             return this;
         }
 
-        public Builder organizer(@NonNull User organizer) {
-            this.organizer = organizer;
+        public Builder organizerId(@NonNull String organizerId) {
+            this.organizerId = organizerId;
             return this;
         }
 
@@ -498,13 +484,13 @@ public class Event extends AbstractModel {
             this.price = price;
             return this;
         }
+
         public Builder waitlistCount(int waitlistCount) {
             this.waitlistCount = waitlistCount;
             return this;
         }
 
         public Event build() {
-            LocalDateTime now = LocalDateTime.now();
             try {
                 // Check if registration end is after the registration start
                 if (!registrationEnd.isAfter(registrationStart))
@@ -517,7 +503,7 @@ public class Event extends AbstractModel {
                 return null;
             }
 
-            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit, waitlistCount);
+            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizerId, price, waitlistLimit, waitlistCount);
         }
     }
 }

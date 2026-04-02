@@ -12,11 +12,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.callback.DBManager;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackEventReceive;
+import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
@@ -33,14 +34,11 @@ import java.util.List;
 public class EventHistoryFragment extends Fragment {
 
     private User currentUser;
-    private DBManager dbManager;
     private ListView historyListView;
     private ArrayList<String> displayList;
     private ArrayAdapter<String> adapter;
     private ApplicantRepository applicantRepository;
     private EventRepository eventRepository;
-
-    public EventHistoryFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,21 +60,19 @@ public class EventHistoryFragment extends Fragment {
         applicantRepository = new ApplicantRepository(db);
         eventRepository = new EventRepository(db);
 
-        if (getArguments() != null) {
-            currentUser = (User) getArguments().getParcelable("CURRENT_USER");
+        currentUser = SessionController.getInstance(requireContext()).getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "User not found:", Toast.LENGTH_SHORT).show();
+            NavHostFragment.findNavController(this).navigate(R.id.setupFragment);
+            return;
         }
 
         historyListView = view.findViewById(R.id.list_event_history);
-        displayList = new ArrayList<>();
 
+        displayList = new ArrayList<>();
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, displayList);
         historyListView.setAdapter(adapter);
-
-        if (currentUser != null) {
-            loadUserHistory();
-        } else {
-            Toast.makeText(requireContext(), "User not found:", Toast.LENGTH_SHORT).show();
-        }
+        loadUserHistory();
     }
 
     /**
@@ -121,11 +117,9 @@ public class EventHistoryFragment extends Fragment {
         eventRepository.fetchEvent(applicant.getEventId(), new FirestoreCallbackEventReceive() {
             @Override
             public void onDataReceived(Event event) {
-                String statusString = applicant.getStatus().name();
-
-                String displayString = event.getName() + " - Status: " + statusString;
-                displayList.add(displayString);
-
+                String statusName = applicant.getStatus().name();
+                String output = String.format("%s - Status: %s", event.getName(), statusName);
+                displayList.add(output);
                 adapter.notifyDataSetChanged();
             }
 

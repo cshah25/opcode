@@ -2,10 +2,8 @@ package com.example.opcodeapp.repository;
 
 import androidx.annotation.Nullable;
 
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackCommentsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Comment;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,18 +34,15 @@ public class CommentRepository extends Repository {
             List<Comment> items = new ArrayList<>();
             for (QueryDocumentSnapshot document : snapshot) {
                 Comment comment = Comment.fromMap(document.getId(), document.getData());
-                items.add(comment);
+                if (comment != null)
+                    items.add(comment);
             }
             listener.onDataReceived(items);
         }).addOnFailureListener(listener::onError);
     }
 
     public void fetchCommentsByEvent(String eventId, FirestoreCallbackCommentsReceive listener) {
-
         fetchComments(q -> q.whereEqualTo("event_id", eventId), listener);
 
     }
-
-
-
 }

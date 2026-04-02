@@ -56,7 +56,7 @@ public class UserRepository extends Repository {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists() || doc.getData() == null) {
-                        listener.onError(new IllegalArgumentException("User not found"));
+                        listener.onDataReceived(null);
                         return;
                     }
                     User user = User.fromMap(doc.getId(), doc.getData());

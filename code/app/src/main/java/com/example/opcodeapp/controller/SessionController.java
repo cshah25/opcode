@@ -32,13 +32,13 @@ public class SessionController {
                 Log.i("SessionController", "received query result ok");
                 current_user = user;
 
-                if (current_user == null) {
-                    Log.e("SessionController", "No user found for device id");
-                    state.postValue(LoginState.LOGGED_OUT);
+                if (current_user != null) {
+                    state.postValue(LoginState.LOGGED_IN);
                     return;
                 }
 
-                state.postValue(LoginState.LOGGED_IN);
+                Log.e("SessionController", "No user found for device id");
+                state.postValue(LoginState.LOGGED_OUT);
             }
 
             @Override

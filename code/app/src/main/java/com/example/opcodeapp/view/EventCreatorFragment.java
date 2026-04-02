@@ -412,7 +412,6 @@ public class EventCreatorFragment extends Fragment {
         SessionController controller = SessionController.getInstance(getContext());
         User organizer = controller.getCurrentUser();
 
-        //Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizer, price, waitlistLimit)
         Event.Builder builder = Event.builder()
                 .name(name)
                 .location(location)
@@ -421,7 +420,7 @@ public class EventCreatorFragment extends Fragment {
                 .registrationEnd(LocalDate.parse(registrationEnd, dateFormat).atStartOfDay())
                 .start(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
                 .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
-                .organizer(organizer)
+                .organizerId(organizer.getId())
                 .price(price)
                 .waitlistLimit(waitlistLimit);
 
@@ -433,8 +432,7 @@ public class EventCreatorFragment extends Fragment {
 
                 Bundle args = new Bundle();
                 args.putParcelable("event", event);
-                NavHostFragment.findNavController(instance)
-                        .navigate(R.id.action_EventCreatorFragment_to_FinalOrganizerEventFragment, args);
+                NavHostFragment.findNavController(instance).navigate(R.id.organizerEventFragment, args);
                 Toast.makeText(getContext(), "Created event successfully", Toast.LENGTH_SHORT).show();
             }
 

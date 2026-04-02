@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/EventListFragment"
+        android:id="@+id/eventListFragment"
         android:icon="@drawable/ic_search_icon"
         android:title="@string/search" />
 
     <item
-        android:id="@+id/EventCreatorFragment"
+        android:id="@+id/eventCreatorFragment"
         android:icon="@drawable/ic_circle_add_icon"
         android:title="@string/create" />
 
     <item
-        android:id="@id/EventListFragment"
-        android:title="@string/scan"
+        android:id="@id/eventListFragment"
         android:icon="@drawable/ic_qr_code_scan_icon"
-        />
+        android:title="@string/scan" />
 
     <item
-        android:id="@id/EventListFragment"
-        android:icon="@drawable/ic_notifications_icon"
-        android:title="@string/notifications"/>
-
+        android:id="@id/eventHistoryFragment"
+        android:icon="@drawable/ic_upload_icon"
+        android:title="@string/history" />
 </menu>
