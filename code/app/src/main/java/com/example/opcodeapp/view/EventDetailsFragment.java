@@ -27,6 +27,7 @@ import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.EventRepository;
 import com.example.opcodeapp.repository.UserRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,6 +64,7 @@ public class EventDetailsFragment extends Fragment {
     private Applicant applicant;
 
     private ApplicantRepository applicantRepository;
+    private EventRepository eventRepository;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +76,7 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         NavController navController = NavHostFragment.findNavController(this);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        eventRepository = new EventRepository(FirebaseFirestore.getInstance());
         UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
 
         Bundle args = getArguments();
@@ -126,7 +129,7 @@ public class EventDetailsFragment extends Fragment {
         declineButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.DECLINED));
 
         //User Story 03.01.01
-        adminDeleteButton.setOnClickListener(v -> adminDeleteEvent());
+        adminDeleteButton.setOnClickListener(v -> adminDeleteEvent(this));
         updateUI();
 
         /* commentButton.setOnClickListener(v -> {
@@ -258,14 +261,16 @@ public class EventDetailsFragment extends Fragment {
 
     }
 
-    // TODO: Merge from admin commits
-    private void adminDeleteEvent() {
-        EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
+    /**
+     * On-click handler for the admin delete button. This will delete the current event and navigate
+     * to the event list fragment
+     */
+    private void adminDeleteEvent(EventDetailsFragment fragment) {
         eventRepository.deleteEvent(event.getId(), new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
                 Toast.makeText(getContext(), "Event removed by Admin.", Toast.LENGTH_SHORT).show();
-                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+                NavHostFragment.findNavController(fragment).navigate(R.id.eventListFragment);
             }
 
             @Override
