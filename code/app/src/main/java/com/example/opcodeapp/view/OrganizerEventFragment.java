@@ -59,6 +59,8 @@ public class OrganizerEventFragment extends Fragment {
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
+        Button qrCodeButton = view.findViewById(R.id.btn_qr_code);
+
 
         TextView nameText = view.findViewById(R.id.event_name_text);
         TextView dateText = view.findViewById(R.id.event_date_text);
@@ -176,6 +178,11 @@ public class OrganizerEventFragment extends Fragment {
             NavHostFragment.findNavController(OrganizerEventFragment.this)
                     .navigate(R.id.waitListFragment, bundle);
         });
+
+        // Opens up the QR Code view
+        qrCodeButton.setOnClickListener(v ->
+                QrCodeViewerFragment.newInstance(event.getId())
+                        .show(getParentFragmentManager(), "qr_code_view"));
     }
 
     /**

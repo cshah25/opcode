@@ -39,7 +39,7 @@
         tools:layout="@layout/fragment_events_list">
         <action
             android:id="@+id/action_eventListFragment_to_eventDetailsFragment"
-            app:destination="@id/entrantEventFragment" />
+            app:destination="@id/eventDetailsFragment" />
         <action
             android:id="@+id/action_eventListFragment_to_organizerEventFragment"
             app:destination="@id/organizerEventFragment" />
@@ -47,7 +47,7 @@
 
     <!-- Event Details -->
     <fragment
-        android:id="@+id/entrantEventFragment"
+        android:id="@+id/eventDetailsFragment"
         android:name="com.example.opcodeapp.view.EventDetailsFragment"
         android:label=""
         tools:layout="@layout/fragment_event_details">

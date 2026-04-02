@@ -79,16 +79,12 @@ public class EventsListFragment extends Fragment {
                         public void onDataReceived(Applicant applicant) {
                             Bundle args = new Bundle();
                             args.putParcelable("event", event);
-                            Log.d("EventList", event.toString());
-                            Log.d("EventList", user.toString());
-                            Log.d("EventList", event.getOrganizerId());
-
 
                             if (event.getOrganizerId().equals(user.getId())) {
                                 controller.navigate(R.id.organizerEventFragment, args);
                             } else {
                                 args.putParcelable("applicant", applicant);
-                                controller.navigate(R.id.entrantEventFragment, args);
+                                controller.navigate(R.id.eventDetailsFragment, args);
                             }
                         }
 

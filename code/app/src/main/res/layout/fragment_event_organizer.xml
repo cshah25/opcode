@@ -100,6 +100,17 @@
             android:text="@string/view_final_list_of_enrolled_users"
             android:textColor="@android:color/white" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_qr_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/profile_button"
+            android:padding="15dp"
+            android:text="@string/qr_code"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
         <Button
             android:id="@+id/invited_users_button"
             android:layout_width="357dp"

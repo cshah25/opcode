@@ -3,35 +3,84 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
     android:background="@color/profile_bg"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="24dp">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Event Title -->
-        <TextView
-            android:id="@+id/tv_event_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Event Title"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp">
 
+            <!-- Title + Date/Location stacked vertically -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-        <!-- Date and Location -->
-        <TextView
-            android:id="@+id/tv_event_date_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Location • Date "
-            android:textColor="#666666"
-            android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/tv_event_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Event Title"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_event_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_event_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textColor="#666666"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Action Icons -->
+            <ImageButton
+                android:id="@+id/btn_join_leave_waitlist"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Join Waitlist"
+                android:padding="16dp"
+                android:src="@drawable/ic_join_waitlist" />
+
+            <ImageButton
+                android:id="@+id/btn_toggle_notifications"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Toggle Notifications"
+                android:padding="16dp"
+                android:src="@drawable/ic_notifications_off" />
+
+            <ImageButton
+                android:id="@+id/btn_admin_delete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Block Notifications"
+                android:padding="16dp"
+                android:src="@drawable/ic_delete_icon" />
+
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -44,7 +93,7 @@
             android:id="@+id/tv_event_organizer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Organizer"
+            android:text=""
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -75,7 +124,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginVertical="16dp"
             android:background="#F5F5F5"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -93,82 +142,12 @@
 
             <ImageButton
                 android:id="@+id/btn_lottery_info"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Lottery Rules"
                 android:src="@android:drawable/ic_dialog_info"
                 app:tint="#2196F3" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/waitlist_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:visibility="visible">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_join_waitlist"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:text="Join Waitlist"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/entrant_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_leave_draw"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/profile_button"
-                android:padding="15dp"
-                android:text="@string/leave_the_draw"
-                android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:textStyle="bold" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="5dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_block_notifications"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/profile_button"
-                android:padding="15dp"
-                android:text="@string/block_notifications"
-                android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:textStyle="bold" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="5dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_qr_code"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/profile_button"
-                android:padding="15dp"
-                android:text="@string/qr_code"
-                android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -199,7 +178,7 @@
                     android:backgroundTint="@color/profile_button"
                     android:padding="15dp"
                     android:text="Accept"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <Space
@@ -215,7 +194,7 @@
                     android:backgroundTint="@color/profile_button"
                     android:padding="15dp"
                     android:text="Decline"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
             </LinearLayout>

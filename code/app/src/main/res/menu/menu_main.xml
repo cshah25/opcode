@@ -12,17 +12,11 @@
 
     <item
         android:id="@id/eventListFragment"
-        android:title="@string/scan"
         android:icon="@drawable/ic_qr_code_scan_icon"
-        />
-
-    <item
-        android:id="@id/eventListFragment"
-        android:icon="@drawable/ic_notifications_icon"
-        android:title="@string/notifications"/>
+        android:title="@string/scan" />
 
     <item
         android:id="@id/eventListFragment"
         android:icon="@drawable/ic_upload_icon"
-        android:title="History"/>
+        android:title="History" />
 </menu>

@@ -40,21 +40,19 @@ import java.util.List;
  */
 public class EventDetailsFragment extends Fragment {
 
-    private LinearLayout waitlistSection;
     private LinearLayout invitationSection;
-    private LinearLayout entrantSection;
 
-    private MaterialButton joinWaitlistButton;
-    private MaterialButton leaveDrawButton;
-    private MaterialButton blockNotificationsButton;
-    private MaterialButton commentButton;
-    private MaterialButton qrCodeButton;
+    private ImageButton joinLeaveWaitlistButton;
+    private ImageButton toggleNotificationsButton;
+    private ImageButton adminDeleteButton;
+    private ImageButton commentButton;
     private MaterialButton acceptButton;
     private MaterialButton declineButton;
     private ImageButton lotteryInfoButton;
 
     private TextView name;
-    private TextView dateLocation;
+    private TextView location;
+    private TextView date;
     private TextView organizer;
     private TextView registration;
     private TextView description;
@@ -65,7 +63,6 @@ public class EventDetailsFragment extends Fragment {
     private Applicant applicant;
 
     private ApplicantRepository applicantRepository;
-    private UserRepository userRepository;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,7 +74,7 @@ public class EventDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         NavController navController = NavHostFragment.findNavController(this);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        userRepository = new UserRepository(FirebaseFirestore.getInstance());
+        UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
 
         Bundle args = getArguments();
         if (args == null) {
@@ -102,7 +99,8 @@ public class EventDetailsFragment extends Fragment {
         // Set event details
         name.setText(event.getName());
         description.setText(event.getDescription());
-        dateLocation.setText(event.getLocation() + "•" + event.getFormattedDates());
+        location.setText(event.getLocation());
+        date.setText(event.getFormattedDates());
         registration.setText(event.getFormattedRegistration());
         description.setText(event.getDescription());
         userRepository.fetchUser(event.getOrganizerId(), new FirestoreCallbackUserReceive() {
@@ -117,25 +115,17 @@ public class EventDetailsFragment extends Fragment {
             }
         });
 
-
         // US 01.05.04: Show Waitlist Count
         updateWaitlistCount();
 
-
         // US 01.05.05: Show Lottery Criteria
         lotteryInfoButton.setOnClickListener(v -> showLotteryCriteriaDialog());
-        joinWaitlistButton.setOnClickListener(v -> joinEventWaitlist());
-
-        // Opens up the QR Code view
-        qrCodeButton.setOnClickListener(v ->
-                QrCodeViewerFragment.newInstance(event.getId())
-                        .show(getParentFragmentManager(), "qr_code_view"));
-
-        leaveDrawButton.setOnClickListener(v -> leaveDraw());
-        acceptButton.setOnClickListener(v -> acceptInvitation());
-        declineButton.setOnClickListener(v -> declineInvitation());
-
-        updateSections();
+        joinLeaveWaitlistButton.setOnClickListener(v -> joinLeaveHandler());
+        toggleNotificationsButton.setOnClickListener(v -> toggleNotifications());
+        acceptButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.ACCEPTED));
+        declineButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.DECLINED));
+        adminDeleteButton.setOnClickListener(v -> adminDeleteEvent());
+        updateUI();
         /* commentButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
@@ -149,21 +139,19 @@ public class EventDetailsFragment extends Fragment {
      * @param view The current view of the fragment
      */
     private void bindViews(View view) {
-        waitlistSection = view.findViewById(R.id.waitlist_section);
         invitationSection = view.findViewById(R.id.invited_section);
-        entrantSection = view.findViewById(R.id.entrant_section);
 
-        joinWaitlistButton = view.findViewById(R.id.btn_join_waitlist);
-        leaveDrawButton = view.findViewById(R.id.btn_leave_draw);
-        blockNotificationsButton = view.findViewById(R.id.btn_block_notifications);
-        qrCodeButton = view.findViewById(R.id.btn_qr_code);
+        joinLeaveWaitlistButton = view.findViewById(R.id.btn_join_leave_waitlist);
+        toggleNotificationsButton = view.findViewById(R.id.btn_toggle_notifications);
+        adminDeleteButton = view.findViewById(R.id.btn_admin_delete);
         acceptButton = view.findViewById(R.id.btn_accept_invitation);
         declineButton = view.findViewById(R.id.btn_decline_invitation);
         lotteryInfoButton = view.findViewById(R.id.btn_lottery_info);
 //        commentButton = view.findViewById(R.id.comment_button);
 
         name = view.findViewById(R.id.tv_event_name);
-        dateLocation = view.findViewById(R.id.tv_event_date_location);
+        date = view.findViewById(R.id.tv_event_date);
+        location = view.findViewById(R.id.tv_event_location);
         organizer = view.findViewById(R.id.tv_event_organizer);
         registration = view.findViewById(R.id.tv_event_registration_dates);
         description = view.findViewById(R.id.tv_event_description);
@@ -205,79 +193,36 @@ public class EventDetailsFragment extends Fragment {
     }
 
     /**
-     * On-click handler for the {@link #joinWaitlistButton}. Creates a new applicant
-     * and pushes the change to Firestore and updates the waitlist count and show
-     * the {@link #waitlistSection}
-     * visible while hiding the unrelated elements
+     * On-click handler for the {@link #joinLeaveWaitlistButton}. If there is no existing applicant,
+     * a new applicant is created and published to Firestore, otherwise the applicant is deleted.
+     * In both cases, the waitlist count and the button's content description and icon is also updated
      */
-    private void joinEventWaitlist() {
-        this.applicant = Applicant.builder()
-                .eventId(event.getId())
-                .userId(user.getId())
-                .name(user.getName())
-                .status(ApplicantStatus.NOT_DRAWN)
-                .joinedAt(LocalDateTime.now())
-                .build();
+    private void joinLeaveHandler() {
+        if (applicant == null) {
+            this.applicant = Applicant.builder()
+                    .eventId(event.getId())
+                    .userId(user.getId())
+                    .name(user.getName())
+                    .status(ApplicantStatus.NOT_DRAWN)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
 
-        applicantRepository.addApplicant(applicant, new FirestoreCallbackSend() {
-            @Override
-            public void onSendSuccess(Void unused) {
-                Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
-                updateSections();
-                updateWaitlistCount();
-            }
-
-            @Override
-            public void onSendFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to join waitlist.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * On-click handler for the {@link #acceptButton}. Updates the applicant's status to accepted
-     * and pushes the change to Firestore and update the UI to make the {@link #entrantSection}
-     * visible while hiding the unrelated elements
-     */
-    private void acceptInvitation() {
-        if (applicant != null) {
-            applicant.setStatus(ApplicantStatus.ACCEPTED);
-            applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
+            applicantRepository.addApplicant(applicant, new FirestoreCallbackSend() {
                 @Override
-                public void onSendSuccess(Void aVoid) {
-                    applicant.setDirty(false);
-                    updateSections();
-                    Toast.makeText(getContext(), "Invitation accepted", Toast.LENGTH_SHORT).show();
+                public void onSendSuccess(Void unused) {
+                    Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
+                    joinLeaveWaitlistButton.setContentDescription("Leave Waitlist");
+                    joinLeaveWaitlistButton.setImageResource(R.drawable.ic_leave_waitlist);
+                    updateUI();
+                    updateWaitlistCount();
                 }
 
                 @Override
                 public void onSendFailure(Exception e) {
-                    Toast.makeText(getContext(), String.format("Error accepting invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Failed to join waitlist.", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-    }
-
-    private void declineInvitation() {
-        if (applicant != null) {
-            applicant.setStatus(ApplicantStatus.DECLINED);
-            applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
-                @Override
-                public void onSendSuccess(Void aVoid) {
-                    Toast.makeText(getContext(), "Invitation declined", Toast.LENGTH_SHORT).show();
-                    updateSections();
-                }
-
-                @Override
-                public void onSendFailure(Exception e) {
-                    Toast.makeText(getContext(), String.format("Error declining invitation: %s", e.toString()), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    private void leaveDraw() {
-        if (applicant != null) {
+        } else {
             applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
 
                 /**
@@ -286,7 +231,10 @@ public class EventDetailsFragment extends Fragment {
                 @Override
                 public void onSendSuccess(Void aVoid) {
                     Toast.makeText(getContext(), "Leaving the draw", Toast.LENGTH_SHORT).show();
-                    updateSections();
+                    joinLeaveWaitlistButton.setContentDescription("Join Waitlist");
+                    joinLeaveWaitlistButton.setImageResource(R.drawable.ic_join_waitlist);
+                    applicant = null;
+                    updateUI();
                     updateWaitlistCount();
                 }
 
@@ -302,38 +250,69 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
-    private void updateSections() {
+    // TODO: Merge from notification commits
+    private void toggleNotifications() {
+
+    }
+
+    // TODO: Merge from admin commits
+    private void adminDeleteEvent() {
+
+    }
+
+    /**
+     * On-click handler for the accept and decline buttons. Updates the applicant's status
+     * and pushes the change to Firestore while also updating the UI to hide the
+     * accept/decline buttons
+     */
+    private void handleInvitationResponse(ApplicantStatus status) {
+        if (applicant != null) {
+            applicant.setStatus(status);
+            applicantRepository.updateApplicant(applicant, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void aVoid) {
+                    applicant.setDirty(false);
+                    Toast.makeText(getContext(), "Invitation " + status.name().toLowerCase(), Toast.LENGTH_SHORT).show();
+                    updateUI();
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Toast.makeText(getContext(), String.format("Error when setting status to %s\nError: %s", status.name(), e.toString()), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    /**
+     * Refreshes the fragment to hide/show the {@link #adminDeleteButton} if the user's admin status
+     * changes. Furthermore, the visibility of the {@link #joinLeaveWaitlistButton}, {@link #toggleNotificationsButton},
+     * {@link #acceptButton} and {@link #declineButton}
+     */
+    private void updateUI() {
+        adminDeleteButton.setVisibility((user.isAdmin()) ? View.VISIBLE : View.GONE);
+
         if (applicant == null) {
-            waitlistSection.setVisibility(View.VISIBLE);
-            joinWaitlistButton.setEnabled(true);
-            entrantSection.setVisibility(View.GONE);
+            joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
             invitationSection.setVisibility(View.GONE);
+            toggleNotificationsButton.setVisibility(View.GONE);
             return;
         }
 
         switch (applicant.getStatus()) {
+            case NOT_DRAWN:
+                invitationSection.setVisibility(View.GONE);
+                joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+                break;
             case INVITED:
                 invitationSection.setVisibility(View.VISIBLE);
-                entrantSection.setVisibility(View.GONE);
-                waitlistSection.setVisibility(View.GONE);
-                break;
-            case ACCEPTED:
-                invitationSection.setVisibility(View.GONE);
-                entrantSection.setVisibility(View.VISIBLE);
-                waitlistSection.setVisibility(View.GONE);
-                break;
-            case NOT_DRAWN:
-                entrantSection.setVisibility(View.VISIBLE);
-                joinWaitlistButton.setEnabled(false);
-                invitationSection.setVisibility(View.GONE);
-                waitlistSection.setVisibility(View.GONE);
+                joinLeaveWaitlistButton.setVisibility(View.GONE);
                 break;
             default:
-                entrantSection.setVisibility(View.GONE);
-                joinWaitlistButton.setEnabled(false);
                 invitationSection.setVisibility(View.GONE);
-                waitlistSection.setVisibility(View.GONE);
+                joinLeaveWaitlistButton.setVisibility(View.GONE);
                 break;
         }
+        toggleNotificationsButton.setVisibility(View.VISIBLE);
     }
 }
