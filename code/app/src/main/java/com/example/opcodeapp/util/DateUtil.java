@@ -15,7 +15,7 @@ public class DateUtil {
      * @param dt date to be converted
      * @return a date converted to the epoch second
      */
-    public static long toLong(LocalDateTime dt) {
+    public static long toSeconds(LocalDateTime dt) {
         return dt.atZone(ZoneId.systemDefault())
                 .toInstant()
                 .getEpochSecond();

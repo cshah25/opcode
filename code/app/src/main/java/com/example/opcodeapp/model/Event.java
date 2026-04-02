@@ -349,10 +349,10 @@ public class Event extends AbstractModel {
         map.put("name", name);
         map.put("location", location);
         map.put("description", description);
-        map.put("start", DateUtil.toLong(start));
-        map.put("end", DateUtil.toLong(end));
-        map.put("registration_start", DateUtil.toLong(registrationStart));
-        map.put("registration_end", DateUtil.toLong(registrationEnd));
+        map.put("start", DateUtil.toSeconds(start));
+        map.put("end", DateUtil.toSeconds(end));
+        map.put("registration_start", DateUtil.toSeconds(registrationStart));
+        map.put("registration_end", DateUtil.toSeconds(registrationEnd));
         map.put("organizer_id", organizerId);
         map.put("price", price);
         map.put("waitlist_limit", waitlistLimit);

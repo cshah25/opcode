@@ -19,22 +19,24 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.R;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.EventRepository;
 import com.example.opcodeapp.util.DateUtil;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import androidx.navigation.fragment.NavHostFragment;
-
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,7 +49,7 @@ public class EventsListFragment extends Fragment {
     private CheckBox capacityOnlyFilter;
 
     private List<Event> allEvents = new ArrayList<>();
-    private List<Event> dataList = new ArrayList<>();
+    private List<Event> shownEvents = new ArrayList<>();
     private List<String> shownNames = new ArrayList<>();
     private Map<String, Integer> applicantCounts = new HashMap<>();
 
@@ -75,6 +77,7 @@ public class EventsListFragment extends Fragment {
         }
 
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        eventRepository = new EventRepository(FirebaseFirestore.getInstance());
 
         // Bind views
         searchButton = view.findViewById(R.id.search_button);
@@ -84,7 +87,7 @@ public class EventsListFragment extends Fragment {
         capacityOnlyFilter = view.findViewById(R.id.events_filter_capacity_checkbox);
 
         // Set listeners for search button
-        searchButton.setOnClickListener(v -> filterEvents());
+        searchButton.setOnClickListener(v -> applyFilters());
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -137,19 +140,16 @@ public class EventsListFragment extends Fragment {
     }
 
     private void loadEvents() {
-
         FirebaseFirestore.getInstance().collection("Events")
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     allEvents.clear();
 
                     for (QueryDocumentSnapshot document : snapshot) {
-                        // TODO: Use event repository
-                        Event event = mapEvent(document);
+                        Event event = Event.fromMap(document.getId(), document.getData());
                         if (event != null)
                             allEvents.add(event);
                     }
-
                     applyFilters();
                 })
                 .addOnFailureListener(e ->

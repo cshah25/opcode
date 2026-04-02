@@ -128,7 +128,7 @@ public class Applicant extends AbstractModel {
         map.put("user_id", userId);
         map.put("name", name);
         map.put("status", status.name());
-        map.put("joined_at", DateUtil.toLong(joinedAt));
+        map.put("joined_at", DateUtil.toSeconds(joinedAt));
         return map;
     }
 
@@ -198,6 +198,4 @@ public class Applicant extends AbstractModel {
             return new Applicant(id, eventId, userId, name, status, joinedAt);
         }
     }
-
-
 }
