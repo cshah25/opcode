@@ -9,7 +9,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 public class DateUtil {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
      * @param dt date to be converted
@@ -32,7 +32,12 @@ public class DateUtil {
         return in.readSerializable(classs.getClassLoader(), classs);
     }
 
-    public static String toString(LocalDateTime dateTime) {
+    public static String toString(DateTimeFormatter formatter, LocalDateTime dateTime) {
         return formatter.format(dateTime);
     }
+
+    public static String toString(LocalDateTime dateTime) {
+        return toString(FORMAT, dateTime);
+    }
 }
+

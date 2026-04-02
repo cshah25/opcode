@@ -55,7 +55,7 @@ public class EventRepository extends Repository {
         ref.document(id).get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists() || doc.getData() == null) {
-                        listener.onError(new IllegalArgumentException("Event not found"));
+                        listener.onDataReceived(null);
                         return;
                     }
                     Event event = Event.fromMap(doc.getId(), doc.getData());

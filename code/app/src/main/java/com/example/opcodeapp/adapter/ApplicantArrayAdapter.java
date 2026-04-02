@@ -46,8 +46,8 @@ public class ApplicantArrayAdapter extends ArrayAdapter<Applicant> {
 
         userRepository.fetchUser(user.getUserId(), new FirestoreCallbackUserReceive() {
             @Override
-            public void onDataReceived(User u) {
-                userEmail.setText(u.getEmail());
+            public void onDataReceived(User user) {
+                userEmail.setText(user.getEmail());
             }
 
             @Override

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,12 +32,12 @@ import java.util.Locale;
 /**
  * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
  */
-public class FinalOrganizerEventFragment extends Fragment {
+public class OrganizerEventFragment extends Fragment {
     private Event event;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_final_organizer_event, container, false);
+        return inflater.inflate(R.layout.fragment_event_organizer, container, false);
     }
 
     @SuppressLint("SetTextI18n")
@@ -49,7 +50,7 @@ public class FinalOrganizerEventFragment extends Fragment {
 
         event = args.getParcelable("event", Event.class);
         if (event == null) {
-            NavHostFragment.findNavController(FinalOrganizerEventFragment.this).navigateUp();
+            NavHostFragment.findNavController(OrganizerEventFragment.this).navigateUp();
             return;
         }
 
@@ -58,6 +59,8 @@ public class FinalOrganizerEventFragment extends Fragment {
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
+        Button qrCodeButton = view.findViewById(R.id.btn_qr_code);
+
 
         TextView nameText = view.findViewById(R.id.event_name_text);
         TextView dateText = view.findViewById(R.id.event_date_text);
@@ -136,8 +139,8 @@ public class FinalOrganizerEventFragment extends Fragment {
         commentButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
-            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                    .navigate(R.id.CommentsFragment, bundle);
+            NavHostFragment.findNavController(OrganizerEventFragment.this)
+                    .navigate(R.id.commentsFragment, bundle);
 
         });
 
@@ -151,15 +154,15 @@ public class FinalOrganizerEventFragment extends Fragment {
         enrolledApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
-            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                    .navigate(R.id.EnrolledUsersFragment,  bundle);
+            NavHostFragment.findNavController(OrganizerEventFragment.this)
+                    .navigate(R.id.enrolledUsersFragment,  bundle);
         });
 
         invitedApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
-            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                    .navigate(R.id.InvitedUsersFragment, bundle);
+            NavHostFragment.findNavController(OrganizerEventFragment.this)
+                    .navigate(R.id.invitedUsersFragment, bundle);
         });
 
         /**
@@ -172,9 +175,14 @@ public class FinalOrganizerEventFragment extends Fragment {
         allApplicantButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
-            NavHostFragment.findNavController(FinalOrganizerEventFragment.this)
-                    .navigate(R.id.WaitListFragment, bundle);
+            NavHostFragment.findNavController(OrganizerEventFragment.this)
+                    .navigate(R.id.waitListFragment, bundle);
         });
+
+        // Opens up the QR Code view
+        qrCodeButton.setOnClickListener(v ->
+                QrCodeViewerFragment.newInstance(event.getId())
+                        .show(getParentFragmentManager(), "qr_code_view"));
     }
 
     /**
