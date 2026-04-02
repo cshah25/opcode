@@ -380,7 +380,6 @@ public class Event extends AbstractModel {
         String organizerId = (String) map.get("organizer_id");
         float price = Float.valueOf(map.get("price").toString());
         int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
-        String organizer_id = (String) map.get("organizer_id");
         int waitlistCount =  Integer.valueOf(map.get("waitlist_count").toString());
 
         return Event.builder()
@@ -429,7 +428,7 @@ public class Event extends AbstractModel {
         private String organizerId;
         private float price;
         private int waitlistLimit;
-        private int waitListCount;
+        private int waitlistCount;
 
         public Builder id(@NonNull String id) {
             this.id = id;
