@@ -107,7 +107,7 @@ public class Comment extends AbstractModel {
 
     public String getFormattedTime() {
         return (String) DateUtils.getRelativeTimeSpanString(
-                DateUtil.toLong(commentTime),
+                DateUtil.toSeconds(commentTime),
                 System.currentTimeMillis(),
                 DateUtils.MINUTE_IN_MILLIS
         );
@@ -123,7 +123,7 @@ public class Comment extends AbstractModel {
         map.put("event_id", eventId);
         map.put("user_id", userId);
         map.put("content", content);
-        map.put("comment_time", DateUtil.toLong(commentTime));
+        map.put("comment_time", DateUtil.toSeconds(commentTime));
         return map;
     }
 
@@ -188,6 +188,4 @@ public class Comment extends AbstractModel {
             return new Comment(id, eventId, userId, content, time);
         }
     }
-
-
 }
