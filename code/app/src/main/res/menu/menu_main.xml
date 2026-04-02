@@ -16,7 +16,7 @@
         android:title="@string/scan" />
 
     <item
-        android:id="@id/eventListFragment"
+        android:id="@id/eventHistoryFragment"
         android:icon="@drawable/ic_upload_icon"
-        android:title="History" />
+        android:title="@string/history" />
 </menu>

@@ -121,4 +121,10 @@
         android:name="com.example.opcodeapp.view.ProfileFragment"
         android:label=""
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/eventHistoryFragment"
+        android:name="com.example.opcodeapp.view.EventHistoryFragment"
+        android:label=""
+        tools:layout="@layout/fragment_event_history" />
 </navigation>
