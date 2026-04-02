@@ -124,8 +124,11 @@ public class EventDetailsFragment extends Fragment {
         toggleNotificationsButton.setOnClickListener(v -> toggleNotifications());
         acceptButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.ACCEPTED));
         declineButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.DECLINED));
+
+        //User Story 03.01.01
         adminDeleteButton.setOnClickListener(v -> adminDeleteEvent());
         updateUI();
+
         /* commentButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
@@ -257,7 +260,19 @@ public class EventDetailsFragment extends Fragment {
 
     // TODO: Merge from admin commits
     private void adminDeleteEvent() {
+        EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
+        eventRepository.deleteEvent(event.getId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Toast.makeText(getContext(), "Event removed by Admin.", Toast.LENGTH_SHORT).show();
+                NavHostFragment.findNavController(EventDetailsFragment.this).navigateUp();
+            }
 
+            @Override
+            public void onSendFailure(Exception e) {
+                Toast.makeText(getContext(), "Failed to delete event.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

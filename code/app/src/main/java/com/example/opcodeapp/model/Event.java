@@ -46,6 +46,7 @@ public class Event extends AbstractModel {
     private String organizerId;
     private float price;
     private int waitlistLimit;
+    private int waitlistCount;
 
     /**
      * Constructor for the Event class.
@@ -60,7 +61,7 @@ public class Event extends AbstractModel {
      * @param organizerId       The organizer id of the event.
      */
 
-    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, String organizerId, float price, int waitlistLimit) {
+    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, String organizerId, float price, int waitlistLimit, int waitlistCount) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -72,6 +73,7 @@ public class Event extends AbstractModel {
         this.organizerId = organizerId;
         this.price = price;
         this.waitlistLimit = waitlistLimit;
+        this.waitlistCount = waitlistCount;
     }
 
     protected Event(Parcel in) {
@@ -86,6 +88,7 @@ public class Event extends AbstractModel {
         organizerId = in.readString();
         price = in.readFloat();
         waitlistLimit = in.readInt();
+        waitlistCount = in.readInt();
     }
 
     @Override
@@ -106,6 +109,7 @@ public class Event extends AbstractModel {
         dest.writeString(organizerId);
         dest.writeFloat(price);
         dest.writeInt(waitlistLimit);
+        dest.writeInt(waitlistCount);
     }
 
     /**
@@ -321,6 +325,23 @@ public class Event extends AbstractModel {
     }
 
     /**
+     * Getter for the current waitlist count.
+     * @return The number of users currently on the waitlist.
+     */
+    public int getWaitlistCount() {
+        return waitlistCount;
+    }
+
+    /**
+     * Setter for the waitlist count.
+     * @param waitlistCount The new waitlist count.
+     */
+    public void setWaitlistCount(int waitlistCount) {
+        this.waitlistCount = Math.max(waitlistCount, 0);
+        setDirty(true);
+    }
+
+    /**
      * @return a mapping of the fields in this object. Used for Firestore saving
      */
     public Map<String, Object> toMap() {
@@ -335,6 +356,7 @@ public class Event extends AbstractModel {
         map.put("organizer_id", organizerId);
         map.put("price", price);
         map.put("waitlist_limit", waitlistLimit);
+        map.put("waitlist_count", waitlistCount);
         return map;
     }
 
@@ -345,7 +367,7 @@ public class Event extends AbstractModel {
      * @return TODO: Improve validation of potential null fields
      */
     public static Event fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "name", "location", "description", "start", "end", "registration_start", "registration_end", "organizer_id", "price", "waitlist_limit"))
+        if (!hasRequiredFields(map, "name", "location", "description", "start", "end", "registration_start", "registration_end", "organizer_id", "price", "waitlist_limit", "waitlist_count"))
             return null;
 
         String name = (String) map.get("name");
@@ -358,6 +380,8 @@ public class Event extends AbstractModel {
         String organizerId = (String) map.get("organizer_id");
         float price = Float.valueOf(map.get("price").toString());
         int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
+        String organizer_id = (String) map.get("organizer_id");
+        int waitlistCount =  Integer.valueOf(map.get("waitlist_count").toString());
 
         return Event.builder()
                 .id(id)
@@ -371,6 +395,7 @@ public class Event extends AbstractModel {
                 .organizerId(organizerId)
                 .price(price)
                 .waitlistLimit(waitlistLimit)
+                .waitlistCount(waitlistCount)
                 .build();
     }
 
@@ -404,6 +429,7 @@ public class Event extends AbstractModel {
         private String organizerId;
         private float price;
         private int waitlistLimit;
+        private int waitListCount;
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -460,6 +486,11 @@ public class Event extends AbstractModel {
             return this;
         }
 
+        public Builder waitlistCount(int waitlistCount) {
+            this.waitlistCount = waitlistCount;
+            return this;
+        }
+
         public Event build() {
             try {
                 // Check if registration end is after the registration start
@@ -473,7 +504,7 @@ public class Event extends AbstractModel {
                 return null;
             }
 
-            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizerId, price, waitlistLimit);
+            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizerId, price, waitlistLimit, waitlistCount);
         }
     }
 }
