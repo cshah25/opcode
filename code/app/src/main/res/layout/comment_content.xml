@@ -18,6 +18,7 @@
             android:paddingHorizontal="5dp"
             android:text="@string/user_name"
             android:textAlignment="viewStart"
+            android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -27,6 +28,7 @@
             android:paddingHorizontal="4dp"
             android:text="•"
             android:textAlignment="viewStart"
+            android:textColor="@color/profile_button"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -35,6 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Time"
+            android:textColor="@color/grey_black"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -50,6 +53,7 @@
         android:layout_height="wrap_content"
         android:paddingVertical="10dp"
         android:text="@string/lorem_ipsum"
+        android:textColor="@color/grey_black"
         android:textStyle="normal" />
 
 </LinearLayout>

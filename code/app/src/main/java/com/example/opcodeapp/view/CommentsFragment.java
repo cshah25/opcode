@@ -81,34 +81,31 @@ public class CommentsFragment extends Fragment {
             return;
         }
 
-        try {
-            CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
-            SessionController sessionController = SessionController.getInstance(requireContext());
-            User curr_user = sessionController.getCurrentUser();
-            Comment comment = Comment.builder()
-                    .eventId(event.getId())
-                    .userId(curr_user.getId())
-                    .content(input)
-                    .time(LocalDateTime.now())
-                    .build();
 
-            repository.addComment(comment, new FirestoreCallbackSend() {
-                @Override
-                public void onSendSuccess(Void unused) {
-                    Log.d("AddComment", "Comment added successfully");
-                }
+        CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
+        SessionController sessionController = SessionController.getInstance(requireContext());
+        User curr_user = sessionController.getCurrentUser();
+        Comment comment = Comment.builder()
+                .eventId(event.getId())
+                .userId(curr_user.getId())
+                .content(input)
+                .time(LocalDateTime.now())
+                .build();
 
-                @Override
-                public void onSendFailure(Exception e) {
-                    Log.e("AddComment", "Failed to add comment: " + e.getMessage());
+        repository.addComment(comment, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void unused) {
+                Log.d("AddComment", "Comment added successfully");
+            }
 
-                }
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.e("AddComment", "Failed to add comment: " + e.getMessage());
 
-            });
+            }
 
-        } catch (Exception e) {
-            Log.e("AddComment", "Failed to add comment: " + e.getMessage());
-        }
+        });
+
 
     }
 

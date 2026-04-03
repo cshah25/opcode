@@ -132,11 +132,11 @@ public class EventDetailsFragment extends Fragment {
         adminDeleteButton.setOnClickListener(v -> adminDeleteEvent(this));
         updateUI();
 
-        /* commentButton.setOnClickListener(v -> {
+        commentButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
             navController.navigate(R.id.commentsFragment, bundle);
-        }); */
+        });
     }
 
     /**
@@ -153,7 +153,7 @@ public class EventDetailsFragment extends Fragment {
         acceptButton = view.findViewById(R.id.btn_accept_invitation);
         declineButton = view.findViewById(R.id.btn_decline_invitation);
         lotteryInfoButton = view.findViewById(R.id.btn_lottery_info);
-//        commentButton = view.findViewById(R.id.comment_button);
+        commentButton = view.findViewById(R.id.btn_comment);
 
         name = view.findViewById(R.id.tv_event_name);
         date = view.findViewById(R.id.tv_event_date);
@@ -266,6 +266,22 @@ public class EventDetailsFragment extends Fragment {
      * to the event list fragment
      */
     private void adminDeleteEvent(EventDetailsFragment fragment) {
+
+        //code added by Vedant to make sure that all the applicants of the event are also deleted along with the event.
+        applicantRepository.deleteApplicantsByEvent(event.getId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("EventDetails", "Deleted applicants as a result of event deletion.");
+
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Toast.makeText(getContext(), "Failed to delete applicants.", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
         eventRepository.deleteEvent(event.getId(), new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
@@ -316,6 +332,7 @@ public class EventDetailsFragment extends Fragment {
             joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
             invitationSection.setVisibility(View.GONE);
             toggleNotificationsButton.setVisibility(View.GONE);
+            commentButton.setVisibility(View.GONE);
             return;
         }
 
@@ -323,14 +340,17 @@ public class EventDetailsFragment extends Fragment {
             case NOT_DRAWN:
                 invitationSection.setVisibility(View.GONE);
                 joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+                commentButton.setVisibility(View.VISIBLE);
                 break;
             case INVITED:
                 invitationSection.setVisibility(View.VISIBLE);
                 joinLeaveWaitlistButton.setVisibility(View.GONE);
+                commentButton.setVisibility(View.VISIBLE);
                 break;
             default:
                 invitationSection.setVisibility(View.GONE);
                 joinLeaveWaitlistButton.setVisibility(View.GONE);
+                commentButton.setVisibility(View.VISIBLE);
                 break;
         }
         toggleNotificationsButton.setVisibility(View.VISIBLE);

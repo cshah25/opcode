@@ -55,7 +55,7 @@ public class OrganizerEventFragment extends Fragment {
         }
 
         ApplicantRepository applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        ImageButton commentButton = view.findViewById(R.id.comment_button);
+        ImageButton commentButton = view.findViewById(R.id.btn_comment);
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);

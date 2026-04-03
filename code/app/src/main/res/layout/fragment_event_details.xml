@@ -130,6 +130,15 @@
             android:orientation="horizontal"
             android:padding="12dp">
 
+            <ImageButton
+                android:id="@+id/btn_comment"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Comment Section"
+                android:src="@drawable/ic_comment_icon"
+                app:tint="@color/black" />
+
             <TextView
                 android:id="@+id/tv_waitlist_count"
                 android:layout_width="0dp"
