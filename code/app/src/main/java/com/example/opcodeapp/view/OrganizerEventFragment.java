@@ -59,7 +59,7 @@ public class OrganizerEventFragment extends Fragment {
         Button enrolledApplicantButton = view.findViewById(R.id.enrolled_users_button);
         Button invitedApplicantButton = view.findViewById(R.id.invited_users_button);
         Button allApplicantButton = view.findViewById(R.id.all_applicants_button);
-        Button qrCodeButton = view.findViewById(R.id.btn_qr_code);
+        ImageButton qrCodeButton = view.findViewById(R.id.btn_qr_code);
 
 
         TextView nameText = view.findViewById(R.id.event_name_text);
@@ -72,7 +72,7 @@ public class OrganizerEventFragment extends Fragment {
         TextView eventRegistrationText = view.findViewById(R.id.event_open_closed_text);
 
         nameText.setText(event.getName());
-        dateText.setText("Date: " + event.getStart() + " to " + event.getEnd());
+        dateText.setText("Date: " + DateUtil.toString(event.getStart()) + " to " + DateUtil.toString(event.getEnd()));
         locationText.setText("Location: " + event.getLocation());
         descriptionText.setText("Description: \n" + event.getDescription());
 
@@ -80,7 +80,7 @@ public class OrganizerEventFragment extends Fragment {
         LocalDateTime registrationStart = event.getRegistrationStart();
         LocalDateTime registrationEnd = event.getRegistrationEnd();
 
-        registrationText.setText("Registration Period: " + DateUtil.toString(registrationStart) + "to " + DateUtil.toString(registrationEnd));
+        registrationText.setText("Registration Period: " + DateUtil.toString(registrationStart) + " to " + DateUtil.toString(registrationEnd));
         if (registrationStart.isAfter(now) || registrationEnd.isBefore(now)) {
             eventRegistrationText.setText("CLOSED");
         } else {

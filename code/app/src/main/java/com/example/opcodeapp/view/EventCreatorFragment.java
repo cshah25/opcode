@@ -430,9 +430,7 @@ public class EventCreatorFragment extends Fragment {
             public void onSendSuccess(Void unused) {
                 createButton.setEnabled(true);
 
-                Bundle args = new Bundle();
-                args.putParcelable("event", event);
-                NavHostFragment.findNavController(instance).navigate(R.id.organizerEventFragment, args);
+                NavHostFragment.findNavController(instance).navigate(R.id.eventListFragment);
                 Toast.makeText(getContext(), "Created event successfully", Toast.LENGTH_SHORT).show();
             }
 

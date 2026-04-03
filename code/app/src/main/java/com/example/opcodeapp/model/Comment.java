@@ -106,11 +106,12 @@ public class Comment extends AbstractModel {
     }
 
     public String getFormattedTime() {
-        return (String) DateUtils.getRelativeTimeSpanString(
-                DateUtil.toSeconds(commentTime),
+        String formattedTime = (String) DateUtils.getRelativeTimeSpanString(
+                DateUtil.toSeconds(commentTime) * 1000, //small fix to make sure that the time is in milliseconds (Vedant).
                 System.currentTimeMillis(),
                 DateUtils.MINUTE_IN_MILLIS
         );
+        return formattedTime;
     }
 
     public void setCommentTime(LocalDateTime commentTime) {

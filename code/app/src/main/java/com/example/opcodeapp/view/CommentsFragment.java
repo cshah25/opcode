@@ -57,9 +57,28 @@ public class CommentsFragment extends Fragment {
         }
 
         ListView commentListView = view.getRootView().findViewById(R.id.comments_list_view);
-        commentAdapter = new CommentArrayAdapter(requireContext(), getComments(event), event);
-        commentListView.setAdapter(commentAdapter);
-        commentAdapter.notifyDataSetChanged();
+
+
+        List<Comment> data_list = new ArrayList<>();
+        CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
+        repository.fetchCommentsByEvent(event.getId(), new FirestoreCallbackCommentsReceive() {
+                    @Override
+                    public void onDataReceived(List<Comment> comments) {
+                        data_list.addAll(comments);
+                        commentAdapter = new CommentArrayAdapter(requireContext(), comments, event);
+                        commentListView.setAdapter(commentAdapter);
+                        commentAdapter.notifyDataSetChanged();
+                        Log.e("FetchApplicantSuccess", "Fetched " + comments.size() + " comments");
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+                    }
+                }
+        );
+
 
         View comment_controls = view.findViewById(R.id.comment_controls);
         Button add_comment = view.findViewById(R.id.btn_add_comment);
@@ -96,6 +115,8 @@ public class CommentsFragment extends Fragment {
             @Override
             public void onSendSuccess(Void unused) {
                 Log.d("AddComment", "Comment added successfully");
+                commentAdapter.insert(comment, 0);
+                commentAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -107,26 +128,6 @@ public class CommentsFragment extends Fragment {
         });
 
 
-    }
-
-
-    @NonNull
-    private static List<Comment> getComments(Event event) {
-        List<Comment> data_list = new ArrayList<>();
-        CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
-        repository.fetchCommentsByEvent(event.getId(), new FirestoreCallbackCommentsReceive() {
-                    @Override
-                    public void onDataReceived(List<Comment> comments) {
-                        data_list.addAll(comments);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
-                    }
-                }
-        );
-        return data_list;
     }
 
     @Override

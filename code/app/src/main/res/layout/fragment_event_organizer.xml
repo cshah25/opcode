@@ -81,6 +81,7 @@
             android:text="@string/description"
             android:textColor="#6A6A6A"
             android:textSize="18sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,7 +123,7 @@
 
         <Button
             android:id="@+id/enrolled_users_button"
-            android:layout_width="340dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:backgroundTint="@color/profile_button"
@@ -131,7 +132,7 @@
 
         <Button
             android:id="@+id/invited_users_button"
-            android:layout_width="340dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:backgroundTint="@color/profile_button"
@@ -140,7 +141,7 @@
 
         <Button
             android:id="@+id/all_applicants_button"
-            android:layout_width="340dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:backgroundTint="@color/profile_button"
