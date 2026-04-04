@@ -154,7 +154,7 @@ public class ProfileFragment extends Fragment {
                         public void onSendFailure(Exception e) {
                             Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
                         }
-                    });
+            });
 
             new ApplicantRepository(FirebaseFirestore.getInstance()).deleteApplicantsByUser(user.getId(),
                     new FirestoreCallbackSend() {
