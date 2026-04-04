@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment displaying Event Details to the Entrant.
@@ -49,6 +51,7 @@ public class EventDetailsFragment extends Fragment {
     private ImageButton commentButton;
     private MaterialButton acceptButton;
     private MaterialButton declineButton;
+    private Button removeOrganizerButton;
     private ImageButton lotteryInfoButton;
 
     private TextView name;
@@ -60,7 +63,7 @@ public class EventDetailsFragment extends Fragment {
     private TextView waitlistCount;
 
     private Event event;
-    private User user;
+    private User cur_user;
     private Applicant applicant;
 
     private ApplicantRepository applicantRepository;
@@ -87,7 +90,7 @@ public class EventDetailsFragment extends Fragment {
 
         event = args.getParcelable("event", Event.class);
         applicant = (args.containsKey("applicant")) ? args.getParcelable("applicant", Applicant.class) : null;
-        user = SessionController.getInstance(getContext()).getCurrentUser();
+        cur_user = SessionController.getInstance(getContext()).getCurrentUser();
 
         // Safety check to prevent crashes
         if (event == null) {
@@ -109,7 +112,7 @@ public class EventDetailsFragment extends Fragment {
         userRepository.fetchUser(event.getOrganizerId(), new FirestoreCallbackUserReceive() {
             @Override
             public void onDataReceived(User user) {
-                organizer.setText(EventDetailsFragment.this.user.getName());
+                organizer.setText(EventDetailsFragment.this.cur_user.getName());
             }
 
             @Override
@@ -130,6 +133,8 @@ public class EventDetailsFragment extends Fragment {
 
         //User Story 03.01.01
         adminDeleteButton.setOnClickListener(v -> adminDeleteEvent(this));
+
+        removeOrganizerButton.setOnClickListener(v -> adminDeleteOrganizer());
         updateUI();
 
         commentButton.setOnClickListener(v -> {
@@ -154,6 +159,8 @@ public class EventDetailsFragment extends Fragment {
         declineButton = view.findViewById(R.id.btn_decline_invitation);
         lotteryInfoButton = view.findViewById(R.id.btn_lottery_info);
         commentButton = view.findViewById(R.id.btn_comment);
+        removeOrganizerButton = view.findViewById(R.id.btn_remove_organizer);
+
 
         name = view.findViewById(R.id.tv_event_name);
         date = view.findViewById(R.id.tv_event_date);
@@ -207,8 +214,8 @@ public class EventDetailsFragment extends Fragment {
         if (applicant == null) {
             this.applicant = Applicant.builder()
                     .eventId(event.getId())
-                    .userId(user.getId())
-                    .name(user.getName())
+                    .userId(cur_user.getId())
+                    .name(cur_user.getName())
                     .status(ApplicantStatus.NOT_DRAWN)
                     .joinedAt(LocalDateTime.now())
                     .build();
@@ -296,6 +303,60 @@ public class EventDetailsFragment extends Fragment {
         });
     }
 
+    private void adminDeleteOrganizer() {
+
+        UserRepository user_repo = new UserRepository(FirebaseFirestore.getInstance());
+
+        user_repo.deleteUser(event.getOrganizerId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("EventDetails", "Deleted organizer.");
+
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.d("EventDetails", "Failed to delete organizer.");
+            }
+        });
+
+        EventRepository event_repo = new EventRepository(FirebaseFirestore.getInstance());
+
+        event_repo.deleteEventsByOrganizerId(event.getOrganizerId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("EventDetails", "Deleted events by organizer.");
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.d("EventDetails", "Failed to delete events by organizer.");
+            }
+
+        });
+
+
+        ApplicantRepository applicant_repo = new ApplicantRepository(FirebaseFirestore.getInstance());
+
+
+        applicant_repo.deleteApplicantsByUser(event.getOrganizerId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void aVoid) {
+                Log.d("EventDetails", "Deleted applicants by organizer.");
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.d("EventDetails", "Failed to delete applicants by organizer.");
+            }
+
+        });
+
+
+        NavHostFragment.findNavController(this).navigate(R.id.eventListFragment);
+
+    }
+
     /**
      * On-click handler for the accept and decline buttons. Updates the applicant's status
      * and pushes the change to Firestore while also updating the UI to hide the
@@ -326,7 +387,10 @@ public class EventDetailsFragment extends Fragment {
      * {@link #acceptButton} and {@link #declineButton}
      */
     private void updateUI() {
-        adminDeleteButton.setVisibility((user.isAdmin()) ? View.VISIBLE : View.GONE);
+        adminDeleteButton.setVisibility((cur_user.isAdmin()) ? View.VISIBLE : View.GONE);
+
+        removeOrganizerButton.setVisibility((cur_user.isAdmin() && !Objects.equals(event.getOrganizerId(), cur_user.getId())) ? View.VISIBLE : View.GONE);
+
 
         if (applicant == null) {
             joinLeaveWaitlistButton.setVisibility(View.VISIBLE);

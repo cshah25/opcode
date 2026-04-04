@@ -63,6 +63,8 @@ public class ProfileFragment extends Fragment {
         updateButton = view.findViewById(R.id.profile_update_button);
         Button deleteButton = view.findViewById(R.id.profile_delete_button);
 
+        Button browseButton = view.findViewById(R.id.browse_profile_button);
+
         UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
         User user = SessionController.getInstance(requireContext()).getCurrentUser();
 
@@ -71,6 +73,17 @@ public class ProfileFragment extends Fragment {
             emailInput.setText(user.getEmail());
             phoneInput.setText(user.getPhoneNum());
         }
+
+
+        /**
+         * if the current user is admin then they can browse different profiles.
+         */
+        browseButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.profileBrowseFragment);
+        });
+
+        browseButton.setVisibility((user.isAdmin()) ? View.VISIBLE : View.GONE);
+
 
         updateButton.setOnClickListener(v -> {
             // Cancel if user is null

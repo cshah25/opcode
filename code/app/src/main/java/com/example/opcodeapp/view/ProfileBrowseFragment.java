@@ -55,7 +55,7 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
 
     private ArrayAdapter<User> adapter;
     private UserRepository userRepository;
-    private User user;
+    private User cur_user;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -68,8 +68,8 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
         super.onViewCreated(view, savedInstanceState);
 
         // Check if the current user is non-null
-        user = SessionController.getInstance(requireContext()).getCurrentUser();
-        if (user == null) {
+        cur_user = SessionController.getInstance(requireContext()).getCurrentUser();
+        if (cur_user == null) {
             NavHostFragment.findNavController(this).navigate(R.id.setupFragment);
             Log.e("ProfileBrowseFragment", "Could not retrieve the current user");
             return;
@@ -106,6 +106,12 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
             @Override
             public void onDataReceived(List<User> users) {
                 allUsers.addAll(users);
+                for (User user : allUsers) {
+                    if (user.getId().equals(cur_user.getId())) {
+                        allUsers.remove(user);
+                        break;
+                    }
+                }
                 adapter = new UserArrayAdapter(requireContext(), (ArrayList<User>) allUsers);
                 profileListView.setAdapter(adapter);
                 applyFilters();
