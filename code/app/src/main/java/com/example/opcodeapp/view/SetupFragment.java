@@ -85,11 +85,9 @@ public class SetupFragment extends Fragment {
                         Log.i("Setup", "Account created");
                         Toast.makeText(requireContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
 
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("user", user);
 
-                        NavController nav = NavHostFragment.findNavController(not_this);
-                        nav.navigate(R.id.eventListFragment, bundle);
+                        NavHostFragment.findNavController(not_this).navigate(R.id.eventListFragment);
+
                     }
 
                     @Override

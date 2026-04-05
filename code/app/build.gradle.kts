@@ -38,6 +38,8 @@ android {
             "GEOAPIFY_API_KEY",
             "\"${secretsProperties.getProperty("GEOAPIFY_API_KEY", "")}\""
         )
+
+        buildConfigField("String", "GEOAPIFY_GEOLOCATION_API_KEY", "\"${secretsProperties.getProperty("GEOAPIFY_GEOLOCATION_API_KEY", "")}\"")
     }
 
     buildTypes {

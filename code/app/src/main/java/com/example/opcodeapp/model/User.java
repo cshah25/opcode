@@ -30,6 +30,10 @@ public class User extends AbstractModel {
     private String name;
     private String email;
     private String phoneNum;
+
+    private static double latitude = 0;
+    private static double longitude = 0;
+
     private boolean isAdmin;
 
     /**
@@ -39,13 +43,15 @@ public class User extends AbstractModel {
      * @param email    The email of the user.
      * @param phoneNum The phone number of the user.
      */
-    private User(String id, String deviceId, String name, String email, String phoneNum, boolean isAdmin) {
+    private User(String id, String deviceId, String name, String email, String phoneNum, boolean isAdmin, double latitute, double longitude) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNum = phoneNum;
         this.deviceId = deviceId;
         this.isAdmin = isAdmin;
+        this.latitude = latitute;
+        this.longitude = longitude;
     }
 
     /**
@@ -60,6 +66,8 @@ public class User extends AbstractModel {
         this.phoneNum = in.readString();
         this.deviceId = in.readString();
         this.isAdmin = in.readBoolean();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
     }
 
     @Override
@@ -75,6 +83,8 @@ public class User extends AbstractModel {
         dest.writeString(phoneNum);
         dest.writeString(deviceId);
         dest.writeBoolean(isAdmin);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
     }
 
     /**
@@ -191,6 +201,24 @@ public class User extends AbstractModel {
         setDirty(true);
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitute) {
+        this.latitude = latitute;
+        setDirty(true);
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+        setDirty(true);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof User)) return false;
@@ -210,11 +238,13 @@ public class User extends AbstractModel {
         map.put("email", email);
         map.put("phone_num", phoneNum);
         map.put("is_admin", isAdmin);
+        map.put("latitude", latitude);
+        map.put("longitude", longitude);
         return map;
     }
 
     public static User fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin"))
+        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin", "latitude", "longitude"))
             return null;
 
         String deviceId = (String) map.get("device_id");
@@ -222,6 +252,10 @@ public class User extends AbstractModel {
         String email = (String) map.get("email");
         String phoneNum = (String) map.get("phone_num");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
+
+        double latitute = Double.parseDouble(map.get("latitude").toString());
+        double longitude = Double.parseDouble(map.get("longitude").toString());
+
         return User.builder()
                 .id(id)
                 .name(name)
@@ -229,6 +263,8 @@ public class User extends AbstractModel {
                 .email(email)
                 .phoneNum(phoneNum)
                 .isAdmin(isAdmin)
+                .latitute(latitute)
+                .longitude(longitude)
                 .build();
     }
 
@@ -245,6 +281,10 @@ public class User extends AbstractModel {
         private String name;
         private String email;
         private String phoneNum;
+
+        private double latitute;
+        private double longitude;
+
         private boolean isAdmin;
 
         public Builder id(@NonNull String id) {
@@ -277,9 +317,20 @@ public class User extends AbstractModel {
             return this;
         }
 
+        public Builder latitute(double latitute) {
+            this.latitute = latitute;
+            return this;
+        }
+
+        public Builder longitude(double longitude) {
+            this.longitude = longitude;
+            return this;
+        }
+
+
         public User build() {
             // TODO: Validation
-            return new User(id, deviceId, name, email, phoneNum, isAdmin);
+            return new User(id, deviceId, name, email, phoneNum, isAdmin, latitute, longitude);
         }
     }
 }
