@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
+import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
@@ -84,12 +85,10 @@ public class SetupFragment extends Fragment {
                     public void onSendSuccess(Void unused) {
                         Log.i("Setup", "Account created");
                         Toast.makeText(requireContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
-
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("user", user);
-
                         NavController nav = NavHostFragment.findNavController(not_this);
-                        nav.navigate(R.id.eventListFragment, bundle);
+                        SessionController.getInstance(getContext()).setCurrentUser(user);
+                        // no need to pass user in bundle here, because the session manager handles that
+                        nav.navigate(R.id.eventListFragment);
                     }
 
                     @Override
