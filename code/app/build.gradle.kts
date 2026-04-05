@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.zxing)
     implementation(libs.okhttp)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

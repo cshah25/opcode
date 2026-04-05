@@ -30,6 +30,16 @@ public class User extends AbstractModel {
     private String name;
     private String email;
     private String phoneNum;
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    private String fcmToken;
     private boolean isAdmin;
 
     /**
@@ -39,12 +49,13 @@ public class User extends AbstractModel {
      * @param email    The email of the user.
      * @param phoneNum The phone number of the user.
      */
-    private User(String id, String deviceId, String name, String email, String phoneNum, boolean isAdmin) {
+    private User(String id, String deviceId, String name, String email, String phoneNum, String fcmToken, boolean isAdmin) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNum = phoneNum;
         this.deviceId = deviceId;
+        this.fcmToken = fcmToken;
         this.isAdmin = isAdmin;
     }
 
@@ -59,6 +70,7 @@ public class User extends AbstractModel {
         this.email = in.readString();
         this.phoneNum = in.readString();
         this.deviceId = in.readString();
+        this.fcmToken = in.readString();
         this.isAdmin = in.readBoolean();
     }
 
@@ -74,6 +86,7 @@ public class User extends AbstractModel {
         dest.writeString(email);
         dest.writeString(phoneNum);
         dest.writeString(deviceId);
+        dest.writeString(fcmToken);
         dest.writeBoolean(isAdmin);
     }
 
@@ -209,6 +222,7 @@ public class User extends AbstractModel {
         map.put("name", name);
         map.put("email", email);
         map.put("phone_num", phoneNum);
+        map.put("fcm_token", fcmToken);
         map.put("is_admin", isAdmin);
         return map;
     }
@@ -221,6 +235,7 @@ public class User extends AbstractModel {
         String name = (String) map.get("name");
         String email = (String) map.get("email");
         String phoneNum = (String) map.get("phone_num");
+        String fcmToken = (String) map.get("fcm_token");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
         return User.builder()
                 .id(id)
@@ -228,6 +243,7 @@ public class User extends AbstractModel {
                 .deviceId(deviceId)
                 .email(email)
                 .phoneNum(phoneNum)
+                .fcmToken(fcmToken)
                 .isAdmin(isAdmin)
                 .build();
     }
@@ -245,6 +261,7 @@ public class User extends AbstractModel {
         private String name;
         private String email;
         private String phoneNum;
+        private String fcmToken;
         private boolean isAdmin;
 
         public Builder id(@NonNull String id) {
@@ -272,6 +289,11 @@ public class User extends AbstractModel {
             return this;
         }
 
+        public Builder fcmToken(String fcmToken) {
+            this.fcmToken = fcmToken;
+            return this;
+        }
+
         public Builder isAdmin(boolean isAdmin) {
             this.isAdmin = isAdmin;
             return this;
@@ -279,7 +301,7 @@ public class User extends AbstractModel {
 
         public User build() {
             // TODO: Validation
-            return new User(id, deviceId, name, email, phoneNum, isAdmin);
+            return new User(id, deviceId, name, email, phoneNum, fcmToken, isAdmin);
         }
     }
 }

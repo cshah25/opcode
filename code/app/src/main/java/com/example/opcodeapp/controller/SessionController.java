@@ -6,12 +6,14 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
 import com.example.opcodeapp.enums.LoginState;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 /**
  * Singleton class to keep track of the currently logged in user.
@@ -33,6 +35,27 @@ public class SessionController {
                 current_user = user;
 
                 if (current_user != null) {
+                    // update the fcm token (it can change)
+                    FirebaseMessaging.getInstance().getToken()
+                            .addOnCompleteListener(task -> {
+                                if (!task.isSuccessful()) return;
+                                String token = task.getResult();
+                                // fcm tokens can change so update on every log in
+                                if (!token.equals(current_user.getFcmToken())) {
+                                    current_user.setFcmToken(token);
+                                    repository.updateUser(current_user, new FirestoreCallbackSend() {
+                                        @Override
+                                        public void onSendSuccess(Void unused) {
+                                            Log.d("SessionController", "Updated fcm token");
+                                        }
+
+                                        @Override
+                                        public void onSendFailure(Exception e) {
+                                            Log.e("SessionController", String.format("Could not update fcm token: %s", e.toString()));
+                                        }
+                                    });
+                                }
+                            });
                     state.postValue(LoginState.LOGGED_IN);
                     return;
                 }

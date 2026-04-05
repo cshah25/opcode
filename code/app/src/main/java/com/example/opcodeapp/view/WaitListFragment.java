@@ -25,8 +25,10 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.Notification;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.NotificationRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class WaitListFragment extends Fragment {
 
     private Event event;
     private ApplicantRepository applicantRepository;
+    private NotificationRepository notificationRepository;
     private LotterySystem lotterySystem;
     private ArrayAdapter<Applicant> adapter;
 
@@ -72,6 +75,7 @@ public class WaitListFragment extends Fragment {
         // Initialize Repository and Data
         User user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
         lotterySystem = new LotterySystem();
 
         // Setup UI References
@@ -143,6 +147,18 @@ public class WaitListFragment extends Fragment {
                 @Override
                 public void onSendFailure(Exception e) {
                     Log.e("Lottery", "Failed to update event", e);
+                }
+            });
+            // create notification inviting user
+            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), "You're invited!"), new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    Log.i("Lottery", "notification created for winner");
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("Lottery", "Could not add notification for winner", e);
                 }
             });
         });
