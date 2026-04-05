@@ -1,5 +1,6 @@
 package com.example.opcodeapp.model;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,9 +8,11 @@ public class Notification {
     private String id;
     private String user_id;
     private String body;
+    private String event_id;
     private boolean read;
+    private LocalDateTime created_at;
 
-    public Notification(String user_id, String body) {
+    public Notification(String user_id, String body, String event_id) {
         this.user_id = user_id;
         this.body = body;
         read = false;
@@ -44,6 +47,7 @@ public class Notification {
         map.put("id", id);
         map.put("body", body);
         map.put("user_id", user_id);
+        map.put("event_id", event_id);
         map.put("read", read);
         return map;
     }
@@ -54,5 +58,13 @@ public class Notification {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public String getEvent_id() {
+        return event_id;
+    }
+
+    public void setEvent_id(String event_id) {
+        this.event_id = event_id;
     }
 }

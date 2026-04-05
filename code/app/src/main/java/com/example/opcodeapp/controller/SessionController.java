@@ -32,36 +32,35 @@ public class SessionController {
             @Override
             public void onDataReceived(User user) {
                 Log.i("SessionController", "received query result ok");
+
                 current_user = user;
 
-                if (current_user != null) {
-                    // update the fcm token (it can change)
-                    FirebaseMessaging.getInstance().getToken()
-                            .addOnCompleteListener(task -> {
-                                if (!task.isSuccessful()) return;
-                                String token = task.getResult();
-                                // fcm tokens can change so update on every log in
-                                if (!token.equals(current_user.getFcmToken())) {
-                                    current_user.setFcmToken(token);
-                                    repository.updateUser(current_user, new FirestoreCallbackSend() {
-                                        @Override
-                                        public void onSendSuccess(Void unused) {
-                                            Log.d("SessionController", "Updated fcm token");
-                                        }
-
-                                        @Override
-                                        public void onSendFailure(Exception e) {
-                                            Log.e("SessionController", String.format("Could not update fcm token: %s", e.toString()));
-                                        }
-                                    });
-                                }
-                            });
-                    state.postValue(LoginState.LOGGED_IN);
+                if (current_user == null) {
+                    Log.w("SessionController", "No user found for device id");
+                    state.postValue(LoginState.LOGGED_OUT);
                     return;
                 }
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) return;
+                            String token = task.getResult();
+                            // fcm tokens can change so update on every log in
+                            if (!token.equals(current_user.getFcmToken())) {
+                                current_user.setFcmToken(token);
+                                repository.updateUser(current_user, new FirestoreCallbackSend() {
+                                    @Override
+                                    public void onSendSuccess(Void unused) {
+                                        Log.d("SessionController", "Updated fcm token");
+                                    }
 
-                Log.e("SessionController", "No user found for device id");
-                state.postValue(LoginState.LOGGED_OUT);
+                                    @Override
+                                    public void onSendFailure(Exception e) {
+                                        Log.e("SessionController", String.format("Could not update fcm token: %s", e.toString()));
+                                    }
+                                });
+                            }
+                        });
+                state.postValue(LoginState.LOGGED_IN);
             }
 
             @Override
