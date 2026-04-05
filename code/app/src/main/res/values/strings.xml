@@ -58,4 +58,6 @@
     <string name="scan">Scan</string>
     <string name="notifications">Notifications</string>
     <string name="history">History</string>
+    <string name="filter_available_now">Available now</string>
+    <string name="filter_has_capacity">Has capacity</string>
 </resources>
