@@ -150,7 +150,7 @@ public class WaitListFragment extends Fragment {
                 }
             });
             // create notification inviting user
-            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), "You're invited!", event.getId()), new FirestoreCallbackSend() {
+            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You're invited to %s!", event.getName()), event.getId()), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
                     Log.i("Lottery", "notification created for winner");

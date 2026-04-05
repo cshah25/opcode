@@ -55,7 +55,7 @@ public class NotificationRepository extends Repository {
                 .scheme("https")
                 .host("beaconbrigade.ca")
                 .addPathSegment("opcode")
-                .addPathSegment("bs")
+                .addPathSegment("bssend-notification")
                 .build();
 
         Request request = new Request.Builder()
