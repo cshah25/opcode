@@ -1,5 +1,8 @@
 package com.example.opcodeapp;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -40,6 +43,18 @@ public class MainActivity extends AppCompatActivity {
                 R.id.eventCreatorFragment,
                 R.id.eventListFragment
         ).build();
+
+        // configure notification channel
+        NotificationChannel channel = new NotificationChannel(
+                "default",
+                "Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+
+        NotificationManager manager =
+                getSystemService(NotificationManager.class);
+
+        manager.createNotificationChannel(channel);
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.bottomNav, navController);

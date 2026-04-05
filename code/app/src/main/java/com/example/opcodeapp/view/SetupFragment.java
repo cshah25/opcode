@@ -15,11 +15,13 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
+import com.example.opcodeapp.controller.NotificationController;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 
 /**
@@ -84,6 +86,12 @@ public class SetupFragment extends Fragment {
                     @Override
                     public void onSendSuccess(Void unused) {
                         Log.i("Setup", "Account created");
+                        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) return;
+                            String token = task.getResult();
+                            NotificationController.updateToken(user, token);
+                        });
+
                         Toast.makeText(requireContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
                         NavController nav = NavHostFragment.findNavController(not_this);
                         SessionController.getInstance(getContext()).setCurrentUser(user);
