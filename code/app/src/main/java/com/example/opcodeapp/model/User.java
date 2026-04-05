@@ -30,7 +30,6 @@ public class User extends AbstractModel {
     private String name;
     private String email;
     private String phoneNum;
-
     public String getFcmToken() {
         return fcmToken;
     }
@@ -40,6 +39,8 @@ public class User extends AbstractModel {
     }
 
     private String fcmToken;
+    private static double latitude = 0;
+    private static double longitude = 0;
     private boolean isAdmin;
 
     /**
@@ -49,7 +50,7 @@ public class User extends AbstractModel {
      * @param email    The email of the user.
      * @param phoneNum The phone number of the user.
      */
-    private User(String id, String deviceId, String name, String email, String phoneNum, String fcmToken, boolean isAdmin) {
+    private User(String id, String deviceId, String name, String email, String phoneNum, String fcmToken, boolean isAdmin, double latitute, double longitude) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -57,6 +58,8 @@ public class User extends AbstractModel {
         this.deviceId = deviceId;
         this.fcmToken = fcmToken;
         this.isAdmin = isAdmin;
+        this.latitude = latitute;
+        this.longitude = longitude;
     }
 
     /**
@@ -72,6 +75,8 @@ public class User extends AbstractModel {
         this.deviceId = in.readString();
         this.fcmToken = in.readString();
         this.isAdmin = in.readBoolean();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
     }
 
     @Override
@@ -88,6 +93,8 @@ public class User extends AbstractModel {
         dest.writeString(deviceId);
         dest.writeString(fcmToken);
         dest.writeBoolean(isAdmin);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
     }
 
     /**
@@ -204,6 +211,24 @@ public class User extends AbstractModel {
         setDirty(true);
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitute) {
+        this.latitude = latitute;
+        setDirty(true);
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+        setDirty(true);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof User)) return false;
@@ -224,11 +249,13 @@ public class User extends AbstractModel {
         map.put("phone_num", phoneNum);
         map.put("fcm_token", fcmToken);
         map.put("is_admin", isAdmin);
+        map.put("latitude", latitude);
+        map.put("longitude", longitude);
         return map;
     }
 
     public static User fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin"))
+        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin", "latitude", "longitude"))
             return null;
 
         String deviceId = (String) map.get("device_id");
@@ -237,6 +264,10 @@ public class User extends AbstractModel {
         String phoneNum = (String) map.get("phone_num");
         String fcmToken = (String) map.get("fcm_token");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
+
+        double latitute = Double.parseDouble(map.get("latitude").toString());
+        double longitude = Double.parseDouble(map.get("longitude").toString());
+
         return User.builder()
                 .id(id)
                 .name(name)
@@ -245,6 +276,8 @@ public class User extends AbstractModel {
                 .phoneNum(phoneNum)
                 .fcmToken(fcmToken)
                 .isAdmin(isAdmin)
+                .latitute(latitute)
+                .longitude(longitude)
                 .build();
     }
 
@@ -263,6 +296,8 @@ public class User extends AbstractModel {
         private String phoneNum;
         private String fcmToken;
         private boolean isAdmin;
+        private double longitude;
+        private double latitude;
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -299,9 +334,20 @@ public class User extends AbstractModel {
             return this;
         }
 
+        public Builder latitute(double latitude) {
+            this.latitude = latitude;
+            return this;
+        }
+
+        public Builder longitude(double longitude) {
+            this.longitude = longitude;
+            return this;
+        }
+
+
         public User build() {
             // TODO: Validation
-            return new User(id, deviceId, name, email, phoneNum, fcmToken, isAdmin);
+            return new User(id, deviceId, name, email, phoneNum, fcmToken, isAdmin, latitude, longitude);
         }
     }
 }

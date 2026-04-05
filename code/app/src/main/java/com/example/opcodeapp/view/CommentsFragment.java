@@ -57,9 +57,28 @@ public class CommentsFragment extends Fragment {
         }
 
         ListView commentListView = view.getRootView().findViewById(R.id.comments_list_view);
-        commentAdapter = new CommentArrayAdapter(requireContext(), getComments(event), event);
-        commentListView.setAdapter(commentAdapter);
-        commentAdapter.notifyDataSetChanged();
+
+
+        List<Comment> data_list = new ArrayList<>();
+        CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
+        repository.fetchCommentsByEvent(event.getId(), new FirestoreCallbackCommentsReceive() {
+                    @Override
+                    public void onDataReceived(List<Comment> comments) {
+                        data_list.addAll(comments);
+                        commentAdapter = new CommentArrayAdapter(requireContext(), comments, event);
+                        commentListView.setAdapter(commentAdapter);
+                        commentAdapter.notifyDataSetChanged();
+                        Log.e("FetchApplicantSuccess", "Fetched " + comments.size() + " comments");
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+                    }
+                }
+        );
+
 
         View comment_controls = view.findViewById(R.id.comment_controls);
         Button add_comment = view.findViewById(R.id.btn_add_comment);
@@ -81,55 +100,34 @@ public class CommentsFragment extends Fragment {
             return;
         }
 
-        try {
-            CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
-            SessionController sessionController = SessionController.getInstance(requireContext());
-            User curr_user = sessionController.getCurrentUser();
-            Comment comment = Comment.builder()
-                    .eventId(event.getId())
-                    .userId(curr_user.getId())
-                    .content(input)
-                    .time(LocalDateTime.now())
-                    .build();
 
-            repository.addComment(comment, new FirestoreCallbackSend() {
-                @Override
-                public void onSendSuccess(Void unused) {
-                    Log.d("AddComment", "Comment added successfully");
-                }
-
-                @Override
-                public void onSendFailure(Exception e) {
-                    Log.e("AddComment", "Failed to add comment: " + e.getMessage());
-
-                }
-
-            });
-
-        } catch (Exception e) {
-            Log.e("AddComment", "Failed to add comment: " + e.getMessage());
-        }
-
-    }
-
-
-    @NonNull
-    private static List<Comment> getComments(Event event) {
-        List<Comment> data_list = new ArrayList<>();
         CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
-        repository.fetchCommentsByEvent(event.getId(), new FirestoreCallbackCommentsReceive() {
-                    @Override
-                    public void onDataReceived(List<Comment> comments) {
-                        data_list.addAll(comments);
-                    }
+        SessionController sessionController = SessionController.getInstance(requireContext());
+        User curr_user = sessionController.getCurrentUser();
+        Comment comment = Comment.builder()
+                .eventId(event.getId())
+                .userId(curr_user.getId())
+                .content(input)
+                .time(LocalDateTime.now())
+                .build();
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
-                    }
-                }
-        );
-        return data_list;
+        repository.addComment(comment, new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void unused) {
+                Log.d("AddComment", "Comment added successfully");
+                commentAdapter.insert(comment, 0);
+                commentAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                Log.e("AddComment", "Failed to add comment: " + e.getMessage());
+
+            }
+
+        });
+
+
     }
 
     @Override
