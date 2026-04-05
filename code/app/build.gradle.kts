@@ -38,6 +38,8 @@ android {
             "GEOAPIFY_API_KEY",
             "\"${secretsProperties.getProperty("GEOAPIFY_API_KEY", "")}\""
         )
+
+        buildConfigField("String", "GEOAPIFY_GEOLOCATION_API_KEY", "\"${secretsProperties.getProperty("GEOAPIFY_GEOLOCATION_API_KEY", "")}\"")
     }
 
     buildTypes {
@@ -83,6 +85,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1") // For intent verification // For FragmentScenario
     debugImplementation("androidx.fragment:fragment-testing:1.6.2")
+    implementation("com.opencsv:opencsv:5.7.1")
+    //implementation("com.google.zxing:core:3.5.0")
+
 
 
 

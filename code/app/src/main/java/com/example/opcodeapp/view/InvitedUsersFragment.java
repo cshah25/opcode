@@ -34,7 +34,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
     /**
      * The list of users to be displayed.
      */
-    private ArrayList<Applicant> dataList;
+    private ArrayList<Applicant> dataList = new ArrayList<>();
 
     /**
      * The ListView for the list of users.
@@ -53,14 +53,22 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
         return inflater.inflate(R.layout.fragment_invited_users, container, false);
     }
 
-    //may need to test this
-    public List<Applicant> combineLists(Event event) {
 
-        List<Applicant> allInvitedApplicants = new ArrayList<>();
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+        Event event = getArguments().getParcelable("event");
+
+        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+
+        userList = view.getRootView().findViewById(R.id.invited_users_list_view);
+
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
-                allInvitedApplicants.addAll(applicants);
+                dataList.addAll(applicants);
+                userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
+                userList.setAdapter(userAdapter);
             }
 
             @Override
@@ -69,19 +77,8 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             }
         });
 
-        return allInvitedApplicants;
-    }
 
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Event event = getArguments().getParcelable("event");
-
-        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        dataList = new ArrayList<>(combineLists(event));
-        userList = view.getRootView().findViewById(R.id.invited_users_list_view);
-        userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
-        userList.setAdapter(userAdapter);
 
 
         /**
@@ -96,6 +93,10 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
                         @Override
                         public void onDataReceived(List<Applicant> applicants) {
                             declinedApplicants.addAll(applicants);
+                            if (declinedApplicants.contains(user)) {
+                                DeclinedUserDialogFragment declinedUserDialogFragment = DeclinedUserDialogFragment.newInstance(user, event);
+                                declinedUserDialogFragment.show(getParentFragmentManager(), "Remove");
+                            }
                         }
 
                         @Override
@@ -106,10 +107,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             );
 
 
-            if (declinedApplicants.contains(user)) {
-                DeclinedUserDialogFragment declinedUserDialogFragment = DeclinedUserDialogFragment.newInstance(user, event);
-                declinedUserDialogFragment.show(getParentFragmentManager(), "Remove");
-            }
+
         });
 
 

@@ -48,7 +48,8 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
         TextView time = view.findViewById(R.id.time_text);
 
         content.setText(comment.getContent());
-        time.setText(comment.getFormattedTime());
+        String formattedTime = comment.getFormattedTime();
+        time.setText(formattedTime);
 
         userRepository.fetchUser(comment.getUserId(), new FirestoreCallbackUserReceive() {
             @Override

@@ -18,8 +18,9 @@
             android:paddingHorizontal="5dp"
             android:text="@string/user_name"
             android:textAlignment="viewStart"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="normal" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,7 +28,8 @@
             android:paddingHorizontal="4dp"
             android:text="•"
             android:textAlignment="viewStart"
-            android:textSize="20sp"
+            android:textColor="@color/profile_button"
+            android:textSize="10sp"
             android:textStyle="bold" />
 
         <TextView
@@ -35,14 +37,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Time"
-            android:textSize="18sp" />
+            android:textColor="@color/grey_black"
+            android:textSize="10sp" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="5dp"
-        android:background="#E0E0E0" />
 
     <TextView
         android:id="@+id/user_comment"
@@ -50,6 +47,7 @@
         android:layout_height="wrap_content"
         android:paddingVertical="10dp"
         android:text="@string/lorem_ipsum"
-        android:textStyle="normal" />
+        android:textColor="@color/grey_black"
+        android:textStyle="bold" />
 
 </LinearLayout>

@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.opcodeapp.BuildConfig;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
@@ -33,12 +34,23 @@ import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class EventsListFragment extends Fragment {
 
@@ -57,6 +69,8 @@ public class EventsListFragment extends Fragment {
     private ApplicantRepository applicantRepository;
     private EventRepository eventRepository;
     private User user;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -259,4 +273,5 @@ public class EventsListFragment extends Fragment {
                 : 0;
         return currentApplicants < event.getWaitlistLimit();
     }
+
 }
