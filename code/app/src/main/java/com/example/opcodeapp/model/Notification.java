@@ -1,21 +1,50 @@
 package com.example.opcodeapp.model;
 
+import static com.example.opcodeapp.model.AbstractModel.hasRequiredFields;
+
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentId;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Notification {
+    @DocumentId
     private String id;
     private String user_id;
     private String body;
     private String event_id;
     private boolean read;
-    private LocalDateTime created_at;
+
+    public Timestamp getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    private Timestamp created_at;
 
     public Notification(String user_id, String body, String event_id) {
         this.user_id = user_id;
         this.body = body;
+        this.event_id = event_id;
         read = false;
+    }
+
+    public Notification(String id, String user_id, String body, String event_id, boolean read, Timestamp created_at) {
+        this.id = id;
+        this.user_id = user_id;
+        this.body = body;
+        this.event_id = event_id;
+        this.read = read;
+        this.created_at = created_at;
     }
 
     public String getBody() {
@@ -44,12 +73,25 @@ public class Notification {
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("id", id);
         map.put("body", body);
-        map.put("user_id", user_id);
-        map.put("event_id", event_id);
+        map.put("userId", user_id);
+        map.put("eventId", event_id);
         map.put("read", read);
+        map.put("createdAt", created_at);
         return map;
+    }
+
+    public static Notification fromMap(String id, Map<String, Object> map) {
+        if (!hasRequiredFields(map, "userId", "eventId", "body", "read", "createdAt")) {
+            return null;
+        }
+        return new Builder()
+            .id(id)
+            .body((String)map.get("body"))
+            .user_id((String)map.get("userId"))
+            .event_id((String)map.get("eventId"))
+            .read((boolean)map.get("read"))
+            .created_at((Timestamp) map.get("createdAt")).build();
     }
 
     public boolean isRead() {
@@ -66,5 +108,49 @@ public class Notification {
 
     public void setEvent_id(String event_id) {
         this.event_id = event_id;
+    }
+
+    public static class Builder {
+        private String id;
+        private String user_id;
+        private String body;
+        private String event_id;
+        private boolean read;
+        private Timestamp created_at;
+
+        public Notification.Builder id(@NonNull String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Notification.Builder user_id(@NonNull String user_id) {
+            this.user_id = user_id;
+            return this;
+        }
+
+        public Notification.Builder body(@NonNull String body) {
+            this.body = body;
+            return this;
+        }
+
+        public Notification.Builder event_id(@NonNull String event_id) {
+            this.event_id = event_id;
+            return this;
+        }
+
+        public Notification.Builder read(@NonNull boolean read) {
+            this.read = read;
+            return this;
+        }
+
+        public Notification.Builder created_at(@NonNull Timestamp created_at) {
+            this.created_at = created_at;
+            return this;
+        }
+
+
+        public Notification build() {
+            return new Notification(id, user_id, body, event_id, read, created_at);
+        }
     }
 }

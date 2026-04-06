@@ -62,4 +62,7 @@
     <string name="filter_has_capacity">Has capacity</string>
     <string name="browse_profiles">Browse Profiles</string>
     <string name="notification">Notifications</string>
+    <string name="notification_event_name">Event name</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="message">Message</string>
 </resources>

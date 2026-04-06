@@ -149,7 +149,11 @@
         android:id="@+id/notificationsFragment"
         android:name="com.example.opcodeapp.view.NotificationsFragment"
         android:label=""
-        tools:layout="@layout/fragment_notifications"/>
+        tools:layout="@layout/fragment_notifications">
+        <action
+            android:id="@+id/action_notificationsFragment_to_eventDetailsFragment"
+            app:destination="@id/eventDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/mapFragment"

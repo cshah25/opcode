@@ -4,12 +4,19 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.callback.FirestoreCallbackNotificationsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
+import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.Notification;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -77,18 +84,47 @@ public class NotificationRepository extends Repository {
         });
     }
 
-//    /**
-//     * Updates a notification
-//     * @param notification: notification to update (uses the id, so ensure those match)
-//     * @param listener: respond to success/failure of updating notification
-//     */
-//    // probably this function isn't needed
-//    public void updateNotification(Notification notification, FirestoreCallbackSend listener) {
-//        ref.document(notification.getId())
-//                .set(notification.toMap(), SetOptions.merge())
-//                .addOnSuccessListener(listener::onSendSuccess)
-//                .addOnFailureListener(listener::onSendFailure);
-//        // TODO: add request to server to send new notification and remove old one
-//        // .     although seems like this function isn't needed
-//    }
+    /**
+     * Updates a notification
+     * @param notification: notification to update (uses the id, so ensure those match)
+     * @param listener: respond to success/failure of updating notification
+     */
+    public void updateNotification(Notification notification, FirestoreCallbackSend listener) {
+        ref.document(notification.getId())
+                .set(notification.toMap(), SetOptions.merge())
+                .addOnSuccessListener(listener::onSendSuccess)
+                .addOnFailureListener(listener::onSendFailure);
+    }
+
+    /**
+     * Fetches all of the notifications associated with a user
+     * @param user_id: the user to fetch for
+     * @param callback: respond to the fetched notis/errors
+     */
+    public void fetchNotificationsByUserId(String user_id, FirestoreCallbackNotificationsReceive callback) {
+        ref.whereEqualTo("userId", user_id)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Notification> items = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshot) {
+                        Notification event = Notification.fromMap(doc.getId(), doc.getData());
+                        items.add(event);
+                    }
+                    callback.onDataReceived(items);
+                })
+                .addOnFailureListener(callback::onError);
+    }
+
+    /**
+     * Delete a notification
+     * @param noti_id: id of the notification
+     * @param callback: respond to result of this operation
+     */
+    public void deleteNotification(String noti_id, FirestoreCallbackSend callback) {
+        ref.document(noti_id)
+                .delete()
+                .addOnSuccessListener(callback::onSendSuccess)
+                .addOnFailureListener(callback::onSendFailure);
+    }
 }
