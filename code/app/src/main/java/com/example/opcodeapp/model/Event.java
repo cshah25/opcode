@@ -12,10 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
-@SuppressWarnings("deprecated")
-
-/**
+/*
  * The Event class.
  * Contains all the information about an event.
  */
@@ -47,21 +44,31 @@ public class Event extends AbstractModel {
     private float price;
     private int waitlistLimit;
     private int waitlistCount;
+    private boolean isPublic;
+    private String encodedImage;
 
     /**
      * Constructor for the Event class.
      *
+     * @param id                The id of the event.
      * @param name              The name of the event.
      * @param location          The location of the event.
      * @param description       The description of the event.
      * @param start             The start date of the event.
-     * @param registrationStart The registration start time of the event.
      * @param end               The end date of the event.
+     * @param registrationStart The registration start time of the event.
      * @param registrationEnd   The registration end time of the event.
      * @param organizerId       The organizer id of the event.
+     * @param price             The price to join the event.
+     * @param waitlistLimit     The maximum number of people that can join the waitlist.
+     * @param waitlistCount     The current number of people that are in the waitlist.
+     * @param isPublic          The public status of the event.
+     * @param encodedImage      The encoded string of the event's poster image.
      */
-
-    public Event(@NonNull String id, String name, String location, String description, LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart, LocalDateTime registrationEnd, String organizerId, float price, int waitlistLimit, int waitlistCount) {
+    public Event(@NonNull String id, String name, String location, String description,
+                 LocalDateTime start, LocalDateTime end, LocalDateTime registrationStart,
+                 LocalDateTime registrationEnd, String organizerId, float price, int waitlistLimit,
+                 int waitlistCount, boolean isPublic, String encodedImage) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -74,6 +81,8 @@ public class Event extends AbstractModel {
         this.price = price;
         this.waitlistLimit = waitlistLimit;
         this.waitlistCount = waitlistCount;
+        this.isPublic = isPublic;
+        this.encodedImage = encodedImage;
     }
 
     protected Event(Parcel in) {
@@ -89,6 +98,8 @@ public class Event extends AbstractModel {
         price = in.readFloat();
         waitlistLimit = in.readInt();
         waitlistCount = in.readInt();
+        isPublic = in.readBoolean();
+        encodedImage = in.readString();
     }
 
     @Override
@@ -110,6 +121,8 @@ public class Event extends AbstractModel {
         dest.writeFloat(price);
         dest.writeInt(waitlistLimit);
         dest.writeInt(waitlistCount);
+        dest.writeBoolean(isPublic);
+        dest.writeString(encodedImage);
     }
 
     /**
@@ -280,7 +293,7 @@ public class Event extends AbstractModel {
      *
      * @param organizerId The organizer id of the event.
      */
-    public void setOrganizer(String organizerId) {
+    public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
         setDirty(true);
     }
@@ -326,6 +339,7 @@ public class Event extends AbstractModel {
 
     /**
      * Getter for the current waitlist count.
+     *
      * @return The number of users currently on the waitlist.
      */
     public int getWaitlistCount() {
@@ -334,11 +348,72 @@ public class Event extends AbstractModel {
 
     /**
      * Setter for the waitlist count.
+     *
      * @param waitlistCount The new waitlist count.
      */
     public void setWaitlistCount(int waitlistCount) {
         this.waitlistCount = Math.max(waitlistCount, 0);
         setDirty(true);
+    }
+
+    /**
+     * @return {@code #true} if the event is public to all applicants, {@code false} otherwise
+     */
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    /**
+     * Setter for the public status of the event
+     *
+     * @param isPublic The new public status
+     */
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    /**
+     * @return The image of the event poster encoded in Base64
+     */
+    public String getEncodedImage() {
+        return encodedImage;
+    }
+
+    /**
+     * Setter for the image of the event poster encoded in Base64
+     *
+     * @param encodedImage The new encoded image string
+     */
+    public void setEncodedImage(String encodedImage) {
+        this.encodedImage = encodedImage;
+    }
+
+    /**
+     * @return the date period of the events formatted iin dd/MM/yyyy
+     */
+    public String getFormattedDates() {
+        return DateUtil.toString(start) + " - " + DateUtil.toString(end);
+    }
+
+    /**
+     * @return the registration period of the events formatted iin dd/MM/yyyy
+     */
+    public String getFormattedRegistration() {
+        return DateUtil.toString(registrationStart) + " - " + DateUtil.toString(registrationEnd);
+    }
+
+    /**
+     * Increments the waitlist count
+     */
+    public void incrementWaitlistCount() {
+        setWaitlistCount(waitlistCount + 1);
+    }
+
+    /**
+     * Decrements the waitlist count
+     */
+    public void decrementWaitlistCount() {
+        setWaitlistCount(waitlistCount - 1);
     }
 
     /**
@@ -357,30 +432,37 @@ public class Event extends AbstractModel {
         map.put("price", price);
         map.put("waitlist_limit", waitlistLimit);
         map.put("waitlist_count", waitlistCount);
+        map.put("is_public", isPublic);
+        map.put("encoded_image", encodedImage);
         return map;
     }
 
     /**
      * Static function to instantiate event from a map. Used for Firebase retrieval
      *
-     * @param map
+     * @param id  The Firestore id of the Event's document
+     * @param map The data map retrieved from the {@link com.google.firebase.firestore.QueryDocumentSnapshot}
      * @return TODO: Improve validation of potential null fields
      */
     public static Event fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "name", "location", "description", "start", "end", "registration_start", "registration_end", "organizer_id", "price", "waitlist_limit", "waitlist_count"))
+        if (!hasRequiredFields(map, "name", "location", "description", "start", "end",
+                "registration_start", "registration_end", "organizer_id", "price", "waitlist_limit",
+                "waitlist_count", "is_public", "encoded_image"))
             return null;
 
         String name = (String) map.get("name");
         String location = (String) map.get("location");
         String description = (String) map.get("description");
-        LocalDateTime start = DateUtil.fromLong(Long.valueOf(map.get("start").toString()));
-        LocalDateTime end = DateUtil.fromLong(Long.valueOf(map.get("end").toString()));
-        LocalDateTime registrationStart = DateUtil.fromLong(Long.valueOf(map.get("registration_start").toString()));
-        LocalDateTime registrationEnd = DateUtil.fromLong(Long.valueOf(map.get("registration_end").toString()));
+        LocalDateTime start = DateUtil.fromSeconds(Long.valueOf(map.get("start").toString()));
+        LocalDateTime end = DateUtil.fromSeconds(Long.valueOf(map.get("end").toString()));
+        LocalDateTime registrationStart = DateUtil.fromSeconds(Long.valueOf(map.get("registration_start").toString()));
+        LocalDateTime registrationEnd = DateUtil.fromSeconds(Long.valueOf(map.get("registration_end").toString()));
         String organizerId = (String) map.get("organizer_id");
         float price = Float.valueOf(map.get("price").toString());
         int waitlistLimit = Integer.valueOf(map.get("waitlist_limit").toString());
-        int waitlistCount =  Integer.valueOf(map.get("waitlist_count").toString());
+        int waitlistCount = Integer.valueOf(map.get("waitlist_count").toString());
+        boolean isPublic = Boolean.valueOf(map.get("is_public").toString());
+        String encodedImage = map.get("encoded_image").toString();
 
         return Event.builder()
                 .id(id)
@@ -395,6 +477,8 @@ public class Event extends AbstractModel {
                 .price(price)
                 .waitlistLimit(waitlistLimit)
                 .waitlistCount(waitlistCount)
+                .isPublic(isPublic)
+                .encodedImage(encodedImage)
                 .build();
     }
 
@@ -402,15 +486,6 @@ public class Event extends AbstractModel {
     public static Builder builder() {
         return new Builder();
     }
-
-    public String getFormattedDates() {
-        return DateUtil.toString(start) + " - " + DateUtil.toString(end);
-    }
-
-    public String getFormattedRegistration() {
-        return DateUtil.toString(registrationStart) + " - " + DateUtil.toString(registrationEnd);
-    }
-
 
     /**
      * Builder class for Events
@@ -429,6 +504,8 @@ public class Event extends AbstractModel {
         private float price;
         private int waitlistLimit;
         private int waitlistCount;
+        private boolean isPublic;
+        private String encodedImage;
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -490,6 +567,16 @@ public class Event extends AbstractModel {
             return this;
         }
 
+        public Builder isPublic(boolean isPublic) {
+            this.isPublic = isPublic;
+            return this;
+        }
+
+        public Builder encodedImage(String encodedImage) {
+            this.encodedImage = encodedImage;
+            return this;
+        }
+
         public Event build() {
             try {
                 // Check if registration end is after the registration start
@@ -503,7 +590,8 @@ public class Event extends AbstractModel {
                 return null;
             }
 
-            return new Event(id, name, location, description, registrationStart, registrationEnd, start, end, organizerId, price, waitlistLimit, waitlistCount);
+            return new Event(id, name, location, description, registrationStart, registrationEnd,
+                    start, end, organizerId, price, waitlistLimit, waitlistCount, isPublic, encodedImage);
         }
     }
 }
