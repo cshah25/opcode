@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
                 R.id.eventCreatorFragment,
                 R.id.eventListFragment,
                 R.id.eventHistoryFragment,
-                R.id.qrCodeScannerFragment
+                R.id.qrCodeScannerFragment,
+                R.id.notificationsFragment
         ).build();
 
         if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
