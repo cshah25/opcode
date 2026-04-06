@@ -26,6 +26,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
 
+/**
+ * Displays and edits the current user's profile details.
+ */
 public class ProfileFragment extends Fragment {
 
     private TextInputLayout nameLayout;
@@ -39,12 +42,26 @@ public class ProfileFragment extends Fragment {
     private Button updateButton;
     private boolean isEditMode = false;
 
+    /**
+     * Inflates the profile screen layout.
+     *
+     * @param inflater           the layout inflater for this fragment
+     * @param container          the parent view that will host the fragment
+     * @param savedInstanceState the previously saved state, if any
+     * @return the inflated profile screen
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    /**
+     * Binds the profile form, populates the current user, and wires the update and delete actions.
+     *
+     * @param view               the fragment root view
+     * @param savedInstanceState the previously saved state, if any
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -80,7 +97,7 @@ public class ProfileFragment extends Fragment {
          * if the current user is admin then they can browse different profiles.
          */
         browseButton.setOnClickListener(v ->
-            NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.profileBrowseFragment)
+            NavHostFragment.findNavController(this).navigate(R.id.profileBrowseFragment)
         );
 
         browseButton.setVisibility((user != null && user.isAdmin()) ? View.VISIBLE : View.GONE);
@@ -154,49 +171,96 @@ public class ProfileFragment extends Fragment {
             if (user == null)
                 return;
 
-            userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
-                @Override
-                public void onSendSuccess(Void aVoid) {
-                    Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onSendFailure(Exception e) {
-                    Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            new EventRepository(FirebaseFirestore.getInstance()).deleteEventsByOrganizerId(user.getId(),
-                    new FirestoreCallbackSend() {
-                        @Override
-                        public void onSendSuccess(Void unused) {
-
-                        }
-
-                        @Override
-                        public void onSendFailure(Exception e) {
-                            Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                        }
-            });
-
-            new ApplicantRepository(FirebaseFirestore.getInstance()).deleteApplicantsByUser(user.getId(),
-                    new FirestoreCallbackSend() {
-                        @Override
-                        public void onSendSuccess(Void unused) {
-                        }
-
-                        @Override
-                        public void onSendFailure(Exception e) {
-                            Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-            NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
+            deleteProfile(user, userRepository);
         });
     }
 
     /**
-     * Attaches watchers to all fields to clear errors when updated
+     * Deletes the current user's profile together with their related events and applications.
+     *
+     * @param user           the user being deleted
+     * @param userRepository the repository used to delete the user profile document
+     */
+    private void deleteProfile(@NonNull User user, @NonNull UserRepository userRepository) {
+        int[] remainingDeletes = {3};
+        boolean[] finished = {false};
+
+        userRepository.deleteUser(user.getId(), new FirestoreCallbackSend() {
+            @Override
+            public void onSendSuccess(Void unused) {
+                handleProfileDeletionSuccess(remainingDeletes, finished);
+            }
+
+            @Override
+            public void onSendFailure(Exception e) {
+                handleProfileDeletionFailure(finished);
+            }
+        });
+
+        new EventRepository(FirebaseFirestore.getInstance()).deleteEventsByOrganizerId(user.getId(),
+                new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess(Void unused) {
+                        handleProfileDeletionSuccess(remainingDeletes, finished);
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        handleProfileDeletionFailure(finished);
+                    }
+                });
+
+        new ApplicantRepository(FirebaseFirestore.getInstance()).deleteApplicantsByUser(user.getId(),
+                new FirestoreCallbackSend() {
+                    @Override
+                    public void onSendSuccess(Void unused) {
+                        handleProfileDeletionSuccess(remainingDeletes, finished);
+                    }
+
+                    @Override
+                    public void onSendFailure(Exception e) {
+                        handleProfileDeletionFailure(finished);
+                    }
+                });
+    }
+
+    /**
+     * Tracks one successful deletion step and finishes the profile-deletion flow once all related
+     * records have been removed.
+     *
+     * @param remainingDeletes a mutable counter storing how many delete operations are still pending
+     * @param finished         a mutable flag used to ignore duplicate callbacks after completion
+     */
+    private void handleProfileDeletionSuccess(@NonNull int[] remainingDeletes, @NonNull boolean[] finished) {
+        if (finished[0]) {
+            return;
+        }
+
+        remainingDeletes[0]--;
+        if (remainingDeletes[0] == 0) {
+            finished[0] = true;
+            SessionController.getInstance(requireContext()).logout();
+            Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show();
+            NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.setupFragment);
+        }
+    }
+
+    /**
+     * Ends the profile-deletion flow after the first failed delete callback.
+     *
+     * @param finished a mutable flag used to ignore duplicate callbacks after a terminal result
+     */
+    private void handleProfileDeletionFailure(@NonNull boolean[] finished) {
+        if (finished[0]) {
+            return;
+        }
+
+        finished[0] = true;
+        Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Attaches watchers to all fields to clear errors when updated.
      */
     private void addErrorClearingWatchers() {
         ValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
@@ -205,9 +269,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Toggles the editable
+     * Toggles whether the profile fields are editable.
      *
-     * @param isEditMode
+     * @param isEditMode {@code true} to allow editing, {@code false} to lock the fields
      */
     private void setEditable(boolean isEditMode) {
         this.isEditMode = isEditMode;

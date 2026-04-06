@@ -339,7 +339,7 @@ public class User extends AbstractModel {
             }
 
             // Validate phone number (if provided)
-            if (phoneNum != null && !phoneNum.trim().isEmpty() && !ValidationUtil.isValidPhoneNumber("Phone number is invalid")) {
+            if (phoneNum != null && !phoneNum.trim().isEmpty() && !ValidationUtil.isValidPhoneNumber(phoneNum)) {
                 Log.e("User.Builder", "Phone number is invalid");
                 return null;
             }
