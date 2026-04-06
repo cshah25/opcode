@@ -39,7 +39,6 @@ import java.util.Objects;
 
 /**
  * Fragment displaying Event Details to the Entrant.
- * Fulfills US 01.05.04 (Waitlist Count) and US 01.05.05 (Lottery Guidelines).
  */
 public class EventDetailsFragment extends Fragment {
 
@@ -69,11 +68,25 @@ public class EventDetailsFragment extends Fragment {
     private ApplicantRepository applicantRepository;
     private EventRepository eventRepository;
 
+    /**
+     * inflates the event-details screen layout.
+     *
+     * @param inflater           the layout inflater for this fragment
+     * @param container          the parent view that will host the fragment
+     * @param savedInstanceState the previously saved state, if any
+     * @return the inflated event-details screen
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_event_details, container, false);
     }
 
+    /**
+     * Loads the selected event, binds the controls, and wires the waitlist actions.
+     *
+     * @param view               the fragment root view
+     * @param savedInstanceState the previously saved state, if any
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -186,6 +199,9 @@ public class EventDetailsFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Refreshes the waitlist count displayed for the current event.
+     */
     private void updateWaitlistCount() {
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
@@ -224,8 +240,6 @@ public class EventDetailsFragment extends Fragment {
                 @Override
                 public void onSendSuccess(Void unused) {
                     Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
-                    joinLeaveWaitlistButton.setContentDescription("Leave Waitlist");
-                    joinLeaveWaitlistButton.setImageResource(R.drawable.ic_leave_waitlist);
                     updateUI();
                     updateWaitlistCount();
                 }
@@ -236,16 +250,14 @@ public class EventDetailsFragment extends Fragment {
                 }
             });
         } else {
-            applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
+            applicantRepository.deleteApplicant(cur_user.getId(), event.getId(), new FirestoreCallbackSend() {
 
                 /**
-                 * Go back to the event list when the applicant is deleted
+                 * Updates the waitlist controls when the applicant is deleted.
                  */
                 @Override
                 public void onSendSuccess(Void aVoid) {
                     Toast.makeText(getContext(), "Leaving the draw", Toast.LENGTH_SHORT).show();
-                    joinLeaveWaitlistButton.setContentDescription("Join Waitlist");
-                    joinLeaveWaitlistButton.setImageResource(R.drawable.ic_join_waitlist);
                     applicant = null;
                     updateUI();
                     updateWaitlistCount();
@@ -264,6 +276,9 @@ public class EventDetailsFragment extends Fragment {
     }
 
     // TODO: Merge from notification commits
+    /**
+     * Placeholder for notification opt-in handling on the event-details screen.
+     */
     private void toggleNotifications() {
 
     }
@@ -303,6 +318,9 @@ public class EventDetailsFragment extends Fragment {
         });
     }
 
+    /**
+     * Deletes the organizer and their related event/application records from the admin view.
+     */
     private void adminDeleteOrganizer() {
 
         UserRepository user_repo = new UserRepository(FirebaseFirestore.getInstance());
@@ -391,32 +409,38 @@ public class EventDetailsFragment extends Fragment {
 
         removeOrganizerButton.setVisibility((cur_user.isAdmin() && !Objects.equals(event.getOrganizerId(), cur_user.getId())) ? View.VISIBLE : View.GONE);
 
-
         if (applicant == null) {
-            joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
             invitationSection.setVisibility(View.GONE);
+            joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+            joinLeaveWaitlistButton.setContentDescription("Join Waitlist");
+            joinLeaveWaitlistButton.setImageResource(R.drawable.ic_join_waitlist);
             toggleNotificationsButton.setVisibility(View.GONE);
             commentButton.setVisibility(View.GONE);
             return;
         }
 
+        joinLeaveWaitlistButton.setContentDescription("Leave Waitlist");
+        joinLeaveWaitlistButton.setImageResource(R.drawable.ic_leave_waitlist);
+
         switch (applicant.getStatus()) {
             case NOT_DRAWN:
                 invitationSection.setVisibility(View.GONE);
                 joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+                toggleNotificationsButton.setVisibility(View.VISIBLE);
                 commentButton.setVisibility(View.VISIBLE);
                 break;
             case INVITED:
                 invitationSection.setVisibility(View.VISIBLE);
                 joinLeaveWaitlistButton.setVisibility(View.GONE);
+                toggleNotificationsButton.setVisibility(View.VISIBLE);
                 commentButton.setVisibility(View.VISIBLE);
                 break;
             default:
                 invitationSection.setVisibility(View.GONE);
                 joinLeaveWaitlistButton.setVisibility(View.GONE);
+                toggleNotificationsButton.setVisibility(View.VISIBLE);
                 commentButton.setVisibility(View.VISIBLE);
                 break;
         }
-        toggleNotificationsButton.setVisibility(View.VISIBLE);
     }
 }

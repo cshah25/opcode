@@ -19,39 +19,26 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.BuildConfig;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
-import com.example.opcodeapp.repository.EventRepository;
-import com.example.opcodeapp.util.DateUtil;
-import com.google.firebase.firestore.Filter;
+import com.example.opcodeapp.util.EventFilterUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
+/**
+ * Displays the event list and lets entrants search and filter the available events.
+ */
 public class EventsListFragment extends Fragment {
 
     private Button searchButton;
@@ -67,17 +54,28 @@ public class EventsListFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
     private ApplicantRepository applicantRepository;
-    private EventRepository eventRepository;
     private User user;
 
-
-
+    /**
+     * Inflates the event-list screen layout.
+     *
+     * @param inflater           the layout inflater for this fragment
+     * @param container          the parent view that will host the fragment
+     * @param savedInstanceState the previously saved state, if any
+     * @return the inflated event-list screen
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_events_list, container, false);
     }
 
+    /**
+     * Binds the event-list controls, loads the event data, and wires up search/filter listeners.
+     *
+     * @param view               the fragment root view
+     * @param savedInstanceState the previously saved state, if any
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -91,7 +89,6 @@ public class EventsListFragment extends Fragment {
         }
 
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        eventRepository = new EventRepository(FirebaseFirestore.getInstance());
 
         // Bind views
         searchButton = view.findViewById(R.id.search_button);
@@ -153,6 +150,9 @@ public class EventsListFragment extends Fragment {
         loadApplicantCounts();
     }
 
+    /**
+     * Loads all events from Firestore so they can be filtered locally.
+     */
     private void loadEvents() {
         FirebaseFirestore.getInstance().collection("Events")
                 .get()
@@ -171,6 +171,9 @@ public class EventsListFragment extends Fragment {
                 );
     }
 
+    /**
+     * Loads applicant counts for each event so the capacity filter can be applied locally.
+     */
     private void loadApplicantCounts() {
         FirebaseFirestore.getInstance().collection("Applicants")
                 .get()
@@ -197,81 +200,26 @@ public class EventsListFragment extends Fragment {
                 );
     }
 
+    /**
+     * Applies the current keyword and checkbox filters to the loaded event list.
+     */
     private void applyFilters() {
-        String text = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
-
         shownEvents.clear();
         shownNames.clear();
 
-        for (Event event : allEvents) {
-            if (!matchesKeyword(event, text)) {
-                continue;
-            }
-            if (availableOnlyFilter.isChecked() && !isRegistrationOpen(event)) {
-                continue;
-            }
-            if (capacityOnlyFilter.isChecked() && !hasCapacity(event)) {
-                continue;
-            }
+        shownEvents.addAll(EventFilterUtil.filterEvents(
+                allEvents,
+                searchInput.getText().toString(),
+                availableOnlyFilter.isChecked(),
+                capacityOnlyFilter.isChecked(),
+                applicantCounts,
+                LocalDateTime.now()
+        ));
 
-            shownEvents.add(event);
+        for (Event event : shownEvents) {
             shownNames.add(event.getName() == null ? "Untitled event" : event.getName());
         }
 
         adapter.notifyDataSetChanged();
     }
-
-    /**
-     * A case-insensitive checks for any keyword references that occur within an {@link Event}'s name,
-     * description or location.
-     *
-     * @param event   The event to search the keyword for
-     * @param keyword The keyword to search for
-     * @return {@code true} if any keyword occurs in the event, {@code false} otherwise
-     */
-    private boolean matchesKeyword(Event event, String keyword) {
-        if (keyword.isEmpty())
-            return true;
-
-        return containsKeyword(event.getName(), keyword)
-                || containsKeyword(event.getDescription(), keyword)
-                || containsKeyword(event.getLocation(), keyword);
-    }
-
-    /**
-     * @param value   The string to search through
-     * @param keyword The keyword to search for
-     * @return {@code true} if the keyword occurs in the string, {@code false} otherwise
-     */
-    private boolean containsKeyword(String value, String keyword) {
-        return value != null && value.toLowerCase(Locale.getDefault()).contains(keyword);
-    }
-
-    /**
-     * Checks if the event's registration period is open
-     *
-     * @param event The event being checked
-     * @return {@code true} if the event registration period is open, {@code false} otherwise
-     */
-    private boolean isRegistrationOpen(Event event) {
-        LocalDateTime now = LocalDateTime.now();
-        return now.isAfter(event.getRegistrationStart()) && now.isBefore(event.getRegistrationEnd());
-    }
-
-    /**
-     * Checks if the event has not reached waitlist capacity
-     *
-     * @param event The event being checked
-     * @return {@code true} if the event has not reached the waitlist capacity, {@code false} otherwise
-     */
-    private boolean hasCapacity(Event event) {
-        if (event.getWaitlistLimit() < 0)
-            return true;
-
-        int currentApplicants = applicantCounts.containsKey(event.getId())
-                ? applicantCounts.get(event.getId())
-                : 0;
-        return currentApplicants < event.getWaitlistLimit();
-    }
-
 }
