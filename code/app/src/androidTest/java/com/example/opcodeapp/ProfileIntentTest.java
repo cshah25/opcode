@@ -10,6 +10,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.opcodeapp.view.ProfileFragment;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +26,7 @@ public class ProfileIntentTest {
 
     @Test
     public void testUpdateFlow() {
-        onView(withId(R.id.profile_name_input)).perform(typeText("Michali"));
+        onView(withId(R.id.profile_name_input)).perform(typeText("Mic"));
         onView(withId(R.id.profile_update_button)).perform(click());
         onView(withId(R.id.profile_name_input)).check(matches(isDisplayed()));
     }
