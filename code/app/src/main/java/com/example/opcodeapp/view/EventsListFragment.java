@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -28,10 +27,8 @@ import com.example.opcodeapp.util.EventFilterUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class EventsListFragment extends Fragment {
 
@@ -143,93 +140,15 @@ public class EventsListFragment extends Fragment {
      * Applies the current keyword and checkbox filters to the loaded event list.
      */
     private void applyFilters() {
-//        String text = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
-//        dataList.clear();
-//
-//        for (Event event : allEvents) {
-//            if (!matchesKeyword(event, text)) continue;
-//
-//            if (availableOnlyFilter.isChecked() && !isRegistrationOpen(event)) continue;
-//
-//            if (capacityOnlyFilter.isChecked() && !hasCapacity(event)) continue;
-//
-//            if (!event.isPublic() && !user.isAdmin()) continue;
-//
-//            dataList.add(event);
-//        }
-
-        shownEvents.clear();
-        shownNames.clear();
-
+        dataList.clear();
         dataList.addAll(EventFilterUtil.filterEvents(
-                        allEvents,
-                        searchInput.getText().toString(),
-                        availableOnlyFilter.isChecked(),
-                        capacityOnlyFilter.isChecked(),
-                        ,
-                        LocalDateTime.now()
-                )
-        );
-
-
-        shownEvents.addAll(EventFilterUtil.filterEvents(
                 allEvents,
                 searchInput.getText().toString(),
                 availableOnlyFilter.isChecked(),
                 capacityOnlyFilter.isChecked(),
-                applicantCounts,
-                LocalDateTime.now()
+                user.isAdmin()
         ));
-        for (Event event : shownEvents) {
-            shownNames.add(event.getName() == null ? "Untitled event" : event.getName());
-        }
+
         adapter.notifyDataSetChanged();
     }
-
-    /**
-     * A case-insensitive checks for any keyword references that occur within an {@link Event}'s name,
-     * description or location.
-     *
-     * @param event   The event to search the keyword for
-     * @param keyword The keyword to search for
-     * @return {@code true} if any keyword occurs in the event, {@code false} otherwise
-     */
-    private boolean matchesKeyword(Event event, String keyword) {
-        if (keyword.isEmpty()) return true;
-
-        return containsKeyword(event.getName(), keyword) || containsKeyword(event.getDescription(), keyword) || containsKeyword(event.getLocation(), keyword);
-    }
-
-    /**
-     * @param value   The string to search through
-     * @param keyword The keyword to search for
-     * @return {@code true} if the keyword occurs in the string, {@code false} otherwise
-     */
-    private boolean containsKeyword(String value, String keyword) {
-        return value != null && value.toLowerCase(Locale.getDefault()).contains(keyword);
-    }
-
-    /**
-     * Checks if the event's registration period is open
-     *
-     * @param event The event being checked
-     * @return {@code true} if the event registration period is open, {@code false} otherwise
-     */
-    private boolean isRegistrationOpen(Event event) {
-        LocalDateTime now = LocalDateTime.now();
-        return now.isAfter(event.getRegistrationStart()) && now.isBefore(event.getRegistrationEnd());
-    }
-
-    /**
-     * Checks if the event has not reached waitlist capacity
-     *
-     * @param event The event being checked
-     * @return {@code true} if the event has not reached the waitlist capacity, {@code false} otherwise
-     */
-    private boolean hasCapacity(Event event) {
-        if (event.getWaitlistLimit() < 0) return true;
-
-        return event.getWaitlistCount() < event.getWaitlistLimit();
-    }
-
 }

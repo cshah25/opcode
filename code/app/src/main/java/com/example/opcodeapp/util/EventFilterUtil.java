@@ -8,10 +8,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
- * Pure helper methods for searching and filtering events in the event list.
+ * Static helper methods for searching and filtering events in the event list.
  */
 public final class EventFilterUtil {
     private EventFilterUtil() {
@@ -20,12 +19,11 @@ public final class EventFilterUtil {
     /**
      * Filters the provided events using the current keyword and checkbox state.
      *
-     * @param events           the events to filter
-     * @param keyword          the user-entered search keyword
-     * @param availableOnly    whether to keep only events with open registration
-     * @param capacityOnly     whether to keep only events with remaining waitlist capacity
-     * @param applicantCounts  the known applicant count for each event id
-     * @param now              the current timestamp used for registration checks
+     * @param events        the events to filter
+     * @param keyword       the user-entered search keyword
+     * @param availableOnly whether to keep only events with open registration
+     * @param capacityOnly  whether to keep only events with remaining waitlist capacity
+     * @param isAdmin       whether the viewer is an admin
      * @return the filtered events in their original order
      */
     @NonNull
@@ -34,22 +32,24 @@ public final class EventFilterUtil {
             String keyword,
             boolean availableOnly,
             boolean capacityOnly,
-            @NonNull Map<String, Integer> applicantCounts,
-            @NonNull LocalDateTime now
+            boolean isAdmin
     ) {
         List<Event> filteredEvents = new ArrayList<>();
         String normalizedKeyword = normalizeKeyword(keyword);
 
         for (Event event : events) {
-            if (!matchesKeyword(event, normalizedKeyword)) {
+            if (!matchesKeyword(event, normalizedKeyword))
                 continue;
-            }
-            if (availableOnly && !isRegistrationOpen(event, now)) {
+
+            if (availableOnly && !isRegistrationOpen(event))
                 continue;
-            }
-            if (capacityOnly && !hasCapacity(event, applicantCounts)) {
+
+            if (capacityOnly && !hasCapacity(event))
                 continue;
-            }
+
+            if (!event.isPublic() && !isAdmin)
+                continue;
+
             filteredEvents.add(event);
         }
 
@@ -94,35 +94,40 @@ public final class EventFilterUtil {
      * Checks whether registration is currently open for an event.
      *
      * @param event the event being checked
-     * @param now   the current timestamp
      * @return {@code true} when the current time falls within the registration window
      */
-    public static boolean isRegistrationOpen(@NonNull Event event, @NonNull LocalDateTime now) {
+    public static boolean isRegistrationOpen(@NonNull Event event, @NonNull LocalDateTime time) {
         LocalDateTime registrationStart = event.getRegistrationStart();
         LocalDateTime registrationEnd = event.getRegistrationEnd();
 
         return registrationStart != null
                 && registrationEnd != null
-                && !now.isBefore(registrationStart)
-                && !now.isAfter(registrationEnd);
+                && !time.isBefore(registrationStart)
+                && !time.isAfter(registrationEnd);
+    }
+
+
+    /**
+     * Checks whether registration is currently open for an event.
+     *
+     * @param event the event being checked
+     * @return {@code true} when the current time falls within the registration window
+     */
+    public static boolean isRegistrationOpen(@NonNull Event event) {
+        return isRegistrationOpen(event, LocalDateTime.now());
     }
 
     /**
      * Checks whether an event can still accept more applicants.
      *
-     * @param event           the event being checked
-     * @param applicantCounts the known applicant count for each event id
+     * @param event the event being checked
      * @return {@code true} when the event still has waitlist capacity
      */
-    public static boolean hasCapacity(@NonNull Event event, @NonNull Map<String, Integer> applicantCounts) {
-        if (event.getWaitlistLimit() < 0) {
+    public static boolean hasCapacity(@NonNull Event event) {
+        if (event.getWaitlistLimit() < 0)
             return true;
-        }
 
-        int currentApplicants = applicantCounts.containsKey(event.getId())
-                ? applicantCounts.get(event.getId())
-                : 0;
-        return currentApplicants < event.getWaitlistLimit();
+        return event.getWaitlistCount() < event.getWaitlistLimit();
     }
 
     /**

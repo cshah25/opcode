@@ -24,7 +24,8 @@ public class EventFilterUtilTest {
                 "Edmonton Hall",
                 LocalDateTime.of(2026, 4, 5, 9, 0),
                 LocalDateTime.of(2026, 4, 10, 9, 0),
-                10
+                10,
+                9
         );
 
         assertTrue(EventFilterUtil.matchesKeyword(event, "gala"));
@@ -35,7 +36,7 @@ public class EventFilterUtilTest {
 
     @Test
     public void filterEvents_appliesKeywordAvailabilityAndCapacityTogether() {
-        LocalDateTime now = LocalDateTime.of(2026, 4, 5, 12, 0);
+        LocalDateTime now = LocalDateTime.now();
 
         Event matchingOpenEvent = createEvent(
                 "open-event",
@@ -44,7 +45,8 @@ public class EventFilterUtilTest {
                 "Student Lounge",
                 now.minusHours(1),
                 now.plusHours(2),
-                5
+                5,
+                0
         );
         Event fullEvent = createEvent(
                 "full-event",
@@ -53,6 +55,7 @@ public class EventFilterUtilTest {
                 "Main Gym",
                 now.minusHours(1),
                 now.plusHours(2),
+                2,
                 2
         );
         Event closedEvent = createEvent(
@@ -62,21 +65,16 @@ public class EventFilterUtilTest {
                 "Auditorium",
                 now.minusDays(2),
                 now.minusDays(1),
-                5
+                5,
+                3
         );
-
-        Map<String, Integer> applicantCounts = new HashMap<>();
-        applicantCounts.put("open-event", 3);
-        applicantCounts.put("full-event", 2);
-        applicantCounts.put("closed-event", 1);
 
         List<Event> filteredEvents = EventFilterUtil.filterEvents(
                 Arrays.asList(matchingOpenEvent, fullEvent, closedEvent),
                 "chess",
                 true,
                 true,
-                applicantCounts,
-                now
+                false
         );
 
         assertEquals(1, filteredEvents.size());
@@ -85,12 +83,28 @@ public class EventFilterUtilTest {
 
     @Test
     public void isRegistrationOpen_includesStartAndEndBoundaries() {
-        LocalDateTime start = LocalDateTime.of(2026, 4, 5, 8, 0);
-        LocalDateTime end = LocalDateTime.of(2026, 4, 5, 17, 0);
-        Event event = createEvent("event-2", "Workshop", "Desc", "Lab", start, end, 10);
+        LocalDateTime reference = LocalDateTime.of(2026, 4, 6, 12, 0);
+        ;
+        LocalDateTime start = reference.minusHours(1);
+        LocalDateTime end = reference.plusHours(1);
+        Event event = createEvent("event-2",
+                "Workshop",
+                "Desc",
+                "Lab",
+                start,
+                end,
+                10,
+                5
+        );
 
+        // Exact boundary
         assertTrue(EventFilterUtil.isRegistrationOpen(event, start));
         assertTrue(EventFilterUtil.isRegistrationOpen(event, end));
+
+        // Within boundary
+        assertTrue(EventFilterUtil.isRegistrationOpen(event, reference));
+
+        // Outside boundary
         assertFalse(EventFilterUtil.isRegistrationOpen(event, start.minusSeconds(1)));
         assertFalse(EventFilterUtil.isRegistrationOpen(event, end.plusSeconds(1)));
     }
@@ -104,7 +118,8 @@ public class EventFilterUtilTest {
                 "Venue",
                 LocalDateTime.of(2026, 4, 1, 9, 0),
                 LocalDateTime.of(2026, 4, 10, 9, 0),
-                -1
+                -1,
+                10
         );
         Event limitedEvent = createEvent(
                 "limited",
@@ -113,14 +128,12 @@ public class EventFilterUtilTest {
                 "Venue",
                 LocalDateTime.of(2026, 4, 1, 9, 0),
                 LocalDateTime.of(2026, 4, 10, 9, 0),
+                3,
                 3
         );
 
-        Map<String, Integer> applicantCounts = new HashMap<>();
-        applicantCounts.put("limited", 3);
-
-        assertTrue(EventFilterUtil.hasCapacity(unlimitedEvent, applicantCounts));
-        assertFalse(EventFilterUtil.hasCapacity(limitedEvent, applicantCounts));
+        assertTrue(EventFilterUtil.hasCapacity(unlimitedEvent));
+        assertFalse(EventFilterUtil.hasCapacity(limitedEvent));
     }
 
     private Event createEvent(
@@ -130,7 +143,8 @@ public class EventFilterUtilTest {
             String location,
             LocalDateTime registrationStart,
             LocalDateTime registrationEnd,
-            int waitlistLimit
+            int waitlistLimit,
+            int waitlistCount
     ) {
         return new Event(
                 id,
@@ -144,7 +158,9 @@ public class EventFilterUtilTest {
                 "organizer-1",
                 0f,
                 waitlistLimit,
-                0
+                waitlistCount,
+                true,
+                ""
         );
     }
 }
