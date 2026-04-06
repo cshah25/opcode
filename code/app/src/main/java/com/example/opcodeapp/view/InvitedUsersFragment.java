@@ -66,6 +66,18 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
+
+                /*
+                for (Applicant applicant : applicants) {
+
+                    if (applicant.getStatus() == ApplicantStatus.INVITED || applicant.getStatus() == ApplicantStatus.DECLINED || applicant.getStatus() == ApplicantStatus.ACCEPTED) {
+                        dataList.add(applicant);
+                    }
+
+
+                }
+                */
+
                 dataList.addAll(applicants);
                 userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
                 userList.setAdapter(userAdapter);

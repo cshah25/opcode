@@ -20,6 +20,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.adapter.ApplicantArrayAdapter;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
@@ -30,6 +31,7 @@ import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -83,9 +85,23 @@ public class WaitListFragment extends Fragment {
 
         header.setText(event.getName() + " Waitlist");
 
-        // Initialize List and Adapter
-        this.adapter = new ApplicantArrayAdapter(getContext(), new ArrayList<>());
-        waitlistListView.setAdapter(adapter);
+        applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
+                    @Override
+                    public void onDataReceived(List<Applicant> applicant) {
+                        adapter = new ApplicantArrayAdapter(getContext(), applicant);
+                        waitlistListView.setAdapter(adapter);
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+
+                    }
+        });
+
+                // Initialize List and Adapter
+
 
         // Responsibility:  only Organizers can see lottery controls
         if (!user.getId().equals(event.getOrganizerId())) {
@@ -109,16 +125,49 @@ public class WaitListFragment extends Fragment {
         try {
             int numToDraw = Integer.parseInt(input);
 
-            // Responsibility: randomly select entrants
-            List<Applicant> winners = lotterySystem.drawEntrants(event, numToDraw);
-            if (winners == null || winners.isEmpty()) {
-                Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            // Responsibility: notify entrants
-            processWinner(winners);
-            Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
+            List<Applicant> result = new ArrayList<>();
+
+            ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
+            repository.fetchApplicantsByStatus(event, ApplicantStatus.NOT_DRAWN,
+                    new FirestoreCallbackApplicantsReceive() {
+                        @Override
+                        public void onDataReceived(List<Applicant> applicant) {
+                            result.addAll(applicant);
+
+                            int drawSize = Math.min(numToDraw, result.size());
+
+                            // Responsibility: randomly assign entrants
+                            Collections.shuffle(result);
+
+
+
+                            List<Applicant> winners = result.subList(0, drawSize);
+                            if (winners == null || winners.isEmpty()) {
+                                Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            for (Applicant winner : winners) {
+                                adapter.remove(winner);
+                            }
+
+                            // Responsibility: notify entrants
+                            processWinner(winners);
+                            Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    }
+            );
+
+
+
+            // Responsibility: randomly select entrants
+
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(), "Could not parse number", Toast.LENGTH_SHORT).show();
         }
@@ -128,7 +177,6 @@ public class WaitListFragment extends Fragment {
      * Passes the winning users to the Event instance to update their invited status.
      */
     private void processWinner(List<Applicant> winners) {
-        adapter.clear();
 
         //probably needed
         winners.forEach(applicant -> {
@@ -147,6 +195,5 @@ public class WaitListFragment extends Fragment {
             });
         });
 
-        adapter.addAll(winners);
     }
 }
