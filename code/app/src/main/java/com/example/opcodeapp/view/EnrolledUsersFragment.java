@@ -70,7 +70,7 @@ public class EnrolledUsersFragment extends Fragment {
         ListView applicantListView = view.getRootView().findViewById(R.id.enrolled_users_list_view);
         List<Applicant> dataList = new ArrayList<>();
         ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        repository.fetchApplicants(f -> f.whereEqualTo("status", ApplicantStatus.ACCEPTED.name()),
+        repository.fetchApplicantsByEvent(event.getId(),
                 new FirestoreCallbackApplicantsReceive() {
 
                     /**
@@ -80,7 +80,12 @@ public class EnrolledUsersFragment extends Fragment {
                      */
                     @Override
                     public void onDataReceived(List<Applicant> applicants) {
-                        dataList.addAll(applicants);
+
+                        for (Applicant applicant : applicants) {
+                            if (applicant.getStatus() == ApplicantStatus.ACCEPTED) {
+                                dataList.add(applicant);
+                            }
+                        }
                         ArrayAdapter<Applicant> applicantAdapter = new ApplicantArrayAdapter(requireContext(), dataList);
                         applicantListView.setAdapter(applicantAdapter);
                         applicantAdapter.notifyDataSetChanged();
