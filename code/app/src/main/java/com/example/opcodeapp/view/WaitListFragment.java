@@ -25,8 +25,10 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.Notification;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
+import com.example.opcodeapp.repository.NotificationRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class WaitListFragment extends Fragment {
 
     private Event event;
     private ApplicantRepository applicantRepository;
+    private NotificationRepository notificationRepository;
     private ArrayAdapter<Applicant> adapter;
 
     private EditText numToDrawInput;
@@ -73,6 +76,7 @@ public class WaitListFragment extends Fragment {
         // Initialize Repository and Data
         User user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
+        notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
 
         // Setup UI References
         ListView waitlistListView = view.findViewById(R.id.waitlist_list_view);
@@ -136,10 +140,11 @@ public class WaitListFragment extends Fragment {
                             Collections.shuffle(result);
 
                             List<Applicant> winners = new ArrayList<>(result.subList(0, drawSize));
-                            if (winners == null || winners.isEmpty()) {
+                            if (winners.isEmpty()) {
                                 Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
                                 return;
                             }
+                            List<Applicant> losers = new ArrayList<>(result.subList(drawSize, result.size()));
 
                             for (Applicant winner : winners) {
                                 waitlist.removeIf(a -> a.getId().equals(winner.getId()));
@@ -149,6 +154,7 @@ public class WaitListFragment extends Fragment {
 
                             // Responsibility: notify entrants
                             processWinner(winners);
+                            processLosers(losers);
                             Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
                         }
 
@@ -165,6 +171,22 @@ public class WaitListFragment extends Fragment {
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(), "Could not parse number", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void processLosers(List<Applicant> losers) {
+        losers.forEach(applicant -> {
+            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    Log.i("Lottery", "notification created for loser");
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("Lottery", "Could not add notification for loser", e);
+                }
+            });
+        });
     }
 
     /**
@@ -185,6 +207,18 @@ public class WaitListFragment extends Fragment {
                 @Override
                 public void onSendFailure(Exception e) {
                     Log.e("Lottery", "Failed to update event", e);
+                }
+            });
+            // create notification inviting user
+            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You're invited to %s!", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    Log.i("Lottery", "notification created for winner");
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("Lottery", "Could not add notification for winner", e);
                 }
             });
         });

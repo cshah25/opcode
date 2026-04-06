@@ -11,6 +11,7 @@ guava = "33.1.0-android"
 navigation = "2.9.7"
 zxing = "4.3.0"
 okhttp = "5.3.2"
+firebaseMessaging = "25.0.1"
 opencsv = "5.7.1"
 annotation = "1.6.0"
 fragment-testing = "1.6.2"
@@ -21,7 +22,6 @@ libphonenumber = "8.13.55"
 glide = "4.12.0"
 
 [libraries]
-# Core UI
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -42,6 +42,7 @@ opencsv = { group = "com.opencsv", name = "opencsv", version.ref = "opencsv" }
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 
 # CameraX
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }

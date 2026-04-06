@@ -151,9 +151,15 @@ public class EventDetailsFragment extends Fragment {
         registration.setText("Registration: " + event.getFormattedRegistration());
         description.setText(event.getDescription());
         userRepository.fetchUser(event.getOrganizerId(), new FirestoreCallbackUserReceive() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataReceived(User user) {
-                organizer.setText(user.getName());
+                if (user != null) {
+                    organizer.setText(user.getName());
+                } else {
+                    organizer.setText("No organizer");
+                    Log.w("EventDetails", "No organizer for event " + event.getId());
+                }
             }
 
             @Override

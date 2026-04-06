@@ -15,6 +15,7 @@ import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,15 +50,15 @@ public class SessionController {
             @Override
             public void onDataReceived(User user) {
                 Log.i("SessionController", "received query result ok");
+
                 current_user = user;
 
-                if (current_user != null) {
-                    state.postValue(LoginState.LOGGED_IN);
+                if (current_user == null) {
+                    Log.w("SessionController", "No user found for device id");
+                    state.postValue(LoginState.LOGGED_OUT);
                     return;
                 }
-
-                Log.e("SessionController", "No user found for device id");
-                state.postValue(LoginState.LOGGED_OUT);
+                state.postValue(LoginState.LOGGED_IN);
             }
 
             @Override
