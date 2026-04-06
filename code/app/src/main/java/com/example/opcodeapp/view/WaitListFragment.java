@@ -17,9 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.adapter.ApplicantArrayAdapter;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.enums.ApplicantStatus;
@@ -30,6 +30,7 @@ import com.example.opcodeapp.repository.ApplicantRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,10 +41,10 @@ public class WaitListFragment extends Fragment {
 
     private Event event;
     private ApplicantRepository applicantRepository;
-    private LotterySystem lotterySystem;
     private ArrayAdapter<Applicant> adapter;
 
     private EditText numToDrawInput;
+    private final List<Applicant> waitlist = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,7 +73,6 @@ public class WaitListFragment extends Fragment {
         // Initialize Repository and Data
         User user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        lotterySystem = new LotterySystem();
 
         // Setup UI References
         ListView waitlistListView = view.findViewById(R.id.waitlist_list_view);
@@ -83,14 +83,28 @@ public class WaitListFragment extends Fragment {
 
         header.setText(event.getName() + " Waitlist");
 
-        // Initialize List and Adapter
-        this.adapter = new ApplicantArrayAdapter(getContext(), new ArrayList<>());
-        waitlistListView.setAdapter(adapter);
+        // Initialize and attach adapter
+        applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
+            @Override
+            public void onDataReceived(List<Applicant> applicant) {
+                for (Applicant a : applicant) {
+                    if (a.getStatus() == ApplicantStatus.NOT_DRAWN) {
+                        waitlist.add(a);
+                    }
+                }
+                adapter = new ApplicantArrayAdapter(getContext(), waitlist);
+                waitlistListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+            }
+        });
 
         // Responsibility:  only Organizers can see lottery controls
-        if (!user.getId().equals(event.getOrganizerId())) {
+        if (!user.getId().equals(event.getOrganizerId()))
             lotteryControls.setVisibility(View.GONE);
-        }
 
         // Setup Lottery Draw Listener
         drawButton.setOnClickListener(v -> runLotteryDraw());
@@ -108,17 +122,46 @@ public class WaitListFragment extends Fragment {
 
         try {
             int numToDraw = Integer.parseInt(input);
+            List<Applicant> result = new ArrayList<>();
+
+            ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
+            repository.fetchApplicantsByStatus(event, ApplicantStatus.NOT_DRAWN,
+                    new FirestoreCallbackApplicantsReceive() {
+                        @Override
+                        public void onDataReceived(List<Applicant> applicant) {
+                            result.addAll(applicant);
+                            int drawSize = Math.min(numToDraw, result.size());
+
+                            // Responsibility: randomly assign entrants
+                            Collections.shuffle(result);
+
+                            List<Applicant> winners = new ArrayList<>(result.subList(0, drawSize));
+                            if (winners == null || winners.isEmpty()) {
+                                Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            for (Applicant winner : winners) {
+                                waitlist.removeIf(a -> a.getId().equals(winner.getId()));
+                            }
+
+                            adapter.notifyDataSetChanged();
+
+                            // Responsibility: notify entrants
+                            processWinner(winners);
+                            Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    }
+            );
+
 
             // Responsibility: randomly select entrants
-            List<Applicant> winners = lotterySystem.drawEntrants(event, numToDraw);
-            if (winners == null || winners.isEmpty()) {
-                Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            // Responsibility: notify entrants
-            processWinner(winners);
-            Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(), "Could not parse number", Toast.LENGTH_SHORT).show();
         }
@@ -128,7 +171,6 @@ public class WaitListFragment extends Fragment {
      * Passes the winning users to the Event instance to update their invited status.
      */
     private void processWinner(List<Applicant> winners) {
-        adapter.clear();
 
         //probably needed
         winners.forEach(applicant -> {
@@ -146,7 +188,5 @@ public class WaitListFragment extends Fragment {
                 }
             });
         });
-
-        adapter.addAll(winners);
     }
 }

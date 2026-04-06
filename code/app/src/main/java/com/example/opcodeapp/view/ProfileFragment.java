@@ -18,7 +18,8 @@ import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.repository.EventRepository;
 import com.example.opcodeapp.repository.UserRepository;
-import com.example.opcodeapp.util.UIValidationUtil;
+import com.example.opcodeapp.util.PhoneFormatterWatcher;
+import com.example.opcodeapp.util.ValidationUtil;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -73,6 +74,8 @@ public class ProfileFragment extends Fragment {
         emailInput = view.findViewById(R.id.profile_email_input);
         phoneInput = view.findViewById(R.id.profile_phone_input);
 
+        phoneInput.addTextChangedListener(new PhoneFormatterWatcher("CA"));
+
         addErrorClearingWatchers();
 
         updateButton = view.findViewById(R.id.profile_update_button);
@@ -90,13 +93,14 @@ public class ProfileFragment extends Fragment {
         }
 
 
-        // Admins can browse other profiles from this screen.
-        browseButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(ProfileFragment.this).navigate(R.id.profileBrowseFragment);
-        });
+        /**
+         * if the current user is admin then they can browse different profiles.
+         */
+        browseButton.setOnClickListener(v ->
+            NavHostFragment.findNavController(this).navigate(R.id.profileBrowseFragment)
+        );
 
         browseButton.setVisibility((user != null && user.isAdmin()) ? View.VISIBLE : View.GONE);
-
 
         updateButton.setOnClickListener(v -> {
             // Cancel if user is null
@@ -109,18 +113,28 @@ public class ProfileFragment extends Fragment {
                 return;
             }
 
-            boolean valid = UIValidationUtil.validateRequiredFields(Map.of(
+            boolean valid = ValidationUtil.validateRequiredFields(Map.of(
                     nameInput, nameLayout,
                     emailInput, emailLayout
             ));
 
+            // Retrieve text from fields
+            String nameText = ValidationUtil.getText(nameInput);
+            String emailText = ValidationUtil.getText(emailInput);
+            String phoneText = ValidationUtil.getText(phoneInput);
+
+            if (!ValidationUtil.isValidPhoneNumber(phoneText)) {
+                phoneLayout.setError("Invalid Phone Number");
+                valid = false;
+            }
+
+            if (!ValidationUtil.isValidEmail(emailText)) {
+                emailLayout.setError("Invalid Email");
+                valid = false;
+            }
+
             if (!valid)
                 return;
-
-            // Retrieve text from fields
-            String nameText = UIValidationUtil.getText(nameInput);
-            String emailText = UIValidationUtil.getText(emailInput);
-            String phoneText = UIValidationUtil.getText(phoneInput);
 
             // Update User instance if field has been changed
             if (!user.getName().equals(nameText))
@@ -249,9 +263,9 @@ public class ProfileFragment extends Fragment {
      * Attaches watchers to all fields to clear errors when updated.
      */
     private void addErrorClearingWatchers() {
-        UIValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
-        UIValidationUtil.addErrorClearingWatcher(emailInput, emailLayout);
-        UIValidationUtil.addErrorClearingWatcher(phoneInput, phoneLayout);
+        ValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
+        ValidationUtil.addErrorClearingWatcher(emailInput, emailLayout);
+        ValidationUtil.addErrorClearingWatcher(phoneInput, phoneLayout);
     }
 
     /**

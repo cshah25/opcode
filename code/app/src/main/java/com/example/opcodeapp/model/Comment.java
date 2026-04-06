@@ -2,6 +2,7 @@ package com.example.opcodeapp.model;
 
 import android.os.Parcel;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -135,7 +136,7 @@ public class Comment extends AbstractModel {
         String eventId = (String) map.get("event_id");
         String userId = (String) map.get("user_id");
         String content = (String) map.get("content");
-        LocalDateTime commentTime = DateUtil.fromLong(Long.valueOf(map.get("comment_time").toString()));
+        LocalDateTime commentTime = DateUtil.fromSeconds(Long.valueOf(map.get("comment_time").toString()));
         return Comment.builder()
                 .id(id)
                 .eventId(eventId)
@@ -185,7 +186,27 @@ public class Comment extends AbstractModel {
         }
 
         public Comment build() {
-            // TODO: Validation
+            if (eventId == null || eventId.trim().isEmpty()) {
+                Log.e("Comment.Builder", "Invalid eventId");
+                return null;
+            }
+
+            if (userId == null || userId.trim().isEmpty()) {
+                Log.e("Comment.Builder", "Invalid userId");
+                return null;
+            }
+
+            if (content == null || content.trim().isEmpty()) {
+                Log.e("Comment.Builder", "Empty content");
+                return null;
+            }
+
+            if (time == null) {
+                Log.e("Comment.Builder", "Invalid eventId");
+                return null;
+            }
+
+
             return new Comment(id, eventId, userId, content, time);
         }
     }

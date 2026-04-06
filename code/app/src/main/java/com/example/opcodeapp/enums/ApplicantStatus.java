@@ -10,5 +10,10 @@ public enum ApplicantStatus {
     INVITED,
     ACCEPTED,
     DECLINED,
-    DECLINED_REMOVED
+    DECLINED_REMOVED;
+
+    public String displayName() {
+        String name = name();
+        return name.charAt(0) + name.toLowerCase().substring(1);
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.opcodeapp.view;
 
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,7 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.UserRepository;
 import com.example.opcodeapp.util.DeviceIdUtil;
+import com.example.opcodeapp.util.PhoneFormatterWatcher;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -60,8 +63,9 @@ public class SetupFragment extends Fragment {
         email = view.findViewById(R.id.setup_email_input);
         phone = view.findViewById(R.id.setup_phone_input);
 
+        phone.addTextChangedListener(new PhoneFormatterWatcher("CA"));
+
         Button create = view.findViewById(R.id.setup_create_button);
-        SetupFragment not_this = this;
 
         create.setOnClickListener(v -> {
             String name_t = name.getText().toString();
@@ -80,14 +84,18 @@ public class SetupFragment extends Fragment {
                         .phoneNum(phone_t)
                         .build();
 
+                if (user == null) {
+                    Toast.makeText(requireContext(), "Could not construct user", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 repository.addUser(user, new FirestoreCallbackSend() {
                     @Override
                     public void onSendSuccess(Void unused) {
                         Log.i("Setup", "Account created");
                         Toast.makeText(requireContext(), "Account successfully created", Toast.LENGTH_SHORT).show();
-                        NavController nav = NavHostFragment.findNavController(not_this);
+                        NavController nav = NavHostFragment.findNavController(SetupFragment.this);
                         SessionController.getInstance(getContext()).setCurrentUser(user);
-                        // no need to pass user in bundle here, because the session manager handles that
                         nav.navigate(R.id.eventListFragment);
                     }
 
