@@ -79,11 +79,13 @@ public class NotificationRepository extends Repository {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("NotificationRepository", "api request failed", e);
+                listener.onSendFailure(e);
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 Log.i("NotificationRepository", String.format("got response: %s", response));
+                listener.onSendSuccess(null);
             }
         });
     }
