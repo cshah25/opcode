@@ -36,10 +36,8 @@ public class InvitedUserArrayAdapter extends ArrayAdapter<Applicant> {
         TextView userName = view.findViewById(R.id.user_name_text);
         userName.setText(user.getName());
 
-
         TextView userStatus = view.findViewById(R.id.user_status_text);
         userStatus.setText(user.getStatus().displayName());
         return view;
     }
-
 }

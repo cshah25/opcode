@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.LotterySystem;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.adapter.ApplicantArrayAdapter;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
@@ -42,12 +41,10 @@ public class WaitListFragment extends Fragment {
 
     private Event event;
     private ApplicantRepository applicantRepository;
-    private LotterySystem lotterySystem;
     private ArrayAdapter<Applicant> adapter;
 
     private EditText numToDrawInput;
-
-    private List<Applicant> waitlist = new ArrayList<>();
+    private final List<Applicant> waitlist = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,7 +73,6 @@ public class WaitListFragment extends Fragment {
         // Initialize Repository and Data
         User user = SessionController.getInstance(requireContext()).getCurrentUser();
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        lotterySystem = new LotterySystem();
 
         // Setup UI References
         ListView waitlistListView = view.findViewById(R.id.waitlist_list_view);
@@ -87,34 +83,28 @@ public class WaitListFragment extends Fragment {
 
         header.setText(event.getName() + " Waitlist");
 
+        // Initialize and attach adapter
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
-                    @Override
-                    public void onDataReceived(List<Applicant> applicant) {
-
-                        for (Applicant a : applicant) {
-                            if (a.getStatus() == ApplicantStatus.NOT_DRAWN) {
-                                waitlist.add(a);
-                            }
-                        }
-                        adapter = new ApplicantArrayAdapter(getContext(), waitlist);
-                        waitlistListView.setAdapter(adapter);
-
+            @Override
+            public void onDataReceived(List<Applicant> applicant) {
+                for (Applicant a : applicant) {
+                    if (a.getStatus() == ApplicantStatus.NOT_DRAWN) {
+                        waitlist.add(a);
                     }
+                }
+                adapter = new ApplicantArrayAdapter(getContext(), waitlist);
+                waitlistListView.setAdapter(adapter);
+            }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
-
-                    }
+            @Override
+            public void onError(Exception e) {
+                Log.e("FetchApplicantError", "An error occurred: " + e.getMessage());
+            }
         });
 
-                // Initialize List and Adapter
-
-
         // Responsibility:  only Organizers can see lottery controls
-        if (!user.getId().equals(event.getOrganizerId())) {
+        if (!user.getId().equals(event.getOrganizerId()))
             lotteryControls.setVisibility(View.GONE);
-        }
 
         // Setup Lottery Draw Listener
         drawButton.setOnClickListener(v -> runLotteryDraw());
@@ -132,8 +122,6 @@ public class WaitListFragment extends Fragment {
 
         try {
             int numToDraw = Integer.parseInt(input);
-
-
             List<Applicant> result = new ArrayList<>();
 
             ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
@@ -142,13 +130,10 @@ public class WaitListFragment extends Fragment {
                         @Override
                         public void onDataReceived(List<Applicant> applicant) {
                             result.addAll(applicant);
-
                             int drawSize = Math.min(numToDraw, result.size());
 
                             // Responsibility: randomly assign entrants
                             Collections.shuffle(result);
-
-
 
                             List<Applicant> winners = new ArrayList<>(result.subList(0, drawSize));
                             if (winners == null || winners.isEmpty()) {
@@ -162,7 +147,6 @@ public class WaitListFragment extends Fragment {
 
                             adapter.notifyDataSetChanged();
 
-
                             // Responsibility: notify entrants
                             processWinner(winners);
                             Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
@@ -174,7 +158,6 @@ public class WaitListFragment extends Fragment {
                         }
                     }
             );
-
 
 
             // Responsibility: randomly select entrants
@@ -205,6 +188,5 @@ public class WaitListFragment extends Fragment {
                 }
             });
         });
-
     }
 }

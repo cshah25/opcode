@@ -56,23 +56,18 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
         super.onViewCreated(view, savedInstanceState);
         Event event = getArguments().getParcelable("event", Event.class);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-
         userList = view.findViewById(R.id.invited_users_list_view);
 
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
-
-
                 for (Applicant applicant : applicants) {
-
-                    if (applicant.getStatus() == ApplicantStatus.INVITED || applicant.getStatus() == ApplicantStatus.DECLINED || applicant.getStatus() == ApplicantStatus.ACCEPTED) {
+                    ApplicantStatus status = applicant.getStatus();
+                    if (status == ApplicantStatus.INVITED || status == ApplicantStatus.DECLINED || status == ApplicantStatus.ACCEPTED) {
                         dataList.add(applicant);
                     }
-
-
                 }
-                userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
+                userAdapter = new InvitedUserArrayAdapter(getContext(), dataList);
                 userList.setAdapter(userAdapter);
             }
 
@@ -86,9 +81,9 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
          * Click Listener for each of the users in the listview. If the user has declined the invitation, they can be removed from the list.
          */
         userList.setOnItemClickListener((parent, view1, position, id) -> {
-            Applicant user = userAdapter.getItem(position);
-            if (user.getStatus() == ApplicantStatus.DECLINED) {
-                DeclinedUserDialogFragment fragment = DeclinedUserDialogFragment.newInstance(user, event);
+            Applicant applicant = userAdapter.getItem(position);
+            if (applicant != null && applicant.getStatus() == ApplicantStatus.DECLINED) {
+                DeclinedUserDialogFragment fragment = DeclinedUserDialogFragment.newInstance(applicant, event);
                 fragment.show(getChildFragmentManager(), "Remove");
             }
         });
