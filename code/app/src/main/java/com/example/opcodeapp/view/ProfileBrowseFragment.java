@@ -106,13 +106,8 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
             @Override
             public void onDataReceived(List<User> users) {
                 allUsers.addAll(users);
-                for (User user : allUsers) {
-                    if (user.getId().equals(cur_user.getId())) {
-                        allUsers.remove(user);
-                        break;
-                    }
-                }
-                adapter = new UserArrayAdapter(requireContext(), (ArrayList<User>) allUsers);
+                allUsers.removeIf(user -> user.getId().equals(cur_user.getId()));
+                adapter = new UserArrayAdapter(requireContext(), allUsers);
                 profileListView.setAdapter(adapter);
                 applyFilters();
 
@@ -128,37 +123,34 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
         // Initialize adapter
         profileListView.setOnItemClickListener((parent, itemView, position, id) -> {
             User user = adapter.getItem(position);
-
-
             RemoveUserDialogFragment removeUserDialogFragment = RemoveUserDialogFragment.newInstance(user);
             removeUserDialogFragment.show(getChildFragmentManager(), "Remove");
             adapter.notifyDataSetChanged();
 
         });
-
-
     }
 
     private void applyFilters() {
         String text = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
 
-
+        shownUsers.clear(); // Start fresh
         for (User user : allUsers) {
-            if (!matchesKeyword(user, text)) {
-                continue;
-            }
-
-            shownUsers.add(user);
+            if (matchesKeyword(user, text))
+                shownUsers.add(user);
         }
 
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.clear();
+            adapter.addAll(shownUsers);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     /**
      * A case-insensitive checks for any keyword references that occur within an {@link User}'s name,
      * description or location.
      *
-     * @param user   The event to search the keyword for
+     * @param user    The event to search the keyword for
      * @param keyword The keyword to search for
      * @return {@code true} if any keyword occurs in the user, {@code false} otherwise
      */
@@ -183,17 +175,25 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
     @Override
     public void removeUser(User user) {
         UserRepository user_repository = new UserRepository(FirebaseFirestore.getInstance());
-
         EventRepository event_repository = new EventRepository(FirebaseFirestore.getInstance());
-
         ApplicantRepository applicant_repository = new ApplicantRepository(FirebaseFirestore.getInstance());
+
+        // 1. Remove from your local "Master" and "Filtered" lists
+        allUsers.remove(user);
+        shownUsers.remove(user);
+
+        // 2. Remove from the adapter directly
+        // This is the most important part for the UI to refresh!
+        if (adapter != null) {
+            adapter.remove(user);
+            adapter.notifyDataSetChanged();
+        }
 
         user_repository.deleteUser(user.getId(), new FirestoreCallbackSend() {
 
             @Override
             public void onSendSuccess(Void aVoid) {
                 Toast.makeText(getContext(), "User removed", Toast.LENGTH_SHORT).show();
-
             }
 
             @Override
@@ -203,31 +203,27 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
         });
 
         event_repository.deleteEventsByOrganizerId(user.getId(), new FirestoreCallbackSend() {
-                    @Override
-                    public void onSendSuccess(Void unused) {
+            @Override
+            public void onSendSuccess(Void unused) {
 
-                    }
+            }
 
-                    @Override
-                    public void onSendFailure(Exception e) {
-                        Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                    }
+            @Override
+            public void onSendFailure(Exception e) {
+                Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
+            }
         });
 
 
         applicant_repository.deleteApplicantsByUser(user.getId(), new FirestoreCallbackSend() {
-                    @Override
-                    public void onSendSuccess(Void unused) {
-                    }
+            @Override
+            public void onSendSuccess(Void unused) {
+            }
 
-                    @Override
-                    public void onSendFailure(Exception e) {
-                        Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
-                    }
+            @Override
+            public void onSendFailure(Exception e) {
+                Toast.makeText(requireContext(), "Error deleting profile", Toast.LENGTH_SHORT).show();
+            }
         });
-
-        shownUsers.remove(user);
-        adapter.notifyDataSetChanged();
-
     }
 }

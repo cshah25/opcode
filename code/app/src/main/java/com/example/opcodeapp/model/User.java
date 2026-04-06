@@ -1,9 +1,11 @@
 package com.example.opcodeapp.model;
 
 import android.os.Parcel;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.util.ValidationUtil;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.HashMap;
@@ -39,8 +41,8 @@ public class User extends AbstractModel {
     }
 
     private String fcmToken;
-    private static double latitude = 0;
-    private static double longitude = 0;
+    private double latitude;
+    private double longitude;
     private boolean isAdmin;
 
     /**
@@ -264,7 +266,6 @@ public class User extends AbstractModel {
         String phoneNum = (String) map.get("phone_num");
         String fcmToken = (String) map.get("fcm_token");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
-
         double latitute = Double.parseDouble(map.get("latitude").toString());
         double longitude = Double.parseDouble(map.get("longitude").toString());
 
@@ -295,9 +296,9 @@ public class User extends AbstractModel {
         private String email;
         private String phoneNum;
         private String fcmToken;
-        private boolean isAdmin;
-        private double longitude;
         private double latitude;
+        private double longitude;
+        private boolean isAdmin;
 
         public Builder id(@NonNull String id) {
             this.id = id;
@@ -346,7 +347,24 @@ public class User extends AbstractModel {
 
 
         public User build() {
-            // TODO: Validation
+            // Validate that name and email were non-empty
+            if (name.trim().isEmpty() || email.trim().isEmpty()) {
+                Log.e("User.Builder", "Name or Email is missing");
+                return null;
+            }
+
+            // Validate email
+            if (!ValidationUtil.isValidEmail(email)) {
+                Log.e("User.Builder", "Email is invalid");
+                return null;
+            }
+
+            // Validate phone number (if provided)
+            if (phoneNum != null && !phoneNum.trim().isEmpty() && !ValidationUtil.isValidPhoneNumber("Phone number is invalid")) {
+                Log.e("User.Builder", "Phone number is invalid");
+                return null;
+            }
+
             return new User(id, deviceId, name, email, phoneNum, fcmToken, isAdmin, latitude, longitude);
         }
     }

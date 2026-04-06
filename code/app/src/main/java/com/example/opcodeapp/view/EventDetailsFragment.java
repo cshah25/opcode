@@ -1,13 +1,18 @@
 package com.example.opcodeapp.view;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +24,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
 import com.example.opcodeapp.controller.SessionController;
@@ -34,8 +39,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Fragment displaying Event Details to the Entrant.
@@ -48,7 +54,7 @@ public class EventDetailsFragment extends Fragment {
     private ImageButton joinLeaveWaitlistButton;
     private ImageButton toggleNotificationsButton;
     private ImageButton adminDeleteButton;
-    private ImageButton commentButton;
+    private LinearLayout commentButton;
     private MaterialButton acceptButton;
     private MaterialButton declineButton;
     private Button removeOrganizerButton;
@@ -61,13 +67,16 @@ public class EventDetailsFragment extends Fragment {
     private TextView registration;
     private TextView description;
     private TextView waitlistCount;
+    private ImageView eventPoster;
 
     private Event event;
-    private User cur_user;
+    private User currUser;
     private Applicant applicant;
 
     private ApplicantRepository applicantRepository;
     private EventRepository eventRepository;
+
+    private final ExecutorService imageExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,8 +98,12 @@ public class EventDetailsFragment extends Fragment {
         }
 
         event = args.getParcelable("event", Event.class);
-        applicant = (args.containsKey("applicant")) ? args.getParcelable("applicant", Applicant.class) : null;
-        cur_user = SessionController.getInstance(getContext()).getCurrentUser();
+        currUser = SessionController.getInstance(getContext()).getCurrentUser();
+        if (currUser == null) {
+            Toast.makeText(requireContext(), "Could not retrieve current user", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.setupFragment);
+            return;
+        }
 
         // Safety check to prevent crashes
         if (event == null) {
@@ -102,17 +115,37 @@ public class EventDetailsFragment extends Fragment {
         // Bind UI Elements to the view
         bindViews(view);
 
+        applicantRepository.fetchApplicant(currUser.getId(), event.getId(), new FirestoreCallbackApplicantReceive() {
+            @Override
+            public void onDataReceived(@Nullable Applicant a) {
+                applicant = a;
+                updateUI();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("EventDetails", "Could not retrieve applicant");
+                updateUI();
+            }
+        });
+
         // Set event details
         name.setText(event.getName());
         description.setText(event.getDescription());
         location.setText(event.getLocation());
         date.setText(event.getFormattedDates());
-        registration.setText(event.getFormattedRegistration());
+        registration.setText("Registration: " + event.getFormattedRegistration());
         description.setText(event.getDescription());
         userRepository.fetchUser(event.getOrganizerId(), new FirestoreCallbackUserReceive() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataReceived(User user) {
-                organizer.setText(EventDetailsFragment.this.cur_user.getName());
+                if (user != null) {
+                    organizer.setText(user.getName());
+                } else {
+                    organizer.setText("No organizer");
+                    Log.w("EventDetails", "No organizer for event " + event.getId());
+                }
             }
 
             @Override
@@ -133,9 +166,8 @@ public class EventDetailsFragment extends Fragment {
 
         //User Story 03.01.01
         adminDeleteButton.setOnClickListener(v -> adminDeleteEvent(this));
-
         removeOrganizerButton.setOnClickListener(v -> adminDeleteOrganizer());
-        updateUI();
+        loadPosterImage();
 
         commentButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -158,7 +190,7 @@ public class EventDetailsFragment extends Fragment {
         acceptButton = view.findViewById(R.id.btn_accept_invitation);
         declineButton = view.findViewById(R.id.btn_decline_invitation);
         lotteryInfoButton = view.findViewById(R.id.btn_lottery_info);
-        commentButton = view.findViewById(R.id.btn_comment);
+        commentButton = view.findViewById(R.id.btn_comment_row);
         removeOrganizerButton = view.findViewById(R.id.btn_remove_organizer);
 
 
@@ -169,6 +201,7 @@ public class EventDetailsFragment extends Fragment {
         registration = view.findViewById(R.id.tv_event_registration_dates);
         description = view.findViewById(R.id.tv_event_description);
         waitlistCount = view.findViewById(R.id.tv_waitlist_count);
+        eventPoster = view.findViewById(R.id.iv_event_poster);
     }
 
     /**
@@ -186,23 +219,31 @@ public class EventDetailsFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * The event is updated in Firestore if the most recent changes to the Event instance
+     * has not been pushed to the database. If successfully updated then the waitlist count is
+     * updated.
+     */
+    @SuppressLint("DefaultLocale")
     private void updateWaitlistCount() {
-        applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
-            @Override
-            public void onDataReceived(List<Applicant> applicants) {
-                if (applicants != null) {
-                    int count = applicants.size();
-                    int limit = event.getWaitlistLimit();
-                    String out = (limit > 0) ? String.format("%d/%d", count, limit) : String.valueOf(count);
-                    waitlistCount.setText(out + " people on waitlist");
-                }
-            }
+        int count = event.getWaitlistCount();
+        int limit = event.getWaitlistLimit();
+        String out = (limit > 0) ? String.format("%d/%d", count, limit) : String.valueOf(count);
+        waitlistCount.setText(out + " people on waitlist");
 
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (event.isDirty()) {
+            eventRepository.updateEvent(event, new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    event.setDirty(false);
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("EventDetailsFragment", "Error updating event");
+                }
+            });
+        }
     }
 
     /**
@@ -214,8 +255,8 @@ public class EventDetailsFragment extends Fragment {
         if (applicant == null) {
             this.applicant = Applicant.builder()
                     .eventId(event.getId())
-                    .userId(cur_user.getId())
-                    .name(cur_user.getName())
+                    .userId(currUser.getId())
+                    .name(currUser.getName())
                     .status(ApplicantStatus.NOT_DRAWN)
                     .joinedAt(LocalDateTime.now())
                     .build();
@@ -226,6 +267,7 @@ public class EventDetailsFragment extends Fragment {
                     Toast.makeText(requireContext(), "Successfully joined waitlist!", Toast.LENGTH_SHORT).show();
                     joinLeaveWaitlistButton.setContentDescription("Leave Waitlist");
                     joinLeaveWaitlistButton.setImageResource(R.drawable.ic_leave_waitlist);
+                    event.incrementWaitlistCount();
                     updateUI();
                     updateWaitlistCount();
                 }
@@ -247,6 +289,7 @@ public class EventDetailsFragment extends Fragment {
                     joinLeaveWaitlistButton.setContentDescription("Join Waitlist");
                     joinLeaveWaitlistButton.setImageResource(R.drawable.ic_join_waitlist);
                     applicant = null;
+                    event.decrementWaitlistCount();
                     updateUI();
                     updateWaitlistCount();
                 }
@@ -303,15 +346,48 @@ public class EventDetailsFragment extends Fragment {
         });
     }
 
+    /**
+     * Handles decoding the event poster string from Base64 and setting the image view. This is run
+     * on a separate thread as to not block the main thread. A placeholder image is used during loading
+     */
+    private void loadPosterImage() {
+        int placeholderImage = R.drawable.image_placeholder;
+        eventPoster.setImageResource(placeholderImage);
+
+        String encodedPoster = event.getEncodedImage();
+        if (encodedPoster == null || encodedPoster.isEmpty()) {
+            return;
+        }
+
+        imageExecutor.execute(() -> {
+            try {
+                byte[] bytes = Base64.decode(encodedPoster, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                if (!isAdded()) return;
+
+                requireActivity().runOnUiThread(() -> {
+                    if (bitmap != null) {
+                        eventPoster.setImageBitmap(bitmap);
+                    } else {
+                        eventPoster.setImageResource(placeholderImage);
+                    }
+                });
+
+            } catch (Exception e) {
+                if (!isAdded()) return;
+
+                requireActivity().runOnUiThread(() -> eventPoster.setImageResource(placeholderImage));
+            }
+        });
+    }
+
     private void adminDeleteOrganizer() {
-
         UserRepository user_repo = new UserRepository(FirebaseFirestore.getInstance());
-
         user_repo.deleteUser(event.getOrganizerId(), new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
                 Log.d("EventDetails", "Deleted organizer.");
-
             }
 
             @Override
@@ -335,10 +411,7 @@ public class EventDetailsFragment extends Fragment {
 
         });
 
-
         ApplicantRepository applicant_repo = new ApplicantRepository(FirebaseFirestore.getInstance());
-
-
         applicant_repo.deleteApplicantsByUser(event.getOrganizerId(), new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void aVoid) {
@@ -349,12 +422,9 @@ public class EventDetailsFragment extends Fragment {
             public void onSendFailure(Exception e) {
                 Log.d("EventDetails", "Failed to delete applicants by organizer.");
             }
-
         });
 
-
         NavHostFragment.findNavController(this).navigate(R.id.eventListFragment);
-
     }
 
     /**
@@ -387,9 +457,8 @@ public class EventDetailsFragment extends Fragment {
      * {@link #acceptButton} and {@link #declineButton}
      */
     private void updateUI() {
-        adminDeleteButton.setVisibility((cur_user.isAdmin()) ? View.VISIBLE : View.GONE);
-
-        removeOrganizerButton.setVisibility((cur_user.isAdmin() && !Objects.equals(event.getOrganizerId(), cur_user.getId())) ? View.VISIBLE : View.GONE);
+        adminDeleteButton.setVisibility((currUser != null && currUser.isAdmin()) ? View.VISIBLE : View.GONE);
+        removeOrganizerButton.setVisibility((currUser != null && currUser.isAdmin() && !Objects.equals(event.getOrganizerId(), currUser.getId())) ? View.VISIBLE : View.GONE);
 
 
         if (applicant == null) {
@@ -418,5 +487,11 @@ public class EventDetailsFragment extends Fragment {
                 break;
         }
         toggleNotificationsButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        imageExecutor.shutdownNow();
     }
 }

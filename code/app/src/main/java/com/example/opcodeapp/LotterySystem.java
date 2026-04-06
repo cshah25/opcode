@@ -27,10 +27,6 @@ public class LotterySystem {
     public List<Applicant> drawEntrants(Event event, int numberOfInvites) {
         List<Applicant> result = new ArrayList<>();
 
-        // Responsibility: don't exceed capacity or available applicants
-        int waitlistLimit = event.getWaitlistLimit();
-        int drawSize = (waitlistLimit != -1) ? numberOfInvites : waitlistLimit;
-
         ApplicantRepository repository = new ApplicantRepository(FirebaseFirestore.getInstance());
         repository.fetchApplicantsByStatus(event, ApplicantStatus.NOT_DRAWN,
                 new FirestoreCallbackApplicantsReceive() {
@@ -45,6 +41,8 @@ public class LotterySystem {
                     }
                 }
         );
+
+        int drawSize = Math.min(numberOfInvites, result.size());
 
         // Responsibility: randomly assign entrants
         Collections.shuffle(result);

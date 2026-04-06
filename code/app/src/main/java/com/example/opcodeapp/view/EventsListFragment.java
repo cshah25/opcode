@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -19,38 +18,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.opcodeapp.BuildConfig;
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.callback.FirestoreCallbackApplicantReceive;
-import com.example.opcodeapp.callback.FirestoreCallbackEventsReceive;
+import com.example.opcodeapp.adapter.EventArrayAdapter;
 import com.example.opcodeapp.controller.SessionController;
-import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
-import com.example.opcodeapp.repository.ApplicantRepository;
-import com.example.opcodeapp.repository.EventRepository;
-import com.example.opcodeapp.util.DateUtil;
-import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class EventsListFragment extends Fragment {
 
@@ -60,21 +39,14 @@ public class EventsListFragment extends Fragment {
     private CheckBox availableOnlyFilter;
     private CheckBox capacityOnlyFilter;
 
-    private List<Event> allEvents = new ArrayList<>();
-    private List<Event> shownEvents = new ArrayList<>();
-    private List<String> shownNames = new ArrayList<>();
-    private Map<String, Integer> applicantCounts = new HashMap<>();
+    private final List<Event> allEvents = new ArrayList<>();
+    private final List<Event> dataList = new ArrayList<>();
 
-    private ArrayAdapter<String> adapter;
-    private ApplicantRepository applicantRepository;
-    private EventRepository eventRepository;
+    private EventArrayAdapter adapter;
     private User user;
 
-
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_events_list, container, false);
     }
 
@@ -89,9 +61,6 @@ public class EventsListFragment extends Fragment {
             Log.e("EventListFragment", "Could not retrieve the current user");
             return;
         }
-
-        applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-        eventRepository = new EventRepository(FirebaseFirestore.getInstance());
 
         // Bind views
         searchButton = view.findViewById(R.id.search_button);
@@ -118,104 +87,51 @@ public class EventsListFragment extends Fragment {
         });
 
         // Initialize adapter
-        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, shownNames);
+        adapter = new EventArrayAdapter(requireContext(), dataList);
         eventListView.setAdapter(adapter);
         eventListView.setOnItemClickListener((parent, itemView, position, id) -> {
             NavController controller = NavHostFragment.findNavController(this);
-            Event event = shownEvents.get(position);
+            Event event = dataList.get(position);
 
-            applicantRepository.fetchApplicant(user.getId(), event.getId(),
-                    new FirestoreCallbackApplicantReceive() {
-                        @Override
-                        public void onDataReceived(Applicant applicant) {
-                            Bundle args = new Bundle();
-                            args.putParcelable("event", event);
-
-                            if (event.getOrganizerId().equals(user.getId())) {
-                                controller.navigate(R.id.organizerEventFragment, args);
-                            } else {
-                                args.putParcelable("applicant", applicant);
-                                controller.navigate(R.id.eventDetailsFragment, args);
-                            }
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("EventsListFragment", "Could not retrieve applicant");
-                        }
-                    });
+            Bundle args = new Bundle();
+            args.putParcelable("event", event);
+            int destination = event.getOrganizerId().equals(user.getId()) ?
+                    R.id.organizerEventFragment :
+                    R.id.eventDetailsFragment;
+            controller.navigate(destination, args);
         });
 
         availableOnlyFilter.setOnCheckedChangeListener((buttonView, isChecked) -> applyFilters());
         capacityOnlyFilter.setOnCheckedChangeListener((buttonView, isChecked) -> applyFilters());
-
         loadEvents();
-        loadApplicantCounts();
     }
 
     private void loadEvents() {
-        FirebaseFirestore.getInstance().collection("Events")
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    allEvents.clear();
+        FirebaseFirestore.getInstance().collection("Events").get().addOnSuccessListener(snapshot -> {
+            allEvents.clear();
 
-                    for (QueryDocumentSnapshot document : snapshot) {
-                        Event event = Event.fromMap(document.getId(), document.getData());
-                        if (event != null)
-                            allEvents.add(event);
-                    }
-                    applyFilters();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), "Error fetching events", Toast.LENGTH_SHORT).show()
-                );
-    }
-
-    private void loadApplicantCounts() {
-        FirebaseFirestore.getInstance().collection("Applicants")
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    applicantCounts.clear();
-
-                    for (QueryDocumentSnapshot document : snapshot) {
-                        String eventId = document.contains("event_id")
-                                ? document.getString("event_id")
-                                : document.getString("eventId");
-                        if (eventId == null) {
-                            continue;
-                        }
-                        int currentCount = applicantCounts.containsKey(eventId)
-                                ? applicantCounts.get(eventId)
-                                : 0;
-                        applicantCounts.put(eventId, currentCount + 1);
-                    }
-
-                    applyFilters();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), "Error fetching event capacity", Toast.LENGTH_SHORT).show()
-                );
+            for (QueryDocumentSnapshot document : snapshot) {
+                Event event = Event.fromMap(document.getId(), document.getData());
+                if (event != null) allEvents.add(event);
+            }
+            applyFilters();
+        }).addOnFailureListener(e -> Toast.makeText(getContext(), "Error fetching events", Toast.LENGTH_SHORT).show());
     }
 
     private void applyFilters() {
         String text = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
-
-        shownEvents.clear();
-        shownNames.clear();
+        dataList.clear();
 
         for (Event event : allEvents) {
-            if (!matchesKeyword(event, text)) {
-                continue;
-            }
-            if (availableOnlyFilter.isChecked() && !isRegistrationOpen(event)) {
-                continue;
-            }
-            if (capacityOnlyFilter.isChecked() && !hasCapacity(event)) {
-                continue;
-            }
+            if (!matchesKeyword(event, text)) continue;
 
-            shownEvents.add(event);
-            shownNames.add(event.getName() == null ? "Untitled event" : event.getName());
+            if (availableOnlyFilter.isChecked() && !isRegistrationOpen(event)) continue;
+
+            if (capacityOnlyFilter.isChecked() && !hasCapacity(event)) continue;
+
+            if (!event.isPublic() && !user.isAdmin()) continue;
+
+            dataList.add(event);
         }
 
         adapter.notifyDataSetChanged();
@@ -230,12 +146,9 @@ public class EventsListFragment extends Fragment {
      * @return {@code true} if any keyword occurs in the event, {@code false} otherwise
      */
     private boolean matchesKeyword(Event event, String keyword) {
-        if (keyword.isEmpty())
-            return true;
+        if (keyword.isEmpty()) return true;
 
-        return containsKeyword(event.getName(), keyword)
-                || containsKeyword(event.getDescription(), keyword)
-                || containsKeyword(event.getLocation(), keyword);
+        return containsKeyword(event.getName(), keyword) || containsKeyword(event.getDescription(), keyword) || containsKeyword(event.getLocation(), keyword);
     }
 
     /**
@@ -265,13 +178,9 @@ public class EventsListFragment extends Fragment {
      * @return {@code true} if the event has not reached the waitlist capacity, {@code false} otherwise
      */
     private boolean hasCapacity(Event event) {
-        if (event.getWaitlistLimit() < 0)
-            return true;
+        if (event.getWaitlistLimit() < 0) return true;
 
-        int currentApplicants = applicantCounts.containsKey(event.getId())
-                ? applicantCounts.get(event.getId())
-                : 0;
-        return currentApplicants < event.getWaitlistLimit();
+        return event.getWaitlistCount() < event.getWaitlistLimit();
     }
 
 }

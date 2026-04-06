@@ -10,19 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.model.Applicant;
-import com.example.opcodeapp.model.Event;
-import com.example.opcodeapp.model.User;
 
 import java.util.ArrayList;
 
 public class InvitedUserArrayAdapter extends ArrayAdapter<Applicant> {
 
-
-
-    public InvitedUserArrayAdapter(Context context, ArrayList<Applicant> users, Event event) {
+    public InvitedUserArrayAdapter(Context context, ArrayList<Applicant> users) {
         super(context, 0, users);
     }
 
@@ -41,20 +36,8 @@ public class InvitedUserArrayAdapter extends ArrayAdapter<Applicant> {
         TextView userName = view.findViewById(R.id.user_name_text);
         userName.setText(user.getName());
 
-
         TextView userStatus = view.findViewById(R.id.user_status_text);
-        switch (user.getStatus()) {
-            case INVITED:
-                userStatus.setText("Invited");
-                break;
-            case ACCEPTED:
-                userStatus.setText("Accepted");
-                break;
-            case DECLINED:
-                userStatus.setText("Declined");
-                break;
-        }
+        userStatus.setText(user.getStatus().displayName());
         return view;
     }
-
 }

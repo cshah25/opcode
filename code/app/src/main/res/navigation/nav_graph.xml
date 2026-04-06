@@ -129,7 +129,6 @@
             app:destination="@id/profileBrowseFragment" />
     </fragment>
 
-
     <!-- Profile Browse Fragment -->
     <fragment
         android:id="@+id/profileBrowseFragment"
@@ -138,7 +137,6 @@
         tools:layout="@layout/fragment_browse_profiles" />
 
     <!-- Event History Fragment -->
-
     <fragment
         android:id="@+id/eventHistoryFragment"
         android:name="com.example.opcodeapp.view.EventHistoryFragment"
@@ -154,10 +152,16 @@
             android:id="@+id/action_notificationsFragment_to_eventDetailsFragment"
             app:destination="@id/eventDetailsFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.opcodeapp.view.mapFragment"
         android:label=""
         tools:layout="@layout/fragment_map" />
+
+    <!-- Qr Code Scanner Fragment -->
+    <fragment
+        android:id="@+id/qrCodeScannerFragment"
+        android:name="com.example.opcodeapp.view.QrCodeScannerFragment"
+        android:label=""
+        tools:layout="@layout/fragment_qr_code_scanner" />
 </navigation>
