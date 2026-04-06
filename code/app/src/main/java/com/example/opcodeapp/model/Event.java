@@ -590,8 +590,8 @@ public class Event extends AbstractModel {
                 return null;
             }
 
-            return new Event(id, name, location, description, registrationStart, registrationEnd,
-                    start, end, organizerId, price, waitlistLimit, waitlistCount, isPublic, encodedImage);
+            return new Event(id, name, location, description, start, end,
+                    registrationStart, registrationEnd, organizerId, price, waitlistLimit, waitlistCount, isPublic, encodedImage);
         }
     }
 }

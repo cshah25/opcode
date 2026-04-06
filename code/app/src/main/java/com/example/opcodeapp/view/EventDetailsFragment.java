@@ -170,7 +170,6 @@ public class EventDetailsFragment extends Fragment {
         toggleNotificationsButton.setOnClickListener(v -> toggleNotifications());
         acceptButton.setOnClickListener(v -> {
             handleInvitationResponse(ApplicantStatus.ACCEPTED);
-            event.decrementWaitlistCount();
             updateWaitlistCount();
         });
         declineButton.setOnClickListener(v -> {
