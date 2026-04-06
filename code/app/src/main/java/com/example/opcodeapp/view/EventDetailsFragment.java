@@ -393,9 +393,10 @@ public class EventDetailsFragment extends Fragment {
 
                 requireActivity().runOnUiThread(() -> {
                     if (bitmap != null) {
+                        eventPoster.setVisibility(View.VISIBLE);
                         eventPoster.setImageBitmap(bitmap);
                     } else {
-                        eventPoster.setImageResource(placeholderImage);
+                        eventPoster.setVisibility(View.GONE);
                     }
                 });
 

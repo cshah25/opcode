@@ -17,20 +17,20 @@ public class DateUtil {
      * @return a date converted to the epoch second
      */
     public static long toSeconds(LocalDateTime dt) {
-        return dt.atZone(ZoneId.of("UTC"))
+        return dt.atZone(ZoneId.systemDefault())
                 .toInstant()
                 .getEpochSecond();
     }
 
     public static LocalDateTime fromSeconds(long l) {
         return Instant.ofEpochSecond(l)
-                .atZone(ZoneOffset.UTC)
+                .atZone(ZoneOffset.systemDefault())
                 .toLocalDateTime();
     }
 
     public static LocalDateTime fromMillis(long l) {
         return Instant.ofEpochMilli(l)
-                .atZone(ZoneOffset.UTC)
+                .atZone(ZoneOffset.systemDefault())
                 .toLocalDateTime();
     }
 

@@ -32,14 +32,6 @@ public class User extends AbstractModel {
     private String name;
     private String email;
     private String phoneNum;
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-    }
-
     private String fcmToken;
     private double latitude;
     private double longitude;
@@ -213,22 +205,64 @@ public class User extends AbstractModel {
         setDirty(true);
     }
 
+    /**
+     * Getter for the user's latitude
+     *
+     * @return The user's latitude
+     */
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitute) {
-        this.latitude = latitute;
+    /**
+     * Sets the latitude associated with this user or location.
+     *
+     * <p>Marks the object as dirty so the updated value can be persisted.
+     *
+     * @param latitude the latitude coordinate in decimal degrees
+     */
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
         setDirty(true);
     }
 
+    /**
+     * Returns the longitude associated with this user or location.
+     *
+     * @return the longitude coordinate in decimal degrees
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Sets the longitude associated with this user or location.
+     *
+     * <p>Marks the object as dirty so the updated value can be persisted.
+     *
+     * @param longitude the longitude coordinate in decimal degrees
+     */
     public void setLongitude(double longitude) {
         this.longitude = longitude;
         setDirty(true);
+    }
+
+    /**
+     * Returns the Firebase Cloud Messaging token for this user.
+     *
+     * @return the FCM token used for push notifications
+     */
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    /**
+     * Sets the Firebase Cloud Messaging token for this user.
+     *
+     * @param fcmToken the FCM token used for push notifications
+     */
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
     @Override
@@ -257,7 +291,7 @@ public class User extends AbstractModel {
     }
 
     public static User fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin", "latitude", "longitude"))
+        if (!hasRequiredFields(map, "device_id", "name", "email", "phone_num", "is_admin", "latitude", "longitude", "fcm_token"))
             return null;
 
         String deviceId = (String) map.get("device_id");
@@ -266,7 +300,7 @@ public class User extends AbstractModel {
         String phoneNum = (String) map.get("phone_num");
         String fcmToken = (String) map.get("fcm_token");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
-        double latitute = Double.parseDouble(map.get("latitude").toString());
+        double latitude = Double.parseDouble(map.get("latitude").toString());
         double longitude = Double.parseDouble(map.get("longitude").toString());
 
         return User.builder()
@@ -277,7 +311,7 @@ public class User extends AbstractModel {
                 .phoneNum(phoneNum)
                 .fcmToken(fcmToken)
                 .isAdmin(isAdmin)
-                .latitute(latitute)
+                .latitute(latitude)
                 .longitude(longitude)
                 .build();
     }

@@ -86,7 +86,6 @@ dependencies {
     implementation(libs.journeyapps.zxing)
     implementation(libs.opencsv)
 
-
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
@@ -107,6 +106,7 @@ dependencies {
     // Android tests
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.bundles.espresso)
+    androidTestImplementation(libs.androidx.navigation.testing)
 
     debugImplementation(libs.androidx.fragment.testing)
 }
