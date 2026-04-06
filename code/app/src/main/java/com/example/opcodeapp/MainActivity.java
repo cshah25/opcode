@@ -40,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
                 R.id.launchFragment,
                 R.id.setupFragment,
                 R.id.eventCreatorFragment,
-                R.id.eventListFragment
+                R.id.eventListFragment,
+                R.id.eventHistoryFragment,
+                R.id.qrCodeScannerFragment
         ).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

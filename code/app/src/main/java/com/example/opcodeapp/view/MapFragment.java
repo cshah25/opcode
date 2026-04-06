@@ -2,17 +2,12 @@ package com.example.opcodeapp.view;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,32 +23,21 @@ import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.repository.UserRepository;
-import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 
 /**
  * The fragment for showing the Event information (Organizer Perspective) after registration is complete.
  */
-public class mapFragment extends Fragment {
+public class MapFragment extends Fragment {
 
     private Call currentCall;
 

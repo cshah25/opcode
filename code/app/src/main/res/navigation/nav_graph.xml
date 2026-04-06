@@ -145,7 +145,7 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.opcodeapp.view.mapFragment"
+        android:name="com.example.opcodeapp.view.MapFragment"
         android:label=""
         tools:layout="@layout/fragment_map" />
 
