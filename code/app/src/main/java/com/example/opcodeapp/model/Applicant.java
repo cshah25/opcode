@@ -137,7 +137,7 @@ public class Applicant extends AbstractModel {
         String userId = (String) map.get("user_id");
         String name = (String) map.get("name");
         ApplicantStatus status = ApplicantStatus.valueOf((String) map.get("status"));
-        LocalDateTime joinedAt = DateUtil.fromLong(Long.valueOf(map.get("joined_at").toString()));
+        LocalDateTime joinedAt = DateUtil.fromSeconds(Long.valueOf(map.get("joined_at").toString()));
         return Applicant.builder()
                 .id(id)
                 .eventId(eventId)
@@ -194,7 +194,6 @@ public class Applicant extends AbstractModel {
         }
 
         public Applicant build() {
-            // TODO: Validation
             return new Applicant(id, eventId, userId, name, status, joinedAt);
         }
     }

@@ -47,27 +47,21 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
     private ArrayAdapter<Applicant> userAdapter;
     private ApplicantRepository applicantRepository;
 
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_invited_users, container, false);
     }
 
-
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-
         super.onViewCreated(view, savedInstanceState);
-        Event event = getArguments().getParcelable("event");
-
+        Event event = getArguments().getParcelable("event", Event.class);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
-
         userList = view.getRootView().findViewById(R.id.invited_users_list_view);
-
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
             @Override
             public void onDataReceived(List<Applicant> applicants) {
                 dataList.addAll(applicants);
-                userAdapter = new InvitedUserArrayAdapter(getContext(), dataList, event);
+                userAdapter = new InvitedUserArrayAdapter(getContext(), dataList);
                 userList.setAdapter(userAdapter);
             }
 
@@ -76,10 +70,6 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
                 Toast.makeText(getContext(), "Error fetching applicants", Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
 
         /**
          * Click Listener for each of the users in the listview. If the user has declined the invitation, they can be removed from the list.
@@ -105,12 +95,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
                         }
                     }
             );
-
-
-
         });
-
-
     }
 
     @Override

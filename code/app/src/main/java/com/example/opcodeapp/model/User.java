@@ -1,9 +1,11 @@
 package com.example.opcodeapp.model;
 
 import android.os.Parcel;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.util.ValidationUtil;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.HashMap;
@@ -30,10 +32,8 @@ public class User extends AbstractModel {
     private String name;
     private String email;
     private String phoneNum;
-
-    private static double latitude = 0;
-    private static double longitude = 0;
-
+    private double latitude;
+    private double longitude;
     private boolean isAdmin;
 
     /**
@@ -252,7 +252,6 @@ public class User extends AbstractModel {
         String email = (String) map.get("email");
         String phoneNum = (String) map.get("phone_num");
         boolean isAdmin = Boolean.parseBoolean(map.get("is_admin").toString());
-
         double latitute = Double.parseDouble(map.get("latitude").toString());
         double longitude = Double.parseDouble(map.get("longitude").toString());
 
@@ -281,10 +280,8 @@ public class User extends AbstractModel {
         private String name;
         private String email;
         private String phoneNum;
-
-        private double latitute;
+        private double latitude;
         private double longitude;
-
         private boolean isAdmin;
 
         public Builder id(@NonNull String id) {
@@ -318,7 +315,7 @@ public class User extends AbstractModel {
         }
 
         public Builder latitute(double latitute) {
-            this.latitute = latitute;
+            this.latitude = latitute;
             return this;
         }
 
@@ -329,8 +326,25 @@ public class User extends AbstractModel {
 
 
         public User build() {
-            // TODO: Validation
-            return new User(id, deviceId, name, email, phoneNum, isAdmin, latitute, longitude);
+            // Validate that name and email were non-empty
+            if (name.trim().isEmpty() || email.trim().isEmpty()) {
+                Log.e("User.Builder", "Name or Email is missing");
+                return null;
+            }
+
+            // Validate email
+            if (!ValidationUtil.isValidEmail(email)) {
+                Log.e("User.Builder", "Email is invalid");
+                return null;
+            }
+
+            // Validate phone number (if provided)
+            if (phoneNum != null && !phoneNum.trim().isEmpty() && !ValidationUtil.isValidPhoneNumber("Phone number is invalid")) {
+                Log.e("User.Builder", "Phone number is invalid");
+                return null;
+            }
+
+            return new User(id, deviceId, name, email, phoneNum, isAdmin, latitude, longitude);
         }
     }
 }

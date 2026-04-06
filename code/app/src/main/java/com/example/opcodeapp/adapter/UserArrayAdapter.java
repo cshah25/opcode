@@ -11,17 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.opcodeapp.R;
-import com.example.opcodeapp.model.Applicant;
-import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 
-import org.checkerframework.checker.units.qual.A;
-
-import java.util.ArrayList;
+import java.util.List;
 
 public class UserArrayAdapter extends ArrayAdapter<User> {
 
-    public UserArrayAdapter(Context context, ArrayList<User> users) {
+    public UserArrayAdapter(Context context, List<User> users) {
         super(context, 0, users);
     }
 
