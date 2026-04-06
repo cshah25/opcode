@@ -175,7 +175,7 @@ public class WaitListFragment extends Fragment {
 
     private void processLosers(List<Applicant> losers) {
         losers.forEach(applicant -> {
-            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+            notificationRepository.addNotification(new Notification(applicant.getId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
                     Log.i("Lottery", "notification created for loser");
@@ -193,7 +193,6 @@ public class WaitListFragment extends Fragment {
      * Passes the winning users to the Event instance to update their invited status.
      */
     private void processWinner(List<Applicant> winners) {
-
         //probably needed
         winners.forEach(applicant -> {
             applicant.setStatus(ApplicantStatus.INVITED);
@@ -210,7 +209,7 @@ public class WaitListFragment extends Fragment {
                 }
             });
             // create notification inviting user
-            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You're invited to %s!", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+            notificationRepository.addNotification(new Notification(applicant.getId(), String.format("You're invited to %s!", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
                     Log.i("Lottery", "notification created for winner");

@@ -54,6 +54,7 @@ public class NotificationRepository extends Repository {
         // send request to noti-server which will handle adding the notification to the
         // firestore (which we could do here) and send the actual notification to the device,
         // which is the whole point of the server.
+        Log.i("NotificationRepository", "noti" + notification + notification.getBody() + notification.getId());
         RequestBody form_body = new FormBody.Builder()
                 .add("userId", notification.getUser_id())
                 .add("body", notification.getBody())
@@ -70,7 +71,7 @@ public class NotificationRepository extends Repository {
 
         Request request = new Request.Builder()
                 .url(url)
-                .put(form_body)
+                .post(form_body)
                 .build();
 
         Call current_call = client.newCall(request);
