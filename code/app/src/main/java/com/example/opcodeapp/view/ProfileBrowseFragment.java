@@ -106,12 +106,7 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
             @Override
             public void onDataReceived(List<User> users) {
                 allUsers.addAll(users);
-                for (User user : allUsers) {
-                    if (user.getId().equals(cur_user.getId())) {
-                        allUsers.remove(user);
-                        break;
-                    }
-                }
+                allUsers.removeIf(user -> user.getId().equals(cur_user.getId()));
                 adapter = new UserArrayAdapter(requireContext(), (ArrayList<User>) allUsers);
                 profileListView.setAdapter(adapter);
                 applyFilters();
@@ -142,16 +137,18 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
     private void applyFilters() {
         String text = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
 
-
+        shownUsers.clear(); // Start fresh
         for (User user : allUsers) {
-            if (!matchesKeyword(user, text)) {
-                continue;
+            if (matchesKeyword(user, text)) {
+                shownUsers.add(user);
             }
-
-            shownUsers.add(user);
         }
 
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.clear();
+            adapter.addAll(shownUsers);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -187,6 +184,17 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
         EventRepository event_repository = new EventRepository(FirebaseFirestore.getInstance());
 
         ApplicantRepository applicant_repository = new ApplicantRepository(FirebaseFirestore.getInstance());
+
+        // 1. Remove from your local "Master" and "Filtered" lists
+        allUsers.remove(user);
+        shownUsers.remove(user);
+
+        // 2. Remove from the adapter directly
+        // This is the most important part for the UI to refresh!
+        if (adapter != null) {
+            adapter.remove(user);
+            adapter.notifyDataSetChanged();
+        }
 
         user_repository.deleteUser(user.getId(), new FirestoreCallbackSend() {
 
@@ -226,8 +234,7 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
                     }
         });
 
-        shownUsers.remove(user);
-        adapter.notifyDataSetChanged();
+
 
     }
 }

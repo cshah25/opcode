@@ -47,6 +47,8 @@ public class WaitListFragment extends Fragment {
 
     private EditText numToDrawInput;
 
+    private List<Applicant> waitlist = new ArrayList<>();
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.waitlist_screen, container, false);
@@ -88,7 +90,13 @@ public class WaitListFragment extends Fragment {
         applicantRepository.fetchApplicantsByEvent(event.getId(), new FirestoreCallbackApplicantsReceive() {
                     @Override
                     public void onDataReceived(List<Applicant> applicant) {
-                        adapter = new ApplicantArrayAdapter(getContext(), applicant);
+
+                        for (Applicant a : applicant) {
+                            if (a.getStatus() == ApplicantStatus.NOT_DRAWN) {
+                                waitlist.add(a);
+                            }
+                        }
+                        adapter = new ApplicantArrayAdapter(getContext(), waitlist);
                         waitlistListView.setAdapter(adapter);
 
                     }
@@ -142,15 +150,18 @@ public class WaitListFragment extends Fragment {
 
 
 
-                            List<Applicant> winners = result.subList(0, drawSize);
+                            List<Applicant> winners = new ArrayList<>(result.subList(0, drawSize));
                             if (winners == null || winners.isEmpty()) {
                                 Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                             for (Applicant winner : winners) {
-                                adapter.remove(winner);
+                                waitlist.removeIf(a -> a.getId().equals(winner.getId()));
                             }
+
+                            adapter.notifyDataSetChanged();
+
 
                             // Responsibility: notify entrants
                             processWinner(winners);
