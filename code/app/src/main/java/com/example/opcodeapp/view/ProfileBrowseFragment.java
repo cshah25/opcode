@@ -131,7 +131,7 @@ public class ProfileBrowseFragment extends Fragment implements RemoveUserDialogF
 
 
             RemoveUserDialogFragment removeUserDialogFragment = RemoveUserDialogFragment.newInstance(user);
-            removeUserDialogFragment.show(getParentFragmentManager(), "Remove");
+            removeUserDialogFragment.show(getChildFragmentManager(), "Remove");
             adapter.notifyDataSetChanged();
 
         });

@@ -70,6 +70,8 @@ public class OrganizerEventFragment extends Fragment {
         TextView waitListText = view.findViewById(R.id.event_waitlist_count_text);
         TextView registrationText = view.findViewById(R.id.event_reg_close_text);
         TextView eventRegistrationText = view.findViewById(R.id.event_open_closed_text);
+        ImageButton mapButton = view.findViewById(R.id.map_button);
+
 
         nameText.setText(event.getName());
         dateText.setText("Date: " + DateUtil.toString(event.getStart()) + " to " + DateUtil.toString(event.getEnd()));
@@ -132,7 +134,7 @@ public class OrganizerEventFragment extends Fragment {
 
 
         /**
-         * Set up the click listeners for the comment button.
+         * Set up the click listener for the comment button.
          * Sends the user to the Comment Section.
          *
          */
@@ -141,6 +143,20 @@ public class OrganizerEventFragment extends Fragment {
             bundle.putParcelable("event", event);
             NavHostFragment.findNavController(OrganizerEventFragment.this)
                     .navigate(R.id.commentsFragment, bundle);
+
+        });
+
+
+        /**
+         * Set up the click listener for the map button.
+         * Sends the user and the event instance to the Map Section.
+         *
+         */
+        mapButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("event", event);
+            NavHostFragment.findNavController(OrganizerEventFragment.this)
+                    .navigate(R.id.mapFragment, bundle);
 
         });
 

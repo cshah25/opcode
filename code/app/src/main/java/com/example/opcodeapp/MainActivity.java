@@ -14,6 +14,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.opcodeapp.databinding.ActivityMainBinding;
+import com.example.opcodeapp.model.User;
+import com.example.opcodeapp.view.RemoveUserDialogFragment;
 
 import java.util.List;
 
@@ -82,5 +84,4 @@ public class MainActivity extends AppCompatActivity {
                 ? navHostFragment.getNavController()
                 : Navigation.findNavController(this, R.id.nav_host_fragment);
     }
-
 }
