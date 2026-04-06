@@ -80,15 +80,13 @@ public class EventHistoryFragment extends Fragment {
      * If records are found, loads the corresponding event details.
      */
     private void loadUserHistory() {
-        applicantRepository.fetchApplicants(
-                query -> query.whereEqualTo("userId", currentUser.getId()),
+        applicantRepository.fetchApplicantsByUser(currentUser.getId(),
                 new FirestoreCallbackApplicantsReceive() {
                     @Override
                     public void onDataReceived(List<Applicant> applicants) {
                         displayList.clear();
 
                         if (applicants.isEmpty()) {
-                            Toast.makeText(requireContext(), "No event history found.", Toast.LENGTH_SHORT).show();
                             adapter.notifyDataSetChanged();
                             return;
                         }
