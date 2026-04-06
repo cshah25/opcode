@@ -381,6 +381,7 @@ public class EventDetailsFragment extends Fragment {
 
         String encodedPoster = event.getEncodedImage();
         if (encodedPoster == null || encodedPoster.isEmpty()) {
+            eventPoster.setVisibility(View.GONE);
             return;
         }
 
