@@ -135,10 +135,17 @@
         tools:layout="@layout/fragment_browse_profiles" />
 
     <!-- Event History Fragment -->
-
     <fragment
         android:id="@+id/eventHistoryFragment"
         android:name="com.example.opcodeapp.view.EventHistoryFragment"
         android:label=""
         tools:layout="@layout/fragment_event_history" />
+
+
+    <!-- Qr Code Scanner Fragment -->
+    <fragment
+        android:id="@+id/qrCodeScannerFragment"
+        android:name="com.example.opcodeapp.view.QrCodeScannerFragment"
+        android:label=""
+        tools:layout="@layout/fragment_qr_code_scanner" />
 </navigation>

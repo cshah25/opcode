@@ -11,7 +11,7 @@
         android:title="@string/create" />
 
     <item
-        android:id="@id/eventListFragment"
+        android:id="@id/qrCodeScannerFragment"
         android:icon="@drawable/ic_qr_code_scan_icon"
         android:title="@string/scan" />
 
