@@ -36,6 +36,7 @@ public class Notification {
         this.user_id = user_id;
         this.body = body;
         this.event_id = event_id;
+        this.destination = destination;
         read = false;
     }
 
