@@ -4,6 +4,9 @@ import com.example.opcodeapp.model.Applicant;
 
 import java.util.List;
 
+/**
+ * Callback to receive a list of applicants
+ */
 public interface FirestoreCallbackApplicantsReceive {
 
     void onDataReceived(List<Applicant> applicant);

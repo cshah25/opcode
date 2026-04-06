@@ -5,6 +5,9 @@ import com.example.opcodeapp.model.Comment;
 
 import java.util.List;
 
+/**
+ * Callback to receive a list of comments
+ */
 public interface FirestoreCallbackCommentsReceive {
 
 

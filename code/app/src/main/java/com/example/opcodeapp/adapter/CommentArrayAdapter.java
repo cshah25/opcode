@@ -20,6 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+/**
+ * Adapter for showin comments in a list
+ */
 public class CommentArrayAdapter extends ArrayAdapter<Comment> {
     private final Event event;
 

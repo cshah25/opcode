@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Way to access comments and interact with the database
+ */
 public class CommentRepository extends Repository {
 
     public CommentRepository(FirebaseFirestore db) {

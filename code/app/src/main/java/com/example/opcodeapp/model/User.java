@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * User class separate from any events
+ */
 public class User extends AbstractModel {
 
     public static final Creator<User> CREATOR = new Creator<>() {

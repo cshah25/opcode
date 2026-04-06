@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A user who has applied to be in a particular event
+ */
 public class Applicant extends AbstractModel {
 
     public static final Creator<Applicant> CREATOR = new Creator<>() {

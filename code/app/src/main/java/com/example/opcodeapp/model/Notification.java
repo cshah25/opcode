@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Notification to a person for an event
+ */
 public class Notification {
     @DocumentId
     private String id;

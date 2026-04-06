@@ -14,6 +14,9 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Utility for validating user inputs
+ */
 public class ValidationUtil {
 
     /**

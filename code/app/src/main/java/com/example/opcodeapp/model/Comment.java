@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A comment on a particular event
+ */
 public class Comment extends AbstractModel {
 
     public static final Creator<Comment> CREATOR = new Creator<>() {
