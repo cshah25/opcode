@@ -50,13 +50,15 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
         eventDescription.setText(event.getDescription());
 
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(event.getEnd())) {
+        if (!now.isBefore(event.getEnd())) {
             eventBadge.setText("Ended");
             eventBadge.setBackgroundResource(R.color.badgeNegative);
-        } else if (now.isAfter(event.getRegistrationEnd()) && now.isBefore(event.getStart())) {
+        } else if (!now.isBefore(event.getRegistrationEnd())
+                && now.isBefore(event.getStart())) {
             eventBadge.setText("Closed");
             eventBadge.setBackgroundResource(R.color.badgeNegative);
-        } else if (event.getWaitlistLimit() != -1 && event.getWaitlistCount() >= event.getWaitlistLimit()) {
+        } else if (event.getWaitlistLimit() != -1
+                && event.getWaitlistCount() >= event.getWaitlistLimit()) {
             eventBadge.setText("Full");
             eventBadge.setBackgroundResource(R.color.badgeNeutral);
         } else {
