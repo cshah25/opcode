@@ -75,6 +75,9 @@
         <action
             android:id="@+id/action_FinalOrganizerEventFragment_to_CommentsFragment"
             app:destination="@id/commentsFragment" />
+        <action
+            android:id="@+id/action_organizerEventFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
     </fragment>
 
     <fragment
@@ -141,4 +144,12 @@
         android:name="com.example.opcodeapp.view.EventHistoryFragment"
         android:label=""
         tools:layout="@layout/fragment_event_history" />
+
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.opcodeapp.view.mapFragment"
+        android:label=""
+        tools:layout="@layout/fragment_map" />
+
 </navigation>
