@@ -2,6 +2,7 @@ package com.example.opcodeapp.view;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackApplicantsReceive;
+import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
+import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.ApplicantRepository;
 import com.example.opcodeapp.util.DateUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,6 +47,14 @@ public class OrganizerEventFragment extends Fragment {
     @SuppressLint("SetTextI18n")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        NavController controller = NavHostFragment.findNavController(this);
+
+        User user = SessionController.getInstance(requireContext()).getCurrentUser();
+        if (user == null) {
+            Log.e("OrganizerEventFragment", "Failed to retrieve user");
+            controller.navigate(R.id.setupFragment);
+            return;
+        }
 
         Bundle args = getArguments();
         if (args == null)
@@ -106,7 +118,6 @@ public class OrganizerEventFragment extends Fragment {
                 /**
                  * Called when the applicants are fetched from the database.
                  *Stores the applicants in a list.
-
                  * @param applicants
                  * The list of applicants.
                  */
@@ -171,7 +182,7 @@ public class OrganizerEventFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putParcelable("event", event);
             NavHostFragment.findNavController(OrganizerEventFragment.this)
-                    .navigate(R.id.enrolledUsersFragment,  bundle);
+                    .navigate(R.id.enrolledUsersFragment, bundle);
         });
 
         invitedApplicantButton.setOnClickListener(v -> {
@@ -199,6 +210,8 @@ public class OrganizerEventFragment extends Fragment {
         qrCodeButton.setOnClickListener(v ->
                 QrCodeViewerFragment.newInstance(event.getId())
                         .show(getParentFragmentManager(), "qr_code_view"));
+
+        qrCodeButton.setVisibility(user.isAdmin() ? View.VISIBLE : View.GONE);
     }
 
     /**
