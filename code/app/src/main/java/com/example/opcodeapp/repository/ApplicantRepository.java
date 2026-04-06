@@ -190,6 +190,13 @@ public class ApplicantRepository extends Repository {
                 .addOnFailureListener(listener::onSendFailure);
     }
 
+    /**
+     * Deletes the applicant record for a specific user and event pair.
+     *
+     * @param userId   the Firestore id of the user leaving the draw
+     * @param eventId  the Firestore id of the event being left
+     * @param listener the listener to be notified of success or failure
+     */
     public void deleteApplicant(String userId, String eventId, FirestoreCallbackSend listener) {
         ref.whereEqualTo("event_id", eventId)
                 .whereEqualTo("user_id", userId)

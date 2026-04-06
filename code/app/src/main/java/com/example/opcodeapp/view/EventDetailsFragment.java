@@ -45,7 +45,6 @@ import java.util.concurrent.Executors;
 
 /**
  * Fragment displaying Event Details to the Entrant.
- * Fulfills US 01.05.04 (Waitlist Count) and US 01.05.05 (Lottery Guidelines).
  */
 public class EventDetailsFragment extends Fragment {
 
@@ -78,11 +77,25 @@ public class EventDetailsFragment extends Fragment {
 
     private final ExecutorService imageExecutor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Inflates the event details screen layout.
+     *
+     * @param inflater           the layout inflater for this fragment
+     * @param container          the parent view that will host the fragment
+     * @param savedInstanceState the previously saved state, if any
+     * @return the inflated event-details screen
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_event_details, container, false);
     }
 
+    /**
+     * Loads the selected event, binds the controls, and wires the waitlist actions.
+     *
+     * @param view               the fragment root view
+     * @param savedInstanceState the previously saved state, if any
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -214,9 +227,8 @@ public class EventDetailsFragment extends Fragment {
     }
 
     /**
-     * The event is updated in Firestore if the most recent changes to the Event instance
-     * has not been pushed to the database. If successfully updated then the waitlist count is
-     * updated.
+     * Refreshes the waitlist count displayed for the current event and pushes any uncommitted
+     * updates to Firestore
      */
     @SuppressLint("DefaultLocale")
     private void updateWaitlistCount() {
@@ -275,7 +287,7 @@ public class EventDetailsFragment extends Fragment {
             applicantRepository.deleteApplicant(applicant.getId(), new FirestoreCallbackSend() {
 
                 /**
-                 * Go back to the event list when the applicant is deleted
+                 * Updates the waitlist count and controls when the applicant is deleted.
                  */
                 @Override
                 public void onSendSuccess(Void aVoid) {
@@ -301,6 +313,9 @@ public class EventDetailsFragment extends Fragment {
     }
 
     // TODO: Merge from notification commits
+    /**
+     * Placeholder for notification opt-in handling on the event-details screen.
+     */
     private void toggleNotifications() {
 
     }
@@ -376,6 +391,9 @@ public class EventDetailsFragment extends Fragment {
         });
     }
 
+    /**
+     * Deletes the organizer and their related event/application records from the admin view.
+     */
     private void adminDeleteOrganizer() {
         UserRepository user_repo = new UserRepository(FirebaseFirestore.getInstance());
         user_repo.deleteUser(event.getOrganizerId(), new FirestoreCallbackSend() {
@@ -453,7 +471,6 @@ public class EventDetailsFragment extends Fragment {
     private void updateUI() {
         adminDeleteButton.setVisibility((currUser != null && currUser.isAdmin()) ? View.VISIBLE : View.GONE);
         removeOrganizerButton.setVisibility((currUser != null && currUser.isAdmin() && !Objects.equals(event.getOrganizerId(), currUser.getId())) ? View.VISIBLE : View.GONE);
-
 
         if (applicant == null) {
             joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
