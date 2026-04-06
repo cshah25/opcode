@@ -15,8 +15,11 @@ if (secretsFile.exists()) {
 }
 
 android {
-    namespace = "com.example.opcodeapp"
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 
+    namespace = "com.example.opcodeapp"
     compileSdk = 36
 
     defaultConfig {
@@ -77,11 +80,13 @@ dependencies {
 
     // Navigation
     implementation(libs.bundles.navigation)
+    implementation(libs.glide)
 
     // Networking / utilities
     implementation(libs.square.okhttp)
     implementation(libs.journeyapps.zxing)
     implementation(libs.opencsv)
+
 
     // Firebase
     implementation(platform(libs.firebase.bom))

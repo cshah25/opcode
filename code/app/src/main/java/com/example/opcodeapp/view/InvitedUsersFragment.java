@@ -85,7 +85,7 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
                             declinedApplicants.addAll(applicants);
                             if (declinedApplicants.contains(user)) {
                                 DeclinedUserDialogFragment declinedUserDialogFragment = DeclinedUserDialogFragment.newInstance(user, event);
-                                declinedUserDialogFragment.show(getParentFragmentManager(), "Remove");
+                                declinedUserDialogFragment.show(getChildFragmentManager(), "Remove");
                             }
                         }
 

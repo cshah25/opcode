@@ -121,14 +121,30 @@
                 app:tint="@color/black" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/enrolled_users_button"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:backgroundTint="@color/profile_button"
-            android:text="@string/view_final_list_of_enrolled_users"
-            android:textColor="@android:color/white" />
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/map_button"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/map_icon"
+                app:tint="@color/black" />
+
+            <Button
+                android:id="@+id/enrolled_users_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:backgroundTint="@color/profile_button"
+                android:text="@string/view_final_list_of_enrolled_users"
+                android:textColor="@android:color/white" />
+
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/invited_users_button"
