@@ -48,28 +48,27 @@ public class CommentsFragment extends Fragment {
 
         Bundle args = getArguments();
         if (args == null) {
+            Log.e("CommentsFragment", "No arguments provided");
             return;
         }
 
         Event event = args.getParcelable("event", Event.class);
         if (event == null) {
+            Log.e("CommentsFragment", "Event missing from bundle");
             return;
         }
 
         ListView commentListView = view.getRootView().findViewById(R.id.comments_list_view);
-
-
-        List<Comment> data_list = new ArrayList<>();
+        List<Comment> dataList = new ArrayList<>();
         CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
         repository.fetchCommentsByEvent(event.getId(), new FirestoreCallbackCommentsReceive() {
                     @Override
                     public void onDataReceived(List<Comment> comments) {
-                        data_list.addAll(comments);
-                        commentAdapter = new CommentArrayAdapter(requireContext(), comments, event);
+                        dataList.addAll(comments);
+                        commentAdapter = new CommentArrayAdapter(requireContext(), dataList, event);
                         commentListView.setAdapter(commentAdapter);
                         commentAdapter.notifyDataSetChanged();
-                        Log.e("FetchApplicantSuccess", "Fetched " + comments.size() + " comments");
-
+                        Log.d("FetchApplicantSuccess", "Fetched " + comments.size() + " comments");
                     }
 
                     @Override
@@ -79,8 +78,6 @@ public class CommentsFragment extends Fragment {
                 }
         );
 
-
-        View comment_controls = view.findViewById(R.id.comment_controls);
         Button add_comment = view.findViewById(R.id.btn_add_comment);
         commentInput = view.findViewById(R.id.comment_input);
 
@@ -92,7 +89,6 @@ public class CommentsFragment extends Fragment {
     }
 
     private void addComment(Event event) {
-
         String input = commentInput.getText().toString();
 
         if (input.isEmpty()) {
@@ -100,13 +96,12 @@ public class CommentsFragment extends Fragment {
             return;
         }
 
-
         CommentRepository repository = new CommentRepository(FirebaseFirestore.getInstance());
         SessionController sessionController = SessionController.getInstance(requireContext());
-        User curr_user = sessionController.getCurrentUser();
+        User currUser = sessionController.getCurrentUser();
         Comment comment = Comment.builder()
                 .eventId(event.getId())
-                .userId(curr_user.getId())
+                .userId(currUser.getId())
                 .content(input)
                 .time(LocalDateTime.now())
                 .build();
@@ -122,12 +117,8 @@ public class CommentsFragment extends Fragment {
             @Override
             public void onSendFailure(Exception e) {
                 Log.e("AddComment", "Failed to add comment: " + e.getMessage());
-
             }
-
         });
-
-
     }
 
     @Override

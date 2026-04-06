@@ -75,7 +75,7 @@ public class EventDetailsFragment extends Fragment {
     private ApplicantRepository applicantRepository;
     private EventRepository eventRepository;
 
-    private final ExecutorService imageExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService imageExecutor;
 
     /**
      * Inflates the event details screen layout.
@@ -102,6 +102,7 @@ public class EventDetailsFragment extends Fragment {
         NavController navController = NavHostFragment.findNavController(this);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
         eventRepository = new EventRepository(FirebaseFirestore.getInstance());
+        imageExecutor = Executors.newSingleThreadExecutor();
         UserRepository userRepository = new UserRepository(FirebaseFirestore.getInstance());
 
         Bundle args = getArguments();
@@ -176,7 +177,6 @@ public class EventDetailsFragment extends Fragment {
         toggleNotificationsButton.setOnClickListener(v -> toggleNotifications());
         acceptButton.setOnClickListener(v -> {
             handleInvitationResponse(ApplicantStatus.ACCEPTED);
-            event.decrementWaitlistCount();
             updateWaitlistCount();
         });
         declineButton.setOnClickListener(v -> {
