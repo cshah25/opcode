@@ -169,8 +169,16 @@ public class EventDetailsFragment extends Fragment {
         lotteryInfoButton.setOnClickListener(v -> showLotteryCriteriaDialog());
         joinLeaveWaitlistButton.setOnClickListener(v -> joinLeaveHandler());
         toggleNotificationsButton.setOnClickListener(v -> toggleNotifications());
-        acceptButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.ACCEPTED));
-        declineButton.setOnClickListener(v -> handleInvitationResponse(ApplicantStatus.DECLINED));
+        acceptButton.setOnClickListener(v -> {
+            handleInvitationResponse(ApplicantStatus.ACCEPTED);
+            event.decrementWaitlistCount();
+            updateWaitlistCount();
+        });
+        declineButton.setOnClickListener(v -> {
+            handleInvitationResponse(ApplicantStatus.DECLINED);
+            event.decrementWaitlistCount();
+            updateWaitlistCount();
+        });
 
         //User Story 03.01.01
         adminDeleteButton.setOnClickListener(v -> adminDeleteEvent(this));
@@ -259,6 +267,8 @@ public class EventDetailsFragment extends Fragment {
      * In both cases, the waitlist count and the button's content description and icon is also updated
      */
     private void joinLeaveHandler() {
+
+
         if (applicant == null) {
             this.applicant = Applicant.builder()
                     .eventId(event.getId())
@@ -475,6 +485,7 @@ public class EventDetailsFragment extends Fragment {
 
         if (applicant == null) {
             joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+            joinLeaveWaitlistButton.setImageResource(R.drawable.ic_join_waitlist);
             invitationSection.setVisibility(View.GONE);
             toggleNotificationsButton.setVisibility(View.GONE);
             commentButton.setVisibility(View.GONE);
@@ -485,6 +496,7 @@ public class EventDetailsFragment extends Fragment {
             case NOT_DRAWN:
                 invitationSection.setVisibility(View.GONE);
                 joinLeaveWaitlistButton.setVisibility(View.VISIBLE);
+                joinLeaveWaitlistButton.setImageResource(R.drawable.ic_leave_waitlist);
                 commentButton.setVisibility(View.VISIBLE);
                 break;
             case INVITED:
