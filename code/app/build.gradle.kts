@@ -88,6 +88,8 @@ dependencies {
     implementation("com.opencsv:opencsv:5.7.1")
     //implementation("com.google.zxing:core:3.5.0")
 
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+
 
 
 

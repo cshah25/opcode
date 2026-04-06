@@ -24,6 +24,7 @@ public class RemoveUserDialogFragment extends DialogFragment {
 
     private RemoveUserDialogFragment.RemoveUserDialogListener listener;
 
+
     public static RemoveUserDialogFragment newInstance(User user) {
         RemoveUserDialogFragment fragment = new RemoveUserDialogFragment();
         Bundle args = new Bundle();
@@ -60,7 +61,7 @@ public class RemoveUserDialogFragment extends DialogFragment {
                     .create();
         }
 
-        User user = args.getParcelable("user", User.class);
+        User user = args.getParcelable("User", User.class);
         if (user == null) {
             return new AlertDialog.Builder(context)
                     .setView(view)
