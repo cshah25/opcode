@@ -4,10 +4,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.opcodeapp.callback.FirestoreCallbackNotificationReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackNotificationsReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.Notification;
+import com.example.opcodeapp.model.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -56,6 +58,7 @@ public class NotificationRepository extends Repository {
                 .add("userId", notification.getUser_id())
                 .add("body", notification.getBody())
                 .add("eventId", notification.getEvent_id())
+                .add("destination", notification.getDestination())
                 .build();
 
         HttpUrl url = new HttpUrl.Builder()
@@ -126,5 +129,19 @@ public class NotificationRepository extends Repository {
                 .delete()
                 .addOnSuccessListener(callback::onSendSuccess)
                 .addOnFailureListener(callback::onSendFailure);
+    }
+
+    public void fetchNotification(String noti_id, FirestoreCallbackNotificationReceive callback) {
+        ref.document(noti_id)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists() || doc.getData() == null) {
+                        callback.onDataReceived(null);
+                        return;
+                    }
+                    Notification noti = Notification.fromMap(doc.getId(), doc.getData());
+                    callback.onDataReceived(noti);
+                })
+                .addOnFailureListener(callback::onError);
     }
 }

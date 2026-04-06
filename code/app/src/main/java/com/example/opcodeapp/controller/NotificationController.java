@@ -1,16 +1,15 @@
 package com.example.opcodeapp.controller;
 
 import android.app.NotificationManager;
-import android.app.Service;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.example.opcodeapp.MainActivity;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
 import com.example.opcodeapp.model.User;
@@ -62,16 +61,45 @@ public class NotificationController extends FirebaseMessagingService {
     }
 
     /**
-     * Handles notifications when app is in background
+     * Handles notifications when app is in background (or foreground)
      * @param remoteMessage Remote message that has been received.
      */
     @Override
-    // nonnull because android studio said so
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        String title = remoteMessage.getNotification().getTitle();
-        String body = remoteMessage.getNotification().getBody();
+        String title = remoteMessage.getData().get("title");
+        String body = remoteMessage.getData().get("body");
+        String eventId = remoteMessage.getData().get("eventId");
+        String destination = remoteMessage.getData().get("destination");
+        String notiId = remoteMessage.getData().get("notiId");
+        Log.d("NotificationController", "Received noti: " + title + ", " + body + ", " + eventId + ", " + destination + ", " + notiId);
+
+        if (title == null || body == null || eventId == null || destination == null || notiId == null) {
+            Log.w("NotificationController", "Missing data");
+            return;
+        }
+
+        // the intents are here so the user is taken to the event when they click on the noti
+        // or to the notifications page if the noti isn't really relevant to a particular event.
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("noti_id", notiId);
+        if (destination.equals("event_detail")) {
+            intent.putExtra("destination", "details");
+            intent.putExtra("event_id", eventId);
+        } else if (destination.equals("notifications")) {
+            intent.putExtra("destination", "notifications");
+        } else {
+            Log.e("NotificationController", "no destination");
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
 
         NotificationManager manager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -82,6 +110,8 @@ public class NotificationController extends FirebaseMessagingService {
                         .setContentTitle(title)
                         .setContentText(body)
                         .setSmallIcon(R.drawable.ic_notifications_active)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setContentIntent(pendingIntent)
                         .setAutoCancel(true);
 
         manager.notify(1, builder.build());

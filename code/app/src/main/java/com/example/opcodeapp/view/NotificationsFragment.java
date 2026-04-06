@@ -120,7 +120,7 @@ public class NotificationsFragment extends Fragment {
                 @Override
                 public void onError(Exception e) {
                     Log.e("NotificationsFragment", "Could not load event", e);
-                    Toast.makeText(getActivity(), "Could not load event", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Could not load event", Toast.LENGTH_SHORT).show();
                 }
             });
         });

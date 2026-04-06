@@ -19,14 +19,10 @@ import androidx.core.content.ContextCompat;
 import com.example.opcodeapp.R;
 import com.example.opcodeapp.callback.FirestoreCallbackEventReceive;
 import com.example.opcodeapp.callback.FirestoreCallbackSend;
-import com.example.opcodeapp.callback.FirestoreCallbackUserReceive;
-import com.example.opcodeapp.model.Applicant;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.Notification;
-import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.EventRepository;
 import com.example.opcodeapp.repository.NotificationRepository;
-import com.example.opcodeapp.repository.UserRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -39,7 +35,6 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification> {
 
     public NotificationArrayAdapter(Context context, List<Notification> items) {
         super(context, 0, items);
-        Log.i("NotificationArrayAdapter", "Got " + items.get(0) + " items");
         notificationRepository = new NotificationRepository(FirebaseFirestore.getInstance());
     }
 

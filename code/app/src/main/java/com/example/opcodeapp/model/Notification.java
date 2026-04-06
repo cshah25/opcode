@@ -20,6 +20,7 @@ public class Notification {
     private String body;
     private String event_id;
     private boolean read;
+    private String destination;
 
     public Timestamp getCreated_at() {
         return created_at;
@@ -31,20 +32,21 @@ public class Notification {
 
     private Timestamp created_at;
 
-    public Notification(String user_id, String body, String event_id) {
+    public Notification(String user_id, String body, String event_id, String destination) {
         this.user_id = user_id;
         this.body = body;
         this.event_id = event_id;
         read = false;
     }
 
-    public Notification(String id, String user_id, String body, String event_id, boolean read, Timestamp created_at) {
+    public Notification(String id, String user_id, String body, String event_id, boolean read, Timestamp created_at, String destination) {
         this.id = id;
         this.user_id = user_id;
         this.body = body;
         this.event_id = event_id;
         this.read = read;
         this.created_at = created_at;
+        this.destination = destination;
     }
 
     public String getBody() {
@@ -78,11 +80,13 @@ public class Notification {
         map.put("eventId", event_id);
         map.put("read", read);
         map.put("createdAt", created_at);
+        map.put("destination", destination);
         return map;
     }
 
     public static Notification fromMap(String id, Map<String, Object> map) {
-        if (!hasRequiredFields(map, "userId", "eventId", "body", "read", "createdAt")) {
+        if (!hasRequiredFields(map, "userId", "eventId", "body", "read", "createdAt", "destination")) {
+            Log.w("Notification", "missing field " + map);
             return null;
         }
         return new Builder()
@@ -91,7 +95,9 @@ public class Notification {
             .user_id((String)map.get("userId"))
             .event_id((String)map.get("eventId"))
             .read((boolean)map.get("read"))
-            .created_at((Timestamp) map.get("createdAt")).build();
+            .created_at((Timestamp)map.get("createdAt"))
+            .destination((String)map.get("destination"))
+            .build();
     }
 
     public boolean isRead() {
@@ -110,6 +116,14 @@ public class Notification {
         this.event_id = event_id;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
     public static class Builder {
         private String id;
         private String user_id;
@@ -117,6 +131,7 @@ public class Notification {
         private String event_id;
         private boolean read;
         private Timestamp created_at;
+        private String destination;
 
         public Notification.Builder id(@NonNull String id) {
             this.id = id;
@@ -148,9 +163,14 @@ public class Notification {
             return this;
         }
 
+        public Notification.Builder destination(@NonNull String destination) {
+            this.destination = destination;
+            return this;
+        }
+
 
         public Notification build() {
-            return new Notification(id, user_id, body, event_id, read, created_at);
+            return new Notification(id, user_id, body, event_id, read, created_at, destination);
         }
     }
 }
