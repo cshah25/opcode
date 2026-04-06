@@ -50,7 +50,7 @@ public class OrganizerEventFragment extends Fragment {
 
         event = args.getParcelable("event", Event.class);
         if (event == null) {
-            NavHostFragment.findNavController(OrganizerEventFragment.this).navigateUp();
+            NavHostFragment.findNavController(this).navigateUp();
             return;
         }
 

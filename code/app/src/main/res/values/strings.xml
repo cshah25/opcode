@@ -61,4 +61,5 @@
     <string name="filter_available_now">Available now</string>
     <string name="filter_has_capacity">Has capacity</string>
     <string name="browse_profiles">Browse Profiles</string>
+    <string name="organizer">Organizer</string>
 </resources>

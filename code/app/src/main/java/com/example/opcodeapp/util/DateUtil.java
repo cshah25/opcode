@@ -3,6 +3,7 @@ package com.example.opcodeapp.util;
 import android.os.Parcel;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -16,14 +17,20 @@ public class DateUtil {
      * @return a date converted to the epoch second
      */
     public static long toSeconds(LocalDateTime dt) {
-        return dt.atZone(ZoneId.systemDefault())
+        return dt.atZone(ZoneId.of("UTC"))
                 .toInstant()
                 .getEpochSecond();
     }
 
-    public static LocalDateTime fromLong(long l) {
+    public static LocalDateTime fromSeconds(long l) {
         return Instant.ofEpochSecond(l)
-                .atZone(ZoneOffset.systemDefault())
+                .atZone(ZoneOffset.UTC)
+                .toLocalDateTime();
+    }
+
+    public static LocalDateTime fromMillis(long l) {
+        return Instant.ofEpochMilli(l)
+                .atZone(ZoneOffset.UTC)
                 .toLocalDateTime();
     }
 
