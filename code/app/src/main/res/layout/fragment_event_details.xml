@@ -49,7 +49,9 @@
                     android:layout_height="wrap_content"
                     android:text="Location"
                     android:textColor="#666666"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
             </LinearLayout>
 
             <!-- Action Icons -->
@@ -98,7 +100,7 @@
                 android:id="@+id/tv_event_organizer"
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
-                android:text=""
+                android:text="Organizer"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -106,11 +108,10 @@
                 android:id="@+id/btn_remove_organizer"
                 android:layout_width="160dp"
                 android:layout_height="match_parent"
+                android:backgroundTint="@color/profile_button"
                 android:text="Remove"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:backgroundTint="@color/profile_button"/>
-
+                android:textStyle="bold" />
 
 
         </LinearLayout>
@@ -139,6 +140,7 @@
             android:layout_marginBottom="24dp"
             android:background="#E0E0E0" />
 
+        <!-- Waitlist Count -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -147,15 +149,6 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="12dp">
-
-            <ImageButton
-                android:id="@+id/btn_comment"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Comment Section"
-                android:src="@drawable/ic_comment_icon"
-                app:tint="@color/black" />
 
             <TextView
                 android:id="@+id/tv_waitlist_count"
@@ -177,6 +170,7 @@
                 app:tint="#2196F3" />
         </LinearLayout>
 
+        <!-- Invited Section -->
         <LinearLayout
             android:id="@+id/invited_section"
             android:layout_width="match_parent"
@@ -225,6 +219,48 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_event_poster"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="Event Poster" />
+
+        <!-- Comment Row-->
+        <LinearLayout
+            android:id="@+id/btn_comment_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Comment Icon"
+                android:src="@drawable/ic_comment_icon" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="View Comments"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Expand"
+                android:src="@drawable/ic_right_arrow" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

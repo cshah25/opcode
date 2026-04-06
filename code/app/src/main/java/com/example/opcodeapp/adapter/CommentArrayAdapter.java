@@ -56,7 +56,7 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
             public void onDataReceived(User user) {
                 String organizerId = event.getOrganizerId();
                 String commenterId = comment.getUserId();
-                userName.setText(organizerId.equals(commenterId) ? user.getName() + "(Organizer)" : user.getName());
+                userName.setText(organizerId.equals(commenterId) ? user.getName() + " (Organizer)" : user.getName());
             }
 
             @Override

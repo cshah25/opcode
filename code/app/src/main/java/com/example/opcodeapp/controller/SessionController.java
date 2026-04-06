@@ -110,8 +110,6 @@ public class SessionController {
         return state;
     }
 
-    //https://api.geoapify.com/v1/ipinfo?&apiKey=75386e4b50524f018ae80fa506253302
-
     private void fetchUserLocation() {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -121,7 +119,6 @@ public class SessionController {
                 .addQueryParameter("format", "json")
                 .addQueryParameter("apiKey", BuildConfig.GEOAPIFY_GEOLOCATION_API_KEY)
                 .build();
-
 
         Request request = new Request.Builder()
                 .url(url)
@@ -144,12 +141,9 @@ public class SessionController {
                 }
 
                 parseLocation(body);
-
             }
         });
     }
-
-
 
     public void parseLocation(String json) {
         try {
@@ -182,13 +176,10 @@ public class SessionController {
                         }
                     });
                 }
-
-
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
-
         }
     }
 }

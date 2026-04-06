@@ -47,18 +47,14 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
     private ArrayAdapter<Applicant> userAdapter;
     private ApplicantRepository applicantRepository;
 
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_invited_users, container, false);
     }
 
-
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-
         super.onViewCreated(view, savedInstanceState);
-        Event event = getArguments().getParcelable("event");
-
+        Event event = getArguments().getParcelable("event", Event.class);
         applicantRepository = new ApplicantRepository(FirebaseFirestore.getInstance());
 
         userList = view.findViewById(R.id.invited_users_list_view);
@@ -86,10 +82,6 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
             }
         });
 
-
-
-
-
         /**
          * Click Listener for each of the users in the listview. If the user has declined the invitation, they can be removed from the list.
          */
@@ -100,8 +92,6 @@ public class InvitedUsersFragment extends Fragment implements DeclinedUserDialog
                 fragment.show(getChildFragmentManager(), "Remove");
             }
         });
-
-
     }
 
     @Override

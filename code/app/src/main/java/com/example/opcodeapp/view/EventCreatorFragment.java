@@ -1,10 +1,15 @@
 package com.example.opcodeapp.view;
 
+import android.content.ContentResolver;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -15,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -25,9 +31,13 @@ import com.example.opcodeapp.controller.SessionController;
 import com.example.opcodeapp.model.Event;
 import com.example.opcodeapp.model.User;
 import com.example.opcodeapp.repository.EventRepository;
-import com.example.opcodeapp.util.UIValidationUtil;
+import com.example.opcodeapp.util.DateUtil;
+import com.example.opcodeapp.util.ValidationUtil;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -37,11 +47,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,40 +70,36 @@ import okhttp3.Response;
  * it to the Firestore database using {@link EventRepository}
  */
 public class EventCreatorFragment extends Fragment {
-    private EventCreatorFragment instance;
-
     private TextInputLayout nameLayout;
     private TextInputLayout locationLayout;
     private TextInputLayout descriptionLayout;
-    private TextInputLayout registrationStartLayout;
-    private TextInputLayout registrationEndLayout;
+    private TextInputLayout registrationPeriodLayout;
+    private TextInputLayout eventPeriodLayout;
     private TextInputLayout priceLayout;
     private TextInputLayout waitlistLayout;
-    private TextInputLayout eventStartLayout;
-    private TextInputLayout eventEndLayout;
 
     private TextInputEditText nameInput;
     private MaterialAutoCompleteTextView locationInput;
     private TextInputEditText descriptionInput;
-    private TextInputEditText registrationStartInput;
-    private TextInputEditText registrationEndInput;
+    private TextInputEditText registrationPeriodInput;
     private TextInputEditText priceInput;
     private TextInputEditText waitlistInput;
-    private TextInputEditText eventStartInput;
-    private TextInputEditText eventEndInput;
+    private TextInputEditText eventPeriodInput;
     private Map<EditText, TextInputLayout> requiredFields;
 
+    private MaterialSwitch publicSwitch;
     private MaterialButton createButton;
     private MaterialButton uploadButton;
 
     private final DateTimeFormatter dateFormat =
             DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.US);
+    private LocalDateTime registrationStart, registrationEnd, startDate, endDate;
 
+    private String encodedPoster = "";
     private final ActivityResultLauncher<String> posterPickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    Toast.makeText(requireContext(), "Poster selected", Toast.LENGTH_SHORT).show();
-                }
+                if (uri != null)
+                    handlePosterUpload(uri);
             });
 
     // Location prediction
@@ -110,20 +115,35 @@ public class EventCreatorFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        instance = this;
         createButton = view.findViewById(R.id.event_creator_submit_btn);
         uploadButton = view.findViewById(R.id.event_creator_upload_btn);
         bindViews(view);
         addErrorClearingWatchers();
 
-        configureDateField(registrationStartLayout, registrationStartInput, "Select registration start");
-        configureDateField(registrationEndLayout, registrationEndInput, "Select registration end");
-        configureDateField(eventStartLayout, eventStartInput, "Select event start");
-        configureDateField(eventEndLayout, eventEndInput, "Select event end");
+
+
+        // Setup picker for registration period
+        registrationPeriodLayout.setEndIconOnClickListener(v -> openRegistrationSelector());
+        registrationPeriodInput.setOnClickListener(v -> openRegistrationSelector());
+        registrationPeriodInput.setKeyListener(null);
+
+        // Setup picker for event period
+        eventPeriodLayout.setEndIconOnClickListener(v -> openEventPeriodSelector());
+        eventPeriodInput.setOnClickListener(v -> openEventPeriodSelector());
+        eventPeriodInput.setKeyListener(null);
+        setEventPeriodEnabled(false);
 
         configureLocationField();
 
-        uploadButton.setOnClickListener(v -> posterPickerLauncher.launch("image/*"));
+        updatePosterButton();
+        uploadButton.setOnClickListener(v -> {
+            if (encodedPoster.isEmpty())
+                posterPickerLauncher.launch("image/*");
+            else {
+                encodedPoster = "";
+                updatePosterButton();
+            }
+        });
         createButton.setOnClickListener(v -> submitForm());
     }
 
@@ -136,60 +156,41 @@ public class EventCreatorFragment extends Fragment {
         nameLayout = view.findViewById(R.id.event_creator_name_layout);
         locationLayout = view.findViewById(R.id.event_creator_location_layout);
         descriptionLayout = view.findViewById(R.id.event_creator_description_layout);
-        registrationStartLayout = view.findViewById(R.id.event_creator_registration_start_layout);
-        registrationEndLayout = view.findViewById(R.id.event_creator_registration_end_layout);
+        registrationPeriodLayout = view.findViewById(R.id.event_creator_registration_period_layout);
         priceLayout = view.findViewById(R.id.event_creator_price_layout);
         waitlistLayout = view.findViewById(R.id.event_creator_waitlist_layout);
-        eventStartLayout = view.findViewById(R.id.event_creator_start_layout);
-        eventEndLayout = view.findViewById(R.id.event_creator_end_layout);
+        eventPeriodLayout = view.findViewById(R.id.event_creator_period_layout);
 
         nameInput = view.findViewById(R.id.event_creator_name_input);
         locationInput = view.findViewById(R.id.event_creator_location_input);
         descriptionInput = view.findViewById(R.id.event_creator_description_input);
-        registrationStartInput = view.findViewById(R.id.event_creator_registration_start_input);
-        registrationEndInput = view.findViewById(R.id.event_creator_registration_end_input);
+        registrationPeriodInput = view.findViewById(R.id.event_creator_registration_period_input);
         priceInput = view.findViewById(R.id.event_creator_price_input);
         waitlistInput = view.findViewById(R.id.event_creator_waitlist_input);
-        eventStartInput = view.findViewById(R.id.event_creator_start_input);
-        eventEndInput = view.findViewById(R.id.event_creator_end_input);
+        eventPeriodInput = view.findViewById(R.id.event_creator_period_input);
 
         requiredFields = Map.of(
                 nameInput, nameLayout,
                 locationInput, locationLayout,
                 descriptionInput, descriptionLayout,
-                registrationStartInput, registrationStartLayout,
-                registrationEndInput, registrationEndLayout,
-                eventStartInput, eventStartLayout,
-                eventEndInput, eventEndLayout
+                registrationPeriodInput, registrationPeriodLayout,
+                eventPeriodInput, eventPeriodLayout
         );
+
+        publicSwitch = view.findViewById(R.id.event_creator_public_switch);
     }
 
     /**
      * Attaches watchers to all fields to clear errors when updated
      */
     private void addErrorClearingWatchers() {
-        UIValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
-        UIValidationUtil.addErrorClearingWatcher(locationInput, locationLayout);
-        UIValidationUtil.addErrorClearingWatcher(descriptionInput, descriptionLayout);
-        UIValidationUtil.addErrorClearingWatcher(registrationStartInput, registrationStartLayout);
-        UIValidationUtil.addErrorClearingWatcher(registrationEndInput, registrationEndLayout);
-        UIValidationUtil.addErrorClearingWatcher(priceInput, priceLayout);
-        UIValidationUtil.addErrorClearingWatcher(waitlistInput, waitlistLayout);
-        UIValidationUtil.addErrorClearingWatcher(eventStartInput, eventStartLayout);
-        UIValidationUtil.addErrorClearingWatcher(eventEndInput, eventEndLayout);
-    }
-
-    /**
-     * Configures date inputs to open the date picker when selected and disables manual input
-     *
-     * @param layout The text input layout
-     * @param input  The text input text field
-     * @param title  Title of the date picker
-     */
-    private void configureDateField(TextInputLayout layout, TextInputEditText input, String title) {
-        layout.setEndIconOnClickListener(v -> openDatePicker(input, title));
-        input.setOnClickListener(v -> openDatePicker(input, title));
-        input.setKeyListener(null);
+        ValidationUtil.addErrorClearingWatcher(nameInput, nameLayout);
+        ValidationUtil.addErrorClearingWatcher(locationInput, locationLayout);
+        ValidationUtil.addErrorClearingWatcher(descriptionInput, descriptionLayout);
+        ValidationUtil.addErrorClearingWatcher(registrationPeriodInput, registrationPeriodLayout);
+        ValidationUtil.addErrorClearingWatcher(priceInput, priceLayout);
+        ValidationUtil.addErrorClearingWatcher(waitlistInput, waitlistLayout);
+        ValidationUtil.addErrorClearingWatcher(eventPeriodInput, eventPeriodLayout);
     }
 
     /**
@@ -333,25 +334,118 @@ public class EventCreatorFragment extends Fragment {
     }
 
     /**
-     * Initializes the date picker to attach to date field listeners
-     *
-     * @param targetInput The text input of the date field
-     * @param title       The title of the date picker
+     * On-click handler that opens the registration period's date picker. This will exclude any
+     * dates before the current date.
      */
-    private void openDatePicker(TextInputEditText targetInput, String title) {
-        MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker()
-                .setTitleText(title);
+    private void openRegistrationSelector() {
+        long today = MaterialDatePicker.todayInUtcMilliseconds();
 
-        MaterialDatePicker<Long> picker = builder.build();
+        CalendarConstraints constraints = new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.from(today))
+                .build();
+
+        MaterialDatePicker<Pair<Long, Long>> picker =
+                MaterialDatePicker.Builder.dateRangePicker()
+                        .setTitleText("Select registration period")
+                        .setCalendarConstraints(constraints)
+                        .build();
+
         picker.addOnPositiveButtonClickListener(selection -> {
-            if (selection != null) {
-                LocalDateTime dateTime = Instant.ofEpochMilli(selection)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime();
-                targetInput.setText(dateFormat.format(dateTime));
+            if (selection == null || selection.first == null || selection.second == null) {
+                return;
             }
+
+            registrationStart = DateUtil.fromMillis(selection.first);
+            registrationEnd = DateUtil.fromMillis(selection.second);
+
+            String output = registrationStart.format(dateFormat) + " - " + registrationEnd.format(dateFormat);
+            registrationPeriodInput.setText(output);
+
+            eventPeriodInput.setText(null);
+            startDate = null;
+            endDate = null;
+            setEventPeriodEnabled(true);
         });
-        picker.show(getParentFragmentManager(), title);
+
+        picker.show(getParentFragmentManager(), "registration_range_picker");
+    }
+
+    private void setEventPeriodEnabled(boolean enabled) {
+        eventPeriodInput.setEnabled(enabled);
+        eventPeriodLayout.setEnabled(enabled);
+    }
+
+    /**
+     * On-click handler that opens the event period's date picker. This excludes all dates before
+     * today and any dates before the registration period
+     */
+    private void openEventPeriodSelector() {
+        if (registrationStart == null || registrationEnd == null) {
+            Toast.makeText(requireContext(), "Select registration period first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        long minEventDate = registrationEnd
+                .plusDays(1)
+                .atZone(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli();
+
+        CalendarConstraints constraints = new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.from(minEventDate))
+                .build();
+
+        MaterialDatePicker<Pair<Long, Long>> picker =
+                MaterialDatePicker.Builder.dateRangePicker()
+                        .setTitleText("Select event period")
+                        .setCalendarConstraints(constraints)
+                        .build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null || selection.first == null || selection.second == null) {
+                return;
+            }
+
+            startDate = DateUtil.fromMillis(selection.first);
+            endDate = DateUtil.fromMillis(selection.second);
+
+            String output = startDate.format(dateFormat) + " - " + endDate.format(dateFormat);
+            eventPeriodInput.setText(output);
+        });
+
+        picker.show(getParentFragmentManager(), "event_range_picker");
+    }
+
+    /**
+     * Compresses the provided image poster using the JPEG compression format and
+     * encodes the compressed image to a Base64 String for storing
+     *
+     * @param uri The URI of the image uploaded
+     */
+    private void handlePosterUpload(Uri uri) {
+        try {
+            ContentResolver resolver = requireContext().getContentResolver();
+            ImageDecoder.Source source = ImageDecoder.createSource(resolver, uri);
+            Bitmap bitmap = ImageDecoder.decodeBitmap(source);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
+            byte[] bytes = out.toByteArray();
+            encodedPoster = Base64.encodeToString(bytes, Base64.DEFAULT);
+
+            updatePosterButton();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Updates the upload poster button based on if there is an existing uploaded poster
+     */
+    private void updatePosterButton() {
+        uploadButton.setText(encodedPoster.isEmpty() ? "Upload Poster" : "Cancel");
+        uploadButton.setIconResource(encodedPoster.isEmpty() ? R.drawable.ic_upload_icon : R.drawable.ic_close_icon);
     }
 
     /**
@@ -360,21 +454,16 @@ public class EventCreatorFragment extends Fragment {
      * forward to the event details screen.
      */
     private void submitForm() {
-        UIValidationUtil.clearErrors(requiredFields.values());
+        ValidationUtil.clearErrors(requiredFields.values());
         createButton.setEnabled(false);
 
-        String name = UIValidationUtil.getText(nameInput);
-        String location = UIValidationUtil.getText(locationInput);
-        String description = UIValidationUtil.getText(descriptionInput);
-        String registrationStart = UIValidationUtil.getText(registrationStartInput);
-        String registrationEnd = UIValidationUtil.getText(registrationEndInput);
-        String priceText = UIValidationUtil.getText(priceInput);
-        String waitlistText = UIValidationUtil.getText(waitlistInput);
-        String eventStart = UIValidationUtil.getText(eventStartInput);
-        String eventEnd = UIValidationUtil.getText(eventEndInput);
+        String name = ValidationUtil.getText(nameInput);
+        String location = ValidationUtil.getText(locationInput);
+        String description = ValidationUtil.getText(descriptionInput);
+        String priceText = ValidationUtil.getText(priceInput);
+        String waitlistText = ValidationUtil.getText(waitlistInput);
 
-
-        boolean valid = UIValidationUtil.validateRequiredFields(requiredFields);
+        boolean valid = ValidationUtil.validateRequiredFields(requiredFields);
 
         float price = 0.0f;
         if (!priceText.isEmpty()) {
@@ -404,33 +493,48 @@ public class EventCreatorFragment extends Fragment {
             }
         }
 
-        if (!valid)
+        if (!valid) {
+            createButton.setEnabled(true);
             return;
+        }
 
-        Toast.makeText(requireContext(), "Event created", Toast.LENGTH_SHORT).show();
+        if (registrationStart == null || registrationEnd == null || startDate == null || endDate == null) {
+            createButton.setEnabled(true);
+            return;
+        }
+
+        if (startDate.isBefore(registrationEnd.plusDays(1))) {
+            eventPeriodLayout.setError("Event must start after registration ends");
+            createButton.setEnabled(true);
+            return;
+        }
+
         EventRepository eventRepository = new EventRepository(FirebaseFirestore.getInstance());
         SessionController controller = SessionController.getInstance(getContext());
         User organizer = controller.getCurrentUser();
 
-        Event.Builder builder = Event.builder()
+        Event event = Event.builder()
                 .name(name)
                 .location(location)
                 .description(description)
-                .registrationStart(LocalDate.parse(registrationStart, dateFormat).atStartOfDay())
-                .registrationEnd(LocalDate.parse(registrationEnd, dateFormat).atStartOfDay())
-                .start(LocalDate.parse(eventStart, dateFormat).atStartOfDay())
-                .end(LocalDate.parse(eventEnd, dateFormat).atStartOfDay())
+                .registrationStart(registrationStart)
+                .registrationEnd(registrationEnd)
+                .start(startDate)
+                .end(endDate)
                 .organizerId(organizer.getId())
                 .price(price)
-                .waitlistLimit(waitlistLimit);
+                .waitlistLimit(waitlistLimit)
+                .waitlistCount(0)
+                .isPublic(publicSwitch.isChecked())
+                .encodedImage(encodedPoster)
+                .build();
 
-        Event event = builder.build();
         eventRepository.addEvent(event, new FirestoreCallbackSend() {
             @Override
             public void onSendSuccess(Void unused) {
                 createButton.setEnabled(true);
 
-                NavHostFragment.findNavController(instance).navigate(R.id.eventListFragment);
+                NavHostFragment.findNavController(EventCreatorFragment.this).navigate(R.id.eventListFragment);
                 Toast.makeText(getContext(), "Created event successfully", Toast.LENGTH_SHORT).show();
             }
 
