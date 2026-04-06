@@ -140,10 +140,11 @@ public class WaitListFragment extends Fragment {
                             Collections.shuffle(result);
 
                             List<Applicant> winners = new ArrayList<>(result.subList(0, drawSize));
-                            if (winners == null || winners.isEmpty()) {
+                            if (winners.isEmpty()) {
                                 Toast.makeText(requireContext(), "Waitlist is empty or no winners selected", Toast.LENGTH_SHORT).show();
                                 return;
                             }
+                            List<Applicant> losers = new ArrayList<>(result.subList(drawSize, result.size()));
 
                             for (Applicant winner : winners) {
                                 waitlist.removeIf(a -> a.getId().equals(winner.getId()));
@@ -153,6 +154,7 @@ public class WaitListFragment extends Fragment {
 
                             // Responsibility: notify entrants
                             processWinner(winners);
+                            processLosers(losers);
                             Toast.makeText(requireContext(), "Selected " + winners.size() + " winners", Toast.LENGTH_LONG).show();
                         }
 
@@ -169,6 +171,22 @@ public class WaitListFragment extends Fragment {
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(), "Could not parse number", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void processLosers(List<Applicant> losers) {
+        losers.forEach(applicant -> {
+            notificationRepository.addNotification(new Notification(SessionController.getInstance(getContext()).getCurrentUser().getId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+                @Override
+                public void onSendSuccess(Void unused) {
+                    Log.i("Lottery", "notification created for loser");
+                }
+
+                @Override
+                public void onSendFailure(Exception e) {
+                    Log.e("Lottery", "Could not add notification for loser", e);
+                }
+            });
+        });
     }
 
     /**
