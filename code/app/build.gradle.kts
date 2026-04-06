@@ -80,7 +80,6 @@ dependencies {
 
     // Navigation
     implementation(libs.bundles.navigation)
-    implementation(libs.glide)
 
     // Networking / utilities
     implementation(libs.square.okhttp)
