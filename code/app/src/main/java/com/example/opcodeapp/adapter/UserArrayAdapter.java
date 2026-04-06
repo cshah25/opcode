@@ -15,6 +15,9 @@ import com.example.opcodeapp.model.User;
 
 import java.util.List;
 
+/**
+ * Display a list of users
+ */
 public class UserArrayAdapter extends ArrayAdapter<User> {
 
     public UserArrayAdapter(Context context, List<User> users) {

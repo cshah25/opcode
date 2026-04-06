@@ -20,6 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+/**
+ * Array adapter for loading applicant lists
+ */
 public class ApplicantArrayAdapter extends ArrayAdapter<Applicant> {
 
     public ApplicantArrayAdapter(Context context, List<Applicant> items) {

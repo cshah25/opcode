@@ -21,6 +21,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Adapter to show event lists
+ */
 public class EventArrayAdapter extends ArrayAdapter<Event> {
 
     public EventArrayAdapter(Context context, List<Event> events) {

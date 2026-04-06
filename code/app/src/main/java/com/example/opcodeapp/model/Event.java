@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/*
+/**
  * The Event class.
  * Contains all the information about an event.
  */

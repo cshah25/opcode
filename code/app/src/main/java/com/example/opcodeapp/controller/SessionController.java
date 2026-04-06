@@ -70,6 +70,11 @@ public class SessionController {
         });
     }
 
+    /**
+     * get access to the session controller
+     * @param context: use getContext()
+     * @return: the static thing
+     */
     public static SessionController getInstance(Context context) {
 
         if (instance == null) {

@@ -175,7 +175,7 @@ public class WaitListFragment extends Fragment {
 
     private void processLosers(List<Applicant> losers) {
         losers.forEach(applicant -> {
-            notificationRepository.addNotification(new Notification(applicant.getId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+            notificationRepository.addNotification(new Notification(applicant.getUserId(), String.format("You missed the lottery to %s. :(", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
                     Log.i("Lottery", "notification created for loser");
@@ -209,15 +209,15 @@ public class WaitListFragment extends Fragment {
                 }
             });
             // create notification inviting user
-            notificationRepository.addNotification(new Notification(applicant.getId(), String.format("You're invited to %s!", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
+            notificationRepository.addNotification(new Notification(applicant.getUserId(), String.format("You're invited to %s!", event.getName()), event.getId(), "event_detail"), new FirestoreCallbackSend() {
                 @Override
                 public void onSendSuccess(Void unused) {
-                    Log.i("Lottery", "notification created for winner");
+                    Log.i("NotificationWaitlist", "notification created for winner");
                 }
 
                 @Override
                 public void onSendFailure(Exception e) {
-                    Log.e("Lottery", "Could not add notification for winner", e);
+                    Log.e("NotificationWaitlist", "Could not add notification for winner", e);
                 }
             });
         });

@@ -15,6 +15,9 @@ import com.example.opcodeapp.model.Applicant;
 
 import java.util.ArrayList;
 
+/**
+ * Adapter for displaying list of invited users
+ */
 public class InvitedUserArrayAdapter extends ArrayAdapter<Applicant> {
 
     public InvitedUserArrayAdapter(Context context, ArrayList<Applicant> users) {

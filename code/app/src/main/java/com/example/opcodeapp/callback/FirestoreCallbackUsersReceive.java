@@ -6,6 +6,9 @@ import com.example.opcodeapp.model.User;
 
 import java.util.List;
 
+/**
+ * Callback to get a list of users
+ */
 public interface FirestoreCallbackUsersReceive {
 
     void onDataReceived(List<User> items);
